@@ -1,0 +1,2071 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1A56A0">
+<title>Chương 4. Năng lượng — Công — Công suất — Vật lý 11</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [["$","$"]], displayMath: [["$$","$$"]] }, options: { skipHtmlTags: ["script","noscript","style","textarea"] }, startup: { typeset: false } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+  /* ── reset & base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #F5F7FA;
+    color: #1a1a1a;
+    min-height: 100vh;
+  }
+
+  /* ── layout ── */
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 16px;
+    min-height: 100vh;
+  }
+
+  /* ── screens ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── cards ── */
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid #E8ECF2;
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+
+  /* ── buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 11px 20px;
+    border-radius: 10px;
+    border: 1px solid #D0D7E3;
+    background: #fff;
+    color: #1a1a1a;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: #1A56A0; color: #fff; border-color: #1A56A0; }
+  .btn-primary:active { background: #154a8e; }
+  .btn-green { background: #1D7A4F; color: #fff; border-color: #1D7A4F; }
+  .btn-block { width: 100%; }
+
+  /* ── inputs ── */
+  .input-field {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #D0D7E3;
+    border-radius: 10px;
+    font-size: 15px;
+    background: #fff;
+    color: #1a1a1a;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .input-field:focus {
+    border-color: #1A56A0;
+    box-shadow: 0 0 0 3px rgba(26,86,160,.12);
+  }
+  .input-label {
+    display: block;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 7px;
+    font-weight: 500;
+  }
+  .input-group { margin-bottom: 14px; }
+
+  /* ── progress ── */
+  .progress-bar {
+    height: 5px;
+    background: #E8ECF2;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #1A56A0;
+    border-radius: 3px;
+    transition: width .3s ease;
+  }
+
+  /* ── top bar ── */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .top-bar span { font-size: 13px; color: #666; font-weight: 500; }
+
+  /* ── choice buttons ── */
+  .choice-btn {
+    width: 100%;
+    text-align: left;
+    padding: 13px 16px;
+    border: 1px solid #E0E6EF;
+    border-radius: 10px;
+    background: #fff;
+    color: #1a1a1a;
+    font-size: 14.5px;
+    margin-bottom: 9px;
+    cursor: pointer;
+    transition: background .12s, border-color .12s;
+    -webkit-tap-highlight-color: transparent;
+    line-height: 1.5;
+  }
+  .choice-btn:active { background: #F0F4FB; }
+  .choice-btn.selected {
+    background: #EBF2FB;
+    border-color: #1A56A0;
+    color: #0C447C;
+    font-weight: 500;
+  }
+  .choice-letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #F0F4FB;
+    color: #555;
+    font-size: 13px;
+    font-weight: 600;
+    margin-right: 10px;
+    flex-shrink: 0;
+    vertical-align: middle;
+  }
+  .choice-btn.selected .choice-letter {
+    background: #1A56A0;
+    color: #fff;
+  }
+
+  /* ── tags ── */
+  .tag {
+    display: inline-block;
+    font-size: 11.5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  /* ── dot nav ── */
+  .dot-nav { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 14px; }
+  .dot-nav-item {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #F0F4FB;
+    color: #888;
+    border: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .dot-nav-item.current { background: #1A56A0; color: #fff; }
+  .dot-nav-item.answered { background: #D6E4F7; color: #0C447C; }
+
+  /* ── metrics ── */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .metric-card {
+    background: #F5F7FA;
+    border-radius: 10px;
+    padding: 13px 10px;
+    text-align: center;
+  }
+  .metric-label { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .metric-value { font-size: 20px; font-weight: 600; color: #1a1a1a; }
+
+  /* ── score circle ── */
+  .score-wrap { text-align: center; margin-bottom: 20px; }
+  .score-circle {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    border: 3px solid #1A56A0;
+    background: #EBF2FB;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+  }
+  .score-circle-num { font-size: 30px; font-weight: 700; color: #0C447C; line-height: 1; }
+  .score-circle-denom { font-size: 12px; color: #1A56A0; }
+
+  /* ── bar chart ── */
+  .bar-row { margin-bottom: 13px; }
+  .bar-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+  .bar-track {
+    background: #EEF1F7;
+    border-radius: 5px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .bar-fill { height: 100%; border-radius: 5px; transition: width .5s ease; }
+
+  /* ── notice boxes ── */
+  .notice {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 14px;
+    line-height: 1.6;
+  }
+  .notice-info { background: #EBF2FB; color: #0C447C; border: 1px solid #B5D4F4; }
+  .notice-warn { background: #FFF6E0; color: #7A4A0A; border: 1px solid #FAC775; }
+  .notice-success { background: #E6F4EE; color: #1D5C3B; border: 1px solid #9FE1CB; }
+  .notice-error { background: #FDEAEA; color: #7A1F1F; border: 1px solid #F09595; }
+
+  /* ── step list ── */
+  .step-list { display: flex; flex-direction: column; gap: 13px; }
+  .step-item { display: flex; gap: 12px; align-items: flex-start; }
+  .step-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: #1A56A0;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-text { font-size: 14px; line-height: 1.65; color: #333; padding-top: 3px; }
+  .step-text a { color: #1A56A0; }
+  .step-text code {
+    background: #F0F4FB;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 12px;
+    font-family: monospace;
+  }
+
+  /* ── spinner ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 48px; height: 48px;
+    border: 3px solid #D6E4F7;
+    border-top-color: #1A56A0;
+    border-radius: 50%;
+    animation: spin .75s linear infinite;
+    margin: 0 auto 20px;
+  }
+
+  /* ── status badge ── */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  /* ── result code ── */
+  .result-code {
+    font-family: monospace;
+    font-size: 14px;
+    letter-spacing: 1.5px;
+    background: #F5F7FA;
+    border-radius: 8px;
+    padding: 12px 14px;
+    word-break: break-all;
+    margin-top: 8px;
+    border: 1px solid #E0E6EF;
+    color: #333;
+  }
+
+  /* ── divider ── */
+  hr { border: none; border-top: 1px solid #EEF1F7; margin: 14px 0; }
+
+  /* ── detail rows ── */
+  .detail-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #F0F4FB;
+    font-size: 13px;
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-icon {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── plan row ── */
+  .plan-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 11px 0;
+    border-bottom: 1px solid #F0F4FB;
+  }
+  .plan-row:last-child { border-bottom: none; }
+  .plan-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── modal đặt tên file PDF ── */
+  .pdf-modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999; padding: 20px;
+  }
+  .pdf-modal {
+    background: #fff; border-radius: 16px;
+    padding: 24px; width: 100%; max-width: 360px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  }
+  .pdf-modal-title {
+    font-size: 16px; font-weight: 600; margin-bottom: 6px; color: #1a1a1a;
+  }
+  .pdf-modal-sub {
+    font-size: 12px; color: #888; margin-bottom: 16px; line-height: 1.5;
+  }
+  .pdf-filename-wrap {
+    display: flex; align-items: center;
+    border: 1.5px solid #1A56A0; border-radius: 10px; overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .pdf-filename-wrap input {
+    flex: 1; padding: 10px 12px; border: none; outline: none;
+    font-size: 14px; background: #fff; color: #1a1a1a;
+  }
+  .pdf-ext {
+    padding: 10px 12px; background: #F0F4FB;
+    font-size: 13px; color: #1A56A0; font-weight: 600; flex-shrink: 0;
+  }
+  .pdf-modal-btns { display: flex; gap: 10px; }
+
+  /* ── accordion detail ── */
+  .detail-accordion { border-radius: 10px; overflow: hidden; border: 1px solid #E8ECF2; margin-bottom: 0; }
+  .detail-expand { background: #F8FAFD; }
+
+  /* ── MathJax SVG overrides ── */
+  mjx-container { overflow-x: auto; max-width: 100%; }
+  mjx-container svg { max-width: 100%; }
+
+  /* ── misc ── */
+  .page-title { font-size: 19px; font-weight: 700; margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: #888; }
+  .section-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 12px;
+  }
+  .flex-row { display: flex; gap: 10px; }
+  .flex-1 { flex: 1; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .text-center { text-align: center; }
+  .mt-4 { margin-top: 4px; }
+  .mt-8 { margin-top: 8px; }
+  .mt-14 { margin-top: 14px; }
+  .mt-20 { margin-top: 20px; }
+  .mb-4 { margin-bottom: 4px; }
+  .mb-8 { margin-bottom: 8px; }
+  .mb-12 { margin-bottom: 12px; }
+  .mb-16 { margin-bottom: 16px; }
+  .icon-wrap {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: #EBF2FB;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 0: SETUP (Giáo viên cài đặt 1 lần)
+═══════════════════════════════════════════════ -->
+<div id="s-setup" class="screen">
+  <div class="icon-wrap mt-20">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1A56A0" stroke-width="2.2">
+      <rect x="3" y="3" width="18" height="18" rx="2.5"/>
+      <path d="M3 9h18M9 21V9"/>
+    </svg>
+  </div>
+  <div class="text-center mb-16">
+    <div class="page-title">Cài đặt Google Sheets</div>
+    <div class="page-sub">Dành cho giáo viên · Chỉ làm 1 lần duy nhất</div>
+  </div>
+
+  <div class="card">
+    <div class="section-label mb-12">Các bước thực hiện</div>
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-text">Mở <a href="https://sheets.new" target="_blank">sheets.new</a> → đặt tên file <strong>"Kết quả kiểm tra"</strong></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-text">Vào menu <code>Extensions</code> → <code>Apps Script</code> → xoá code cũ → dán toàn bộ nội dung file <strong>google_apps_script.js</strong> vào → nhấn Save</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-text">Nhấn <code>Deploy</code> → <code>New deployment</code> → chọn <strong>Web app</strong> → <em>Execute as: Me</em> → <em>Who has access: Anyone</em> → <code>Deploy</code></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-text">Copy URL deployment (dạng <em>https://script.google.com/macros/s/…/exec</em>) → dán vào ô bên dưới</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="input-group">
+      <label class="input-label">URL Google Apps Script</label>
+      <input class="input-field" type="url" id="inp-url"
+        placeholder="https://script.google.com/macros/s/AKfy.../exec"/>
+    </div>
+    <div class="flex-row">
+      <button class="btn btn-primary flex-1" onclick="saveUrl()">Lưu &amp; Kiểm tra kết nối</button>
+    </div>
+    <div id="conn-status" style="display:none;margin-top:10px;font-size:13px;padding:10px 14px;border-radius:8px"></div>
+  </div>
+
+  <div class="notice notice-success" style="margin-top:4px">
+    <strong>Chia sẻ file HTML cho học sinh qua Zalo:</strong><br>
+    Zalo → Nhóm lớp → nhấn biểu tượng <strong>File</strong> (📎) → chọn file HTML → Gửi.<br>
+    HS nhận file → nhấn giữ → chọn <strong>"Mở bằng trình duyệt"</strong> (Chrome/Safari) → làm bài bình thường.
+  </div>
+  <div class="flex-row" style="margin-top:4px">
+    <button class="btn flex-1" onclick="showScreen('s-login')" style="color:#888">Bỏ qua →</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 1: LOGIN
+═══════════════════════════════════════════════ -->
+<div id="s-login" class="screen">
+  <div class="icon-wrap mt-20">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1A56A0" stroke-width="2.2">
+      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+    </svg>
+  </div>
+  <div class="text-center mb-16">
+    <div class="page-title">Kiểm tra chẩn đoán</div>
+    <div class="page-sub">Vật lý 11 · Chương 4 · 50 câu · ~35 phút</div>
+    <div id="sheets-badge" style="display:none;margin-top:10px">
+      <span class="status-badge" style="background:#E6F4EE;color:#1D5C3B;border:1px solid #9FE1CB">
+        <span class="status-dot" style="background:#1D7A4F"></span>
+        Kết nối Google Sheets
+      </span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="input-group">
+      <label class="input-label">Họ và tên</label>
+      <input class="input-field" type="text" id="inp-name" placeholder="Nguyễn Văn An" autocomplete="name"/>
+    </div>
+    <div class="input-group mb-4">
+      <label class="input-label">Lớp</label>
+      <input class="input-field" type="text" id="inp-class" placeholder="11A1"/>
+    </div>
+  </div>
+
+  <div class="notice notice-warn">
+    Mỗi câu chỉ có 1 đáp án đúng. Bạn có thể quay lại sửa câu trước. Không giới hạn thời gian.
+  </div>
+
+  <button class="btn btn-primary btn-block" style="padding:14px;font-size:16px" onclick="startTest()">
+    Bắt đầu làm bài →
+  </button>
+
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 2: TEST
+═══════════════════════════════════════════════ -->
+<div id="s-test" class="screen">
+  <div class="top-bar">
+    <span id="q-counter">Câu 1 / 100</span>
+    <span id="timer" style="font-variant-numeric:tabular-nums">0:00</span>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress" style="width:5%"></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
+      <span id="q-topic" class="tag"></span>
+      <span id="q-level" class="tag"></span>
+    </div>
+    <p id="q-text" style="font-size:15.5px;font-weight:500;line-height:1.7;margin-bottom:18px"></p>
+    <div id="choices"></div>
+  </div>
+
+  <div class="flex-row mb-12">
+    <button class="btn flex-1" id="btn-prev" onclick="prevQ()">← Câu trước</button>
+    <button class="btn btn-primary" id="btn-next" onclick="nextQ()"
+      style="flex:1.8;padding:11px 16px">Câu tiếp →</button>
+  </div>
+
+  <div class="dot-nav" id="dot-nav"></div>
+</div>
+
+
+<div id="s-submitting" style="display:none"></div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 4: RESULT
+═══════════════════════════════════════════════ -->
+<div id="s-result" class="screen">
+
+  <div class="score-wrap mt-20">
+    <div class="score-circle">
+      <div class="score-circle-num" id="score-num"></div>
+      <div class="score-circle-denom" id="score-denom">/10</div>
+      <div id="score-raw" style="font-size:10px;color:#888;margin-top:2px"></div>
+    </div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:6px" id="result-name"></div>
+    <div id="result-grade-badge"></div>
+    <div id="sheets-sent-badge" style="display:none;margin-top:8px">
+      <span class="status-badge" style="background:#E6F4EE;color:#1D5C3B;border:1px solid #9FE1CB">
+        <span class="status-dot" style="background:#1D7A4F"></span>
+        Đã gửi kết quả đến giáo viên
+      </span>
+    </div>
+    <div id="sheets-fail-badge" style="display:none;margin-top:8px">
+      <span class="status-badge" style="background:#FFF6E0;color:#7A4A0A;border:1px solid #FAC775">
+        <span class="status-dot" style="background:#EF9F27"></span>
+        Chưa gửi được — xem mã kết quả bên dưới
+      </span>
+    </div>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">Điểm số</div>
+      <div class="metric-value" id="m-score"></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Tỉ lệ đúng</div>
+      <div class="metric-value" id="m-pct"></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Thời gian</div>
+      <div class="metric-value" id="m-time"></div>
+    </div>
+  </div>
+
+  <!-- Topic bars -->
+  <div class="card">
+    <div class="section-label mb-12">Tỉ lệ đúng theo chủ đề</div>
+    <div id="topic-bars"></div>
+  </div>
+
+  <!-- Level bars -->
+  <div class="card">
+    <div class="section-label mb-12">Tỉ lệ đúng theo mức độ</div>
+    <div id="level-bars"></div>
+  </div>
+
+  <!-- Detail per question -->
+  <div class="card">
+    <div class="section-label mb-12">Chi tiết từng câu</div>
+    <div id="detail-rows"></div>
+  </div>
+
+  <!-- Remediation plan -->
+  <div class="card" id="plan-card">
+    <div class="section-label mb-12">Kế hoạch bổ trợ cho bạn</div>
+    <div id="plan-rows"></div>
+  </div>
+
+  <!-- Fallback result code -->
+  <div class="card" id="code-block" style="display:none;border-color:#FAC775">
+    <div class="section-label mb-4" style="color:#7A4A0A">Mã kết quả (báo hoặc chụp màn hình gửi GV)</div>
+    <div class="result-code" id="result-code"></div>
+    <div style="font-size:12px;color:#888;margin-top:8px">
+      GV dán mã này vào file Excel để giải mã tự động
+    </div>
+  </div>
+
+  <button class="btn btn-green btn-block" id="btn-save-pdf"
+    style="padding:13px;font-size:15px;margin-bottom:12px;display:none"
+    onclick="savePDF()">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Lưu kế hoạch bổ trợ (HTML)
+  </button>
+  <button class="btn btn-block" style="padding:13px;font-size:15px;margin-bottom:30px" onclick="restart()">
+    Làm lại từ đầu
+  </button>
+
+</div>
+<!-- ══ Modal đặt tên file PDF ══ -->
+<div id="pdf-name-modal" style="display:none" class="pdf-modal-overlay" onclick="closePDFModal(event)">
+  <div class="pdf-modal">
+    <div class="pdf-modal-title">Đặt tên file PDF</div>
+    <div class="pdf-modal-sub">Tên file sẽ được lưu về máy. Bạn có thể đổi tên tuỳ ý.</div>
+    <div class="pdf-filename-wrap">
+      <input type="text" id="pdf-filename-input" placeholder="ke_hoach_bo_tro" maxlength="80"
+        onkeydown="if(event.key==='Enter') confirmSavePDF()"
+        oninput="this.value=this.value.replace(/[\\/:*?&quot;&lt;&gt;|]/g,'_')"/>
+      <span class="pdf-ext">.html</span>
+    </div>
+    <div class="pdf-modal-btns">
+      <button class="btn flex-1" onclick="closePDFModal(null)" style="color:#888">Huỷ</button>
+      <button class="btn btn-green flex-1" onclick="confirmSavePDF()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Tải về
+      </button>
+    </div>
+  </div>
+</div>
+
+</div><!-- .wrap -->
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════ */
+var QS = 
+[
+  {
+    "id": 1,
+    "text": "Năng lượng là đại lượng có tính chất nào sau đây?",
+    "topic": "Năng lượng",
+    "level": "NB",
+    "choices": [
+      "Là đại lượng có hướng",
+      "Là đại lượng vô hướng, có thể âm dương hoặc bằng 0",
+      "Chỉ tồn tại ở dạng cơ năng",
+      "Luôn dương và có đơn vị là N"
+    ],
+    "ans": 1,
+    "explain": "Năng lượng là <b>đại lượng vô hướng</b>, có thể tồn tại ở nhiều dạng (cơ năng, nhiệt năng, hóa năng...) và đơn vị là J."
+  },
+  {
+    "id": 2,
+    "text": "Phát biểu nào sau đây đúng về Định luật Bảo toàn Năng lượng?",
+    "topic": "Năng lượng",
+    "level": "NB",
+    "choices": [
+      "Năng lượng có thể tự sinh ra nhưng không tự mất đi",
+      "Năng lượng không tự sinh ra và không tự mất đi, chỉ chuyển hóa từ dạng này sang dạng khác",
+      "Tổng năng lượng của một vật luôn không đổi",
+      "Năng lượng chỉ bảo toàn trong hệ kín"
+    ],
+    "ans": 1,
+    "explain": "Định luật BTNL: <b>Năng lượng không tự sinh ra và không tự mất đi</b>, chỉ chuyển hóa từ dạng này sang dạng khác hoặc truyền từ vật này sang vật khác."
+  },
+  {
+    "id": 3,
+    "text": "Khi bật đèn điện, sự chuyển hóa năng lượng nào xảy ra?",
+    "topic": "Năng lượng",
+    "level": "TH",
+    "choices": [
+      "Quang năng → điện năng",
+      "Điện năng → quang năng + nhiệt năng",
+      "Nhiệt năng → điện năng",
+      "Hóa năng → quang năng"
+    ],
+    "ans": 1,
+    "explain": "Đèn điện chuyển <b>điện năng</b> thành <b>quang năng</b> (ánh sáng) và <b>nhiệt năng</b> (tỏa nhiệt). Đây là ví dụ điển hình của sự chuyển hóa năng lượng."
+  },
+  {
+    "id": 4,
+    "text": "Đơn vị nào sau đây KHÔNG phải là đơn vị của năng lượng?",
+    "topic": "Năng lượng",
+    "level": "TH",
+    "choices": [
+      "Jun (J)",
+      "Wh (oát giờ)",
+      "kWh",
+      "Newton (N)"
+    ],
+    "ans": 3,
+    "explain": "Newton (N) là đơn vị của <b>lực</b>, không phải năng lượng. Năng lượng có đơn vị: J, kJ, Wh, kWh. Lưu ý: $1\\,\\text{Wh} = 3600\\,\\text{J}$."
+  },
+  {
+    "id": 5,
+    "text": "Một bóng đèn tiêu thụ 100 W trong 2 giờ. Năng lượng điện tiêu thụ bằng bao nhiêu kJ?",
+    "topic": "Năng lượng",
+    "level": "VD",
+    "choices": [
+      "200 kJ",
+      "720 kJ",
+      "7200 kJ",
+      "72 kJ"
+    ],
+    "ans": 1,
+    "explain": "$E = P \\cdot t = 100\\,\\text{W} \\times 2 \\times 3600\\,\\text{s} = 720\\,000\\,\\text{J} = \\mathbf{720\\,\\text{kJ}}$."
+  },
+  {
+    "id": 6,
+    "text": "Lời kêu gọi tiết kiệm điện nhằm mục đích chính là gì theo quan điểm khoa học?",
+    "topic": "Năng lượng",
+    "level": "VDC",
+    "choices": [
+      "Để bảo toàn tổng năng lượng của vũ trụ",
+      "Để tiết kiệm các nguồn năng lượng hóa thạch có hạn và bảo vệ môi trường",
+      "Để tránh năng lượng bị mất đi",
+      "Để giảm bớt chuyển hóa năng lượng trong tự nhiên"
+    ],
+    "ans": 1,
+    "explain": "Tổng năng lượng luôn bảo toàn. Tiết kiệm điện nhằm <b>tiết kiệm nguồn nhiên liệu hóa thạch có hạn</b> (than, dầu...) và giảm ô nhiễm môi trường từ các nhà máy điện."
+  },
+  {
+    "id": 7,
+    "text": "Công thức tính công của lực $\\vec{F}$ tác dụng lên vật di chuyển quãng đường $s$, góc giữa lực và chiều chuyển động là $\\alpha$ là",
+    "topic": "Công cơ học",
+    "level": "NB",
+    "choices": [
+      "$A = Fs$",
+      "$A = Fs\\sin\\alpha$",
+      "$A = Fs\\cos\\alpha$",
+      "$A = F/s\\cos\\alpha$"
+    ],
+    "ans": 2,
+    "explain": "Công thức tính công: $\\boxed{A = Fs\\cos\\alpha}$, trong đó $\\alpha$ là góc hợp bởi hướng lực $\\vec{F}$ và hướng chuyển động."
+  },
+  {
+    "id": 8,
+    "text": "Khi nào lực tác dụng lên vật không sinh công?",
+    "topic": "Công cơ học",
+    "level": "NB",
+    "choices": [
+      "Khi lực vuông góc với chiều chuyển động ($\\alpha = 90°$)",
+      "Khi $\\alpha = 0°$",
+      "Khi lực cùng chiều chuyển động",
+      "Khi vật chuyển động nhanh"
+    ],
+    "ans": 0,
+    "explain": "Khi $\\alpha = 90°$: $A = Fs\\cos 90° = 0$. Lực <b>vuông góc với chiều chuyển động</b> thì không sinh công. Ví dụ: lực pháp tuyến, lực hướng tâm."
+  },
+  {
+    "id": 9,
+    "text": "Công âm (công cản) xảy ra khi",
+    "topic": "Công cơ học",
+    "level": "NB",
+    "choices": [
+      "$0° \\leq \\alpha < 90°$",
+      "$\\alpha = 90°$",
+      "$90° < \\alpha \\leq 180°$",
+      "$\\alpha = 0°$"
+    ],
+    "ans": 2,
+    "explain": "$A < 0$ khi $90° < \\alpha \\leq 180°$ ($\\cos\\alpha < 0$). Đây là <b>công cản</b> — lực ngược chiều chuyển động. Ví dụ: lực ma sát."
+  },
+  {
+    "id": 10,
+    "text": "Một lực sĩ giữ yên quả tạ 50 kg trên đầu trong 10 giây. Công do lực sĩ thực hiện lên quả tạ là",
+    "topic": "Công cơ học",
+    "level": "TH",
+    "choices": [
+      "5000 J",
+      "500 J",
+      "50 J",
+      "0 J"
+    ],
+    "ans": 3,
+    "explain": "Quả tạ <b>không di chuyển</b> (s = 0) nên $A = Fs\\cos\\alpha = 0$. Dù lực sĩ có thể mệt nhưng công cơ học lên quả tạ bằng 0."
+  },
+  {
+    "id": 11,
+    "text": "Một người đẩy thùng hàng 200 N trên sàn phẳng quãng đường 5 m, lực đẩy hợp góc 30° với phương ngang. Công của lực đẩy là",
+    "topic": "Công cơ học",
+    "level": "TH",
+    "choices": [
+      "1000 J",
+      "866 J",
+      "500 J",
+      "173 J"
+    ],
+    "ans": 1,
+    "explain": "$A = Fs\\cos\\alpha = 200 \\times 5 \\times \\cos 30° = 1000 \\times \\frac{\\sqrt{3}}{2} \\approx \\mathbf{866\\,J}$."
+  },
+  {
+    "id": 12,
+    "text": "Nâng vật 10 kg lên cao 2 m (g = 10 m/s²). Công của trọng lực trong quá trình này là",
+    "topic": "Công cơ học",
+    "level": "VD",
+    "choices": [
+      "200 J",
+      "−200 J",
+      "100 J",
+      "−100 J"
+    ],
+    "ans": 1,
+    "explain": "Trọng lực $P = mg = 100\\,\\text{N}$ hướng xuống, chiều dịch chuyển lên trên → $\\alpha = 180°$. $A_P = Ps\\cos180° = 100 \\times 2 \\times (-1) = \\mathbf{-200\\,J}$."
+  },
+  {
+    "id": 13,
+    "text": "Một xe ô tô chuyển động đều trên đường nằm ngang với vận tốc 20 m/s, lực kéo 500 N. Công của lực kéo trong 1 phút là",
+    "topic": "Công cơ học",
+    "level": "VDC",
+    "choices": [
+      "10 000 J",
+      "600 000 J",
+      "10 000 000 J",
+      "500 J"
+    ],
+    "ans": 1,
+    "explain": "Chuyển động đều → $s = vt = 20 \\times 60 = 1200\\,\\text{m}$. $A = Fs\\cos0° = 500 \\times 1200 = \\mathbf{600\\,000\\,J}$."
+  },
+  {
+    "id": 14,
+    "text": "Công suất là đại lượng đặc trưng cho",
+    "topic": "Công suất",
+    "level": "NB",
+    "choices": [
+      "Tổng công thực hiện được",
+      "Tốc độ thực hiện công",
+      "Lực tác dụng lên vật",
+      "Quãng đường vật đi được"
+    ],
+    "ans": 1,
+    "explain": "Công suất đặc trưng cho <b>tốc độ thực hiện công</b>: $P = A/t$ (công thực hiện trong một đơn vị thời gian), đơn vị là W (oát)."
+  },
+  {
+    "id": 15,
+    "text": "Biểu thức nào sau đây là công thức tính công suất tức thời?",
+    "topic": "Công suất",
+    "level": "NB",
+    "choices": [
+      "$P = A \\cdot t$",
+      "$P = F/v$",
+      "$P = F \\cdot v$",
+      "$P = A/t^2$"
+    ],
+    "ans": 2,
+    "explain": "Công suất tức thời: $P = F \\cdot v$ (khi lực cùng chiều chuyển động). Hoặc $P = \\Delta A / \\Delta t$ trong khoảng thời gian rất nhỏ."
+  },
+  {
+    "id": 16,
+    "text": "Một động cơ có công suất 5 kW hoạt động trong 2 giờ. Công do động cơ thực hiện là",
+    "topic": "Công suất",
+    "level": "TH",
+    "choices": [
+      "10 kJ",
+      "36 000 kJ",
+      "36 kJ",
+      "10 000 kJ"
+    ],
+    "ans": 1,
+    "explain": "$A = P \\cdot t = 5000\\,\\text{W} \\times 7200\\,\\text{s} = 36\\,000\\,000\\,\\text{J} = \\mathbf{36\\,000\\,\\text{kJ}}$."
+  },
+  {
+    "id": 17,
+    "text": "Một xe máy chạy đều 72 km/h, lực kéo động cơ 200 N. Công suất của động cơ là",
+    "topic": "Công suất",
+    "level": "TH",
+    "choices": [
+      "1440 W",
+      "14 400 W",
+      "4000 W",
+      "400 W"
+    ],
+    "ans": 2,
+    "explain": "$v = 72\\,\\text{km/h} = 20\\,\\text{m/s}$. $P = Fv = 200 \\times 20 = \\mathbf{4000\\,\\text{W}} = 4\\,\\text{kW}$."
+  },
+  {
+    "id": 18,
+    "text": "Hai động cơ A và B cùng thực hiện 360 kJ công, A mất 2 phút, B mất 3 phút. So sánh công suất?",
+    "topic": "Công suất",
+    "level": "VD",
+    "choices": [
+      "$P_A = P_B$",
+      "$P_A > P_B$, $P_A = 1{}5 P_B$",
+      "$P_B > P_A$",
+      "$P_A = 2P_B$"
+    ],
+    "ans": 1,
+    "explain": "$P_A = 360000/120 = 3000\\,\\text{W}$; $P_B = 360000/180 = 2000\\,\\text{W}$. $P_A/P_B = 3/2 \\Rightarrow P_A = 1{}5 P_B$."
+  },
+  {
+    "id": 19,
+    "text": "Một thang máy nâng 500 kg lên cao 20 m trong 10 s (g = 10 m/s²). Công suất của động cơ thang máy ít nhất bằng",
+    "topic": "Công suất",
+    "level": "VDC",
+    "choices": [
+      "10 000 W",
+      "100 000 W",
+      "1000 W",
+      "50 000 W"
+    ],
+    "ans": 0,
+    "explain": "$A = mgh = 500 \\times 10 \\times 20 = 100\\,000\\,\\text{J}$. $P_{\\min} = A/t = 100000/10 = \\mathbf{10\\,000\\,\\text{W}} = 10\\,\\text{kW}$."
+  },
+  {
+    "id": 20,
+    "text": "Biểu thức nào sau đây là công thức tính động năng của vật khối lượng m chuyển động với vận tốc v?",
+    "topic": "Động năng",
+    "level": "NB",
+    "choices": [
+      "$W_đ = mv$",
+      "$W_đ = \\frac{1}{2}mv$",
+      "$W_đ = \\frac{1}{2}mv^2$",
+      "$W_đ = mv^2$"
+    ],
+    "ans": 2,
+    "explain": "Động năng: $\\boxed{W_đ = \\frac{1}{2}mv^2}$ (J). Động năng luôn $\\geq 0$, phụ thuộc vào khối lượng và <b>bình phương vận tốc</b>."
+  },
+  {
+    "id": 21,
+    "text": "Định lí biến thiên động năng phát biểu rằng",
+    "topic": "Động năng",
+    "level": "NB",
+    "choices": [
+      "Động năng bằng tổng các lực tác dụng",
+      "Công của hợp lực bằng độ biến thiên động năng của vật",
+      "Động năng tỉ lệ thuận với vận tốc",
+      "Công của hợp lực bằng nửa động năng"
+    ],
+    "ans": 1,
+    "explain": "Định lí biến thiên động năng: $A_{hl} = W_{đ2} - W_{đ1} = \\Delta W_đ$. <b>Công của hợp lực bằng độ biến thiên động năng</b>."
+  },
+  {
+    "id": 22,
+    "text": "Vật 2 kg chuyển động với v = 4 m/s. Động năng của vật là",
+    "topic": "Động năng",
+    "level": "TH",
+    "choices": [
+      "8 J",
+      "16 J",
+      "32 J",
+      "4 J"
+    ],
+    "ans": 1,
+    "explain": "$W_đ = \\frac{1}{2}mv^2 = \\frac{1}{2} \\times 2 \\times 4^2 = \\frac{1}{2} \\times 2 \\times 16 = \\mathbf{16\\,J}$."
+  },
+  {
+    "id": 23,
+    "text": "Vận tốc của vật tăng gấp đôi thì động năng thay đổi như thế nào?",
+    "topic": "Động năng",
+    "level": "TH",
+    "choices": [
+      "Tăng gấp đôi",
+      "Tăng gấp 4",
+      "Tăng gấp $\\sqrt{2}$",
+      "Không đổi"
+    ],
+    "ans": 1,
+    "explain": "$W_đ = \\frac{1}{2}mv^2$. Khi $v' = 2v$: $W_đ' = \\frac{1}{2}m(2v)^2 = 4 \\cdot \\frac{1}{2}mv^2 = 4W_đ$. Động năng <b>tăng gấp 4</b>."
+  },
+  {
+    "id": 24,
+    "text": "Xe 1000 kg từ 10 m/s tăng lên 20 m/s. Công của hợp lực tác dụng vào xe là",
+    "topic": "Động năng",
+    "level": "VD",
+    "choices": [
+      "50 000 J",
+      "100 000 J",
+      "150 000 J",
+      "200 000 J"
+    ],
+    "ans": 2,
+    "explain": "$A = \\Delta W_đ = \\frac{1}{2}m(v_2^2-v_1^2) = \\frac{1}{2} \\times 1000 \\times (400-100) = \\mathbf{150\\,000\\,J}$."
+  },
+  {
+    "id": 25,
+    "text": "Phanh xe 800 kg từ 15 m/s đến dừng. Lực hãm 3000 N. Quãng đường phanh là",
+    "topic": "Động năng",
+    "level": "VDC",
+    "choices": [
+      "20 m",
+      "30 m",
+      "40 m",
+      "15 m"
+    ],
+    "ans": 1,
+    "explain": "$A = -Fs = \\Delta W_đ = 0 - \\frac{1}{2} \\times 800 \\times 225 = -90000\\,\\text{J}$. $s = 90000/3000 = \\mathbf{30\\,\\text{m}}$."
+  },
+  {
+    "id": 26,
+    "text": "Thế năng trọng trường của vật khối lượng m ở độ cao h so với mốc thế năng là",
+    "topic": "Thế năng",
+    "level": "NB",
+    "choices": [
+      "$W_t = mgh^2$",
+      "$W_t = mgh$",
+      "$W_t = \\frac{1}{2}mgh$",
+      "$W_t = mg/h$"
+    ],
+    "ans": 1,
+    "explain": "Thế năng trọng trường: $\\boxed{W_t = mgh}$ (J). Phụ thuộc vào <b>mốc thế năng</b> (vị trí chọn h = 0)."
+  },
+  {
+    "id": 27,
+    "text": "Thế năng trọng trường có thể nhận giá trị nào?",
+    "topic": "Thế năng",
+    "level": "NB",
+    "choices": [
+      "Chỉ dương",
+      "Chỉ âm",
+      "Bằng 0",
+      "Có thể âm, dương hoặc bằng 0 tùy mốc tính"
+    ],
+    "ans": 3,
+    "explain": "Thế năng phụ thuộc vào <b>mốc tính</b>. Nếu vật ở dưới mốc → $h < 0$ → $W_t < 0$; trên mốc → $W_t > 0$; tại mốc → $W_t = 0$."
+  },
+  {
+    "id": 28,
+    "text": "Công của trọng lực khi vật chuyển dời có mối liên hệ với thế năng:",
+    "topic": "Thế năng",
+    "level": "TH",
+    "choices": [
+      "$A_P = W_{t2} - W_{t1}$",
+      "$A_P = W_{t1} - W_{t2}$",
+      "$A_P = W_{t1} + W_{t2}$",
+      "$A_P = -W_{t1} \\cdot W_{t2}$"
+    ],
+    "ans": 1,
+    "explain": "Định lí thế năng: $A_P = W_{t1} - W_{t2} = -\\Delta W_t$. Trọng lực sinh công <b>dương</b> khi vật đi xuống (thế năng giảm)."
+  },
+  {
+    "id": 29,
+    "text": "Vật 3 kg ở độ cao 5 m so với mặt đất (g = 10 m/s²). Thế năng trọng trường so với mặt đất là",
+    "topic": "Thế năng",
+    "level": "TH",
+    "choices": [
+      "15 J",
+      "30 J",
+      "150 J",
+      "300 J"
+    ],
+    "ans": 2,
+    "explain": "$W_t = mgh = 3 \\times 10 \\times 5 = \\mathbf{150\\,J}$."
+  },
+  {
+    "id": 30,
+    "text": "Ném vật 0,5 kg lên cao thêm 4 m (g = 10 m/s²). Độ tăng thế năng của vật là",
+    "topic": "Thế năng",
+    "level": "VD",
+    "choices": [
+      "5 J",
+      "10 J",
+      "20 J",
+      "40 J"
+    ],
+    "ans": 2,
+    "explain": "$\\Delta W_t = mg\\Delta h = 0{}5 \\times 10 \\times 4 = \\mathbf{20\\,J}$."
+  },
+  {
+    "id": 31,
+    "text": "Vật 2 kg rơi tự do từ độ cao 10 m (g = 10 m/s²). Khi vật ở độ cao 4 m, công của trọng lực từ lúc thả đến lúc đó là",
+    "topic": "Thế năng",
+    "level": "VDC",
+    "choices": [
+      "40 J",
+      "80 J",
+      "120 J",
+      "160 J"
+    ],
+    "ans": 2,
+    "explain": "$A_P = mg \\cdot \\Delta h = 2 \\times 10 \\times (10-4) = \\mathbf{120\\,J}$."
+  },
+  {
+    "id": 32,
+    "text": "Cơ năng của vật là",
+    "topic": "Cơ năng",
+    "level": "NB",
+    "choices": [
+      "Chỉ động năng của vật",
+      "Chỉ thế năng của vật",
+      "Tổng động năng và thế năng của vật",
+      "Hiệu của động năng và thế năng"
+    ],
+    "ans": 2,
+    "explain": "$W = W_đ + W_t = \\frac{1}{2}mv^2 + mgh$. <b>Cơ năng là tổng động năng và thế năng</b>."
+  },
+  {
+    "id": 33,
+    "text": "Định luật bảo toàn cơ năng áp dụng khi",
+    "topic": "Cơ năng",
+    "level": "NB",
+    "choices": [
+      "Luôn luôn",
+      "Chỉ có lực hấp dẫn tác dụng (không có ma sát hay lực cản)",
+      "Khi vật chuyển động nhanh",
+      "Khi vật đứng yên"
+    ],
+    "ans": 1,
+    "explain": "Cơ năng bảo toàn khi <b>chỉ có lực thế (lực bảo toàn) tác dụng</b> — không có ma sát hay lực cản. $W = \\text{const}$."
+  },
+  {
+    "id": 34,
+    "text": "Con lắc đơn dao động không có ma sát. Tại vị trí nào động năng lớn nhất?",
+    "topic": "Cơ năng",
+    "level": "TH",
+    "choices": [
+      "Tại vị trí cao nhất",
+      "Tại vị trí thấp nhất (VTCB)",
+      "Ở giữa đường đi",
+      "Tại mọi vị trí như nhau"
+    ],
+    "ans": 1,
+    "explain": "Tại <b>VTCB (thấp nhất)</b>, thế năng nhỏ nhất → động năng lớn nhất (bảo toàn cơ năng). Tại vị trí cao nhất: dừng lại, $W_đ = 0$."
+  },
+  {
+    "id": 35,
+    "text": "Vật ném từ trên xuống (bỏ qua sức cản). Trong quá trình rơi:",
+    "topic": "Cơ năng",
+    "level": "TH",
+    "choices": [
+      "Động năng tăng, thế năng tăng",
+      "Động năng tăng, thế năng giảm, cơ năng không đổi",
+      "Cả hai đều giảm",
+      "Cơ năng tăng"
+    ],
+    "ans": 1,
+    "explain": "Vật rơi: $h$ giảm → $W_t = mgh$ giảm; $v$ tăng → $W_đ = \\frac{1}{2}mv^2$ tăng. Cơ năng $W = W_đ + W_t = \\text{const}$ (không có ma sát)."
+  },
+  {
+    "id": 36,
+    "text": "Vật 2 kg ở độ cao 5 m có vận tốc 4 m/s (g = 10 m/s²). Cơ năng của vật là",
+    "topic": "Cơ năng",
+    "level": "VD",
+    "choices": [
+      "100 J",
+      "116 J",
+      "84 J",
+      "200 J"
+    ],
+    "ans": 1,
+    "explain": "$W = W_đ + W_t = \\frac{1}{2} \\times 2 \\times 16 + 2 \\times 10 \\times 5 = 16 + 100 = \\mathbf{116\\,J}$."
+  },
+  {
+    "id": 37,
+    "text": "Vật rơi tự do từ độ cao 20 m (g = 10 m/s²). Vận tốc của vật khi chạm đất là",
+    "topic": "Cơ năng",
+    "level": "VD",
+    "choices": [
+      "10 m/s",
+      "14 m/s",
+      "20 m/s",
+      "40 m/s"
+    ],
+    "ans": 2,
+    "explain": "Bảo toàn cơ năng: $mgh = \\frac{1}{2}mv^2 \\Rightarrow v = \\sqrt{2gh} = \\sqrt{2 \\times 10 \\times 20} = \\sqrt{400} = \\mathbf{20\\,m/s}$."
+  },
+  {
+    "id": 38,
+    "text": "Con lắc đơn dài 1 m, thả từ góc 60° so với phương thẳng đứng (g = 10 m/s²). Tốc độ tại VTCB là",
+    "topic": "Cơ năng",
+    "level": "VDC",
+    "choices": [
+      "$\\sqrt{10}$ m/s",
+      "$\\sqrt{5}$ m/s",
+      "$2\\sqrt{5}$ m/s",
+      "$\\sqrt{20}$ m/s"
+    ],
+    "ans": 0,
+    "explain": "$h = l(1-\\cos60°) = 1 \\times 0{}5 = 0{}5\\,\\text{m}$. Bảo toàn cơ năng: $v = \\sqrt{2gh} = \\sqrt{2 \\times 10 \\times 0{}5} = \\sqrt{10} \\approx 3{}16\\,\\text{m/s}$."
+  },
+  {
+    "id": 39,
+    "text": "Hiệu suất $H$ của một thiết bị được tính bằng",
+    "topic": "Hiệu suất",
+    "level": "NB",
+    "choices": [
+      "$H = W_{\\text{có ích}} \\times W_{\\text{toàn phần}}$",
+      "$H = W_{\\text{toàn phần}} / W_{\\text{có ích}}$",
+      "$H = W_{\\text{có ích}} / W_{\\text{toàn phần}}$",
+      "$H = W_{\\text{hao phí}} / W_{\\text{toàn phần}}$"
+    ],
+    "ans": 2,
+    "explain": "$H = \\dfrac{W_{\\text{có ích}}}{W_{\\text{toàn phần}}} = \\dfrac{W_{\\text{có ích}}}{W_{\\text{có ích}} + W_{\\text{hao phí}}}$. Hiệu suất luôn $0 < H \\leq 1$ (hay $0\\% < H \\leq 100\\%$)."
+  },
+  {
+    "id": 40,
+    "text": "Động cơ tiêu thụ 500 J để nâng vật lên, trong đó 150 J bị hao phí. Hiệu suất là",
+    "topic": "Hiệu suất",
+    "level": "TH",
+    "choices": [
+      "30%",
+      "70%",
+      "150%",
+      "50%"
+    ],
+    "ans": 1,
+    "explain": "$W_{\\text{có ích}} = 500 - 150 = 350\\,\\text{J}$. $H = 350/500 = 0{}7 = \\mathbf{70\\%}$."
+  },
+  {
+    "id": 41,
+    "text": "Máy bơm hiệu suất 80%, công suất 2 kW. Công suất có ích để bơm nước là",
+    "topic": "Hiệu suất",
+    "level": "VD",
+    "choices": [
+      "1600 W",
+      "2500 W",
+      "400 W",
+      "800 W"
+    ],
+    "ans": 0,
+    "explain": "$P_{\\text{có ích}} = H \\times P_{\\text{toàn phần}} = 0{}8 \\times 2000 = \\mathbf{1600\\,\\text{W}}$."
+  },
+  {
+    "id": 42,
+    "text": "Máy nâng hiệu suất 75% nâng 200 kg lên 10 m trong 20 s (g = 10 m/s²). Công suất của động cơ là",
+    "topic": "Hiệu suất",
+    "level": "VDC",
+    "choices": [
+      "1000 W",
+      "1333 W",
+      "1500 W",
+      "2000 W"
+    ],
+    "ans": 1,
+    "explain": "$P_{\\text{có ích}} = mgh/t = 200 \\times 10 \\times 10/20 = 1000\\,\\text{W}$. $P_{\\text{động cơ}} = P_{\\text{có ích}}/H = 1000/0{}75 \\approx \\mathbf{1333\\,\\text{W}}$."
+  },
+  {
+    "id": 43,
+    "text": "Moment của lực đối với trục quay là đại lượng đặc trưng cho",
+    "topic": "Moment lực & Ngẫu lực",
+    "level": "NB",
+    "choices": [
+      "Độ lớn của lực",
+      "Tác dụng làm quay của lực quanh trục",
+      "Vận tốc quay của vật",
+      "Quãng đường vật quay được"
+    ],
+    "ans": 1,
+    "explain": "Moment lực đặc trưng cho <b>tác dụng làm quay</b> của lực: $M = F \\cdot d$, với $d$ là cánh tay đòn (khoảng cách từ trục quay đến giá của lực)."
+  },
+  {
+    "id": 44,
+    "text": "Cánh tay đòn của lực là",
+    "topic": "Moment lực & Ngẫu lực",
+    "level": "NB",
+    "choices": [
+      "Độ dài của cánh tay",
+      "Khoảng cách từ trục quay đến điểm đặt lực",
+      "Khoảng cách từ trục quay đến giá của lực (vuông góc)",
+      "Góc hợp bởi lực và trục quay"
+    ],
+    "ans": 2,
+    "explain": "Cánh tay đòn $d$ là <b>khoảng cách vuông góc từ trục quay đến giá (đường tác dụng) của lực</b> — không phải đến điểm đặt lực."
+  },
+  {
+    "id": 45,
+    "text": "Ngẫu lực là",
+    "topic": "Moment lực & Ngẫu lực",
+    "level": "NB",
+    "choices": [
+      "Hai lực song song, cùng chiều, cùng độ lớn",
+      "Hai lực song song, ngược chiều, cùng độ lớn tác dụng vào một vật",
+      "Một lực lớn tác dụng vào vật",
+      "Hai lực vuông góc tác dụng vào vật"
+    ],
+    "ans": 1,
+    "explain": "Ngẫu lực: <b>hai lực song song, ngược chiều, cùng độ lớn, tác dụng vào một vật</b>. Ngẫu lực gây ra tác dụng quay, không tịnh tiến."
+  },
+  {
+    "id": 46,
+    "text": "Điều kiện cân bằng của vật rắn có trục quay cố định là",
+    "topic": "Moment lực & Ngẫu lực",
+    "level": "TH",
+    "choices": [
+      "Tổng tất cả các lực bằng 0",
+      "Tổng moment theo chiều thuận = tổng moment theo chiều ngược (tổng moment = 0)",
+      "Lực tác dụng phải song song trục quay",
+      "Vật phải đứng yên hoàn toàn"
+    ],
+    "ans": 1,
+    "explain": "Quy tắc moment: $\\sum M = 0$, hay <b>tổng moment thuận = tổng moment ngược chiều kim đồng hồ</b>. Đây là điều kiện cân bằng quay."
+  },
+  {
+    "id": 47,
+    "text": "Lực 10 N tác dụng lên đòn dài, cánh tay đòn 0,3 m. Moment lực là",
+    "topic": "Moment lực & Ngẫu lực",
+    "level": "TH",
+    "choices": [
+      "3 N.m",
+      "30 N.m",
+      "0,3 N.m",
+      "300 N.m"
+    ],
+    "ans": 0,
+    "explain": "$M = F \\cdot d = 10 \\times 0{}3 = \\mathbf{3\\,N.m}$."
+  },
+  {
+    "id": 48,
+    "text": "Đặc điểm quan trọng của moment ngẫu lực là",
+    "topic": "Moment lực & Ngẫu lực",
+    "level": "TH",
+    "choices": [
+      "Phụ thuộc vào vị trí trục quay",
+      "Không phụ thuộc vào vị trí trục quay (vuông góc mặt phẳng ngẫu lực)",
+      "Bằng 0 với mọi trục",
+      "Chỉ tác dụng khi trục quay qua trọng tâm"
+    ],
+    "ans": 1,
+    "explain": "Moment ngẫu lực $M = F \\cdot d$ <b>không phụ thuộc vào vị trí trục quay</b> vuông góc với mặt phẳng chứa ngẫu lực — đây là đặc điểm quan trọng."
+  },
+  {
+    "id": 49,
+    "text": "Một người dùng hai tay vặn vô lăng, mỗi tay tác dụng lực 20 N, cánh tay đòn của ngẫu lực là 0,4 m. Moment ngẫu lực là",
+    "topic": "Moment lực & Ngẫu lực",
+    "level": "VD",
+    "choices": [
+      "8 N.m",
+      "4 N.m",
+      "16 N.m",
+      "40 N.m"
+    ],
+    "ans": 0,
+    "explain": "$M = F \\cdot d = 20 \\times 0{}4 = \\mathbf{8\\,N.m}$. (Lưu ý: $d$ là khoảng cách giữa hai giá của lực, không phải bán kính vô lăng.)"
+  },
+  {
+    "id": 50,
+    "text": "Đòn bẩy dài 2 m, trục quay cách đầu A 0,5 m. Tải trọng 300 N đặt tại A. Lực tối thiểu đặt tại B để cân bằng là",
+    "topic": "Moment lực & Ngẫu lực",
+    "level": "VDC",
+    "choices": [
+      "100 N",
+      "200 N",
+      "300 N",
+      "150 N"
+    ],
+    "ans": 0,
+    "explain": "$d_A = 0{}5\\,\\text{m}$; $d_B = 2 - 0{}5 = 1{}5\\,\\text{m}$. Cân bằng moment: $F_A \\cdot d_A = F_B \\cdot d_B$. $F_B = 300 \\times 0{}5/1{}5 = \\mathbf{100\\,N}$."
+  }
+]
+;
+
+// ── Tên đề: thay đổi cho mỗi chương ──
+var EXAM_NAME = "Chương 4. Năng lượng — Công — Công suất — Vật lý 11";
+
+var TOPICS    = ["Năng lượng", "Công cơ học", "Công suất", "Động năng", "Thế năng", "Cơ năng", "Hiệu suất", "Moment lực & Ngẫu lực"];
+var LEVELS    = ["NB","TH","VD","VDC"];
+var LVL_FULL  = {NB:"Nhận biết",TH:"Thông hiểu",VD:"Vận dụng",VDC:"Vận dụng cao"};
+var TOPIC_CLR = {
+  "Năng lượng":               {bg:"#EBF2FB",text:"#0C447C"},
+  "Công cơ học":              {bg:"#E6F4EE",text:"#1D5C3B"},
+  "Công suất":                {bg:"#FFF6E0",text:"#7A4A0A"},
+  "Động năng":                {bg:"#F9E8F7",text:"#6E1F62"},
+  "Thế năng":                 {bg:"#EDEAFB",text:"#3F35A0"},
+  "Cơ năng":                  {bg:"#FDE8E8",text:"#7A1F1F"},
+  "Hiệu suất":                {bg:"#E8F4FD",text:"#0A4A6E"},
+  "Moment lực & Ngẫu lực":    {bg:"#F0FDE8",text:"#2A5C1A"}
+};
+var LVL_CLR = {
+  NB:  {bg:"#EBF2FB",text:"#0C447C"},
+  TH:  {bg:"#E6F4EE",text:"#1D5C3B"},
+  VD:  {bg:"#FFF6E0",text:"#7A4A0A"},
+  VDC: {bg:"#FDEAEA",text:"#7A1F1F"}
+};
+
+// Kế hoạch bổ trợ chi tiết theo từng chủ đề
+var PLAN = 
+{
+  "Năng lượng": {
+    "formula": "$$E = \\text{const}$$",
+    "notes": [
+      "Vô hướng, đơn vị J",
+      "Nhiều dạng: cơ, nhiệt, hóa, điện...",
+      "Không tự sinh/mất — chỉ chuyển hóa",
+      "$1\\,\\text{Wh}=3600\\,\\text{J}$; $1\\,\\text{cal}=4{}19\\,\\text{J}$"
+    ],
+    "exercises": [
+      "Liệt kê dạng chuyển hóa khi ô tô chạy"
+    ]
+  },
+  "Công cơ học": {
+    "formula": "$$A = Fs\\cos\\alpha$$",
+    "notes": [
+      "$\\alpha<90°$: công phát động; $\\alpha>90°$: công cản",
+      "$\\alpha=90°$: không sinh công (lực pháp tuyến)",
+      "Vật đứng yên: A = 0 dù có lực tác dụng"
+    ],
+    "exercises": [
+      "F=500N, α=30°, s=10m, tính A"
+    ]
+  },
+  "Công suất": {
+    "formula": "$$P = \\frac{A}{t} = Fv \\quad (\\text{W})$$",
+    "notes": [
+      "Đặc trưng tốc độ thực hiện công",
+      "$1\\,\\text{kW}=1000\\,\\text{W}$; $1\\,\\text{HP}\\approx746\\,\\text{W}$",
+      "$P=Fv$ khi lực cùng chiều chuyển động"
+    ],
+    "exercises": [
+      "Xe 60 km/h, lực kéo 300 N → tính P"
+    ]
+  },
+  "Động năng": {
+    "formula": "$$W_đ = \\frac{1}{2}mv^2 \\qquad A_{hl} = \\Delta W_đ$$",
+    "notes": [
+      "Luôn $\\geq 0$; tỉ lệ $v^2$ — v tăng 2× thì $W_đ$ tăng 4×",
+      "Định lí BTĐN: $A_{hl} = W_{đ2} - W_{đ1}$"
+    ],
+    "exercises": [
+      "Xe 1000 kg, $W_đ=125000$ J → tính v"
+    ]
+  },
+  "Thế năng": {
+    "formula": "$$W_t = mgh \\qquad A_P = W_{t1}-W_{t2}$$",
+    "notes": [
+      "Phụ thuộc mốc — có thể âm, dương, bằng 0",
+      "Trọng lực sinh công dương khi vật đi xuống",
+      "$W_{đh}=\\frac{1}{2}k(\\Delta l)^2$"
+    ],
+    "exercises": [
+      "Vật 5kg, h=8m → tính $W_t$ (g=10)"
+    ]
+  },
+  "Cơ năng": {
+    "formula": "$$W = \\frac{1}{2}mv^2 + mgh = \\text{const}$$",
+    "notes": [
+      "Bảo toàn khi chỉ có lực thế (không ma sát)",
+      "Con lắc: VTCB — $W_đ$ max; biên — $W_t$ max",
+      "Khi có ma sát: $W_2 = W_1 - |A_{ms}|$"
+    ],
+    "exercises": [
+      "Con lắc l=2m, α=60°, tính v tại VTCB"
+    ]
+  },
+  "Hiệu suất": {
+    "formula": "$$H = \\frac{W_{ích}}{W_{tp}} = \\frac{P_{ích}}{P_{tp}} < 1$$",
+    "notes": [
+      "$W_{tp} = W_{ích} + W_{hao\\ phí}$",
+      "Luôn < 100% — không có máy hoàn hảo",
+      "Hao phí thường là nhiệt do ma sát"
+    ],
+    "exercises": [
+      "H=60%, bơm 500kg nước lên 8m trong 40s"
+    ]
+  },
+  "Moment lực & Ngẫu lực": {
+    "formula": "$$M = F\\cdot d \\quad (\\text{N.m}) \\qquad \\sum M=0$$",
+    "notes": [
+      "Cánh tay đòn d: khoảng cách ⊥ từ trục → giá lực",
+      "Cân bằng: $\\sum M_{thuận} = \\sum M_{ngược}$",
+      "Ngẫu lực: $M=Fd$ không phụ thuộc trục quay"
+    ],
+    "exercises": [
+      "Đòn 3m, trục giữa, tải 600N đầu A → lực tối thiểu đầu B"
+    ]
+  }
+}
+;
+
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+var studentName = "", curQ = 0;
+var answers = new Array(QS.length).fill(null);
+var timer = 0, timerInt = null;
+var sheetsUrl = "https://script.google.com/macros/s/AKfycbxCaWkqtPLU-ro1z7R-vKRi768bFMpD2EMuNSLhbloh4PaiNW5T2OoyD5fV6y8OAlDK/exec";
+
+// URL đã được cài sẵn — init sẽ chạy sau khi load xong
+
+/* ═══════════════════════════════════════════════════════
+   SETUP
+═══════════════════════════════════════════════════════ */
+function saveUrl() {
+  var url = document.getElementById("inp-url").value.trim();
+  if (!url) { alert("Vui lòng nhập URL Apps Script"); return; }
+  var st = document.getElementById("conn-status");
+  st.style.display = "block";
+  st.className = "notice notice-warn";
+  st.textContent = "Đang kiểm tra kết nối...";
+
+  fetch(url, { method: "GET", mode: "no-cors" })
+    .then(function() {
+      sheetsUrl = url;
+      try { localStorage.setItem("diagnostic_sheets_url", url); } catch(e) {}
+      st.className = "notice notice-success";
+      st.textContent = "Kết nối thành công! Đang chuyển sang giao diện học sinh...";
+      document.getElementById("sheets-badge").style.display = "block";
+      setTimeout(function() { showScreen("s-login"); }, 1400);
+    })
+    .catch(function() {
+      st.className = "notice notice-error";
+      st.textContent = "Không kết nối được. Kiểm tra lại URL và quyền truy cập (Who has access: Anyone).";
+    });
+}
+
+/* ═══════════════════════════════════════════════════════
+   LOGIN → START
+═══════════════════════════════════════════════════════ */
+function startTest() {
+  var nm = document.getElementById("inp-name").value.trim();
+  if (!nm) { document.getElementById("inp-name").focus(); return; }
+  studentName = nm;
+  curQ = 0;
+  answers = new Array(QS.length).fill(null);
+  timer = 0;
+  timerInt = setInterval(function() {
+    timer++;
+    var m = Math.floor(timer / 60), s = timer % 60;
+    document.getElementById("timer").textContent = m + ":" + (s < 10 ? "0" : "") + s;
+  }, 1000);
+  showScreen("s-test");
+  renderQ();
+}
+
+/* ═══════════════════════════════════════════════════════
+   TEST RENDERING
+═══════════════════════════════════════════════════════ */
+function renderQ() {
+  var q = QS[curQ];
+  document.getElementById("q-counter").textContent = "Câu " + (curQ + 1) + " / " + QS.length;
+  document.getElementById("progress").style.width = ((curQ + 1) / QS.length * 100) + "%";
+
+  var tc = TOPIC_CLR[q.topic] || { bg: "#eee", text: "#333" };
+  var tEl = document.getElementById("q-topic");
+  tEl.textContent = q.topic;
+  tEl.style.background = tc.bg;
+  tEl.style.color = tc.text;
+
+  var lc = LVL_CLR[q.level];
+  var lEl = document.getElementById("q-level");
+  lEl.textContent = LVL_FULL[q.level];
+  lEl.style.background = lc.bg;
+  lEl.style.color = lc.text;
+
+  document.getElementById("q-text").textContent = q.text;
+
+  var cd = document.getElementById("choices");
+  cd.innerHTML = "";
+  var letters = ["A", "B", "C", "D"];
+  q.choices.forEach(function(ch, ci) {
+    var b = document.createElement("button");
+    b.className = "choice-btn" + (answers[curQ] === ci ? " selected" : "");
+    b.innerHTML =
+      '<span class="choice-letter">' + letters[ci] + '</span>' + ch;
+    b.onclick = (function(idx) {
+      return function() { answers[curQ] = idx; renderQ(); };
+    })(ci);
+    cd.appendChild(b);
+  });
+
+  var prevBtn = document.getElementById("btn-prev");
+  prevBtn.disabled = curQ === 0;
+  prevBtn.style.opacity = curQ === 0 ? "0.35" : "1";
+  document.getElementById("btn-next").textContent =
+    curQ === QS.length - 1 ? "Nộp bài ✓" : "Câu tiếp →";
+
+  renderDots();
+
+  // MathJax: typeset câu hỏi và các lựa chọn
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([document.getElementById("q-text"), document.getElementById("choices")])
+      .catch(function(e) { console.log(e); });
+  }
+}
+
+function renderDots() {
+  var nav = document.getElementById("dot-nav");
+  nav.innerHTML = "";
+  QS.forEach(function(_, i) {
+    var d = document.createElement("button");
+    d.className = "dot-nav-item" +
+      (i === curQ ? " current" : answers[i] !== null ? " answered" : "");
+    d.textContent = i + 1;
+    d.onclick = (function(idx) { return function() { curQ = idx; renderQ(); }; })(i);
+    nav.appendChild(d);
+  });
+}
+
+function prevQ() { if (curQ > 0) { curQ--; renderQ(); } }
+function nextQ() {
+  if (curQ < QS.length - 1) { curQ++; renderQ(); }
+  else {
+    var missing = answers.filter(function(a) { return a === null; }).length;
+    if (missing > 0 && !confirm("Còn " + missing + " câu chưa trả lời. Vẫn nộp bài?")) return;
+    submitTest();
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   CALCULATE RESULTS
+═══════════════════════════════════════════════════════ */
+function calcResults() {
+  var score = answers.filter(function(a, i) { return a === QS[i].ans; }).length;
+  var pct = Math.round(score / QS.length * 100);
+  var letters = ["A","B","C","D"];
+  var ansLetters = answers.map(function(a) { return a !== null ? letters[a] : "?"; });
+
+  var topicPcts = TOPICS.map(function(t) {
+    var ok = 0, tot = 0;
+    QS.forEach(function(q, i) {
+      if (q.topic === t) { tot++; if (answers[i] === q.ans) ok++; }
+    });
+    return tot ? Math.round(ok / tot * 100) : 0;
+  });
+
+  var levelPcts = LEVELS.map(function(l) {
+    var ok = 0, tot = 0;
+    QS.forEach(function(q, i) {
+      if (q.level === l) { tot++; if (answers[i] === q.ans) ok++; }
+    });
+    return tot ? Math.round(ok / tot * 100) : 0;
+  });
+
+  var grade = pct >= 80 ? "Tốt" : pct >= 65 ? "Khá" : pct >= 50 ? "Trung bình" : "Cần bổ trợ";
+  return { score: score, pct: pct, grade: grade, ansLetters: ansLetters, topicPcts: topicPcts, levelPcts: levelPcts };
+}
+
+/* ═══════════════════════════════════════════════════════
+   SUBMIT
+═══════════════════════════════════════════════════════ */
+function submitTest() {
+  clearInterval(timerInt);
+  var res     = calcResults();
+  var cls     = document.getElementById("inp-class").value.trim();
+  var timeMin = Math.round(timer / 60 * 10) / 10;
+
+  // ── Hiển thị kết quả NGAY — không chờ server ──
+  // Gửi lên Sheets trong nền, không block UI
+  showResult(res, false);   // sentOk=false trước, sẽ cập nhật badge sau
+
+  if (!sheetsUrl) return;
+
+  var params = [
+    "examName="  + encodeURIComponent(EXAM_NAME),
+    "name="      + encodeURIComponent(studentName),
+    "className=" + encodeURIComponent(cls),
+    "score="     + res.score,
+    "pct="       + res.pct,
+    "grade="     + encodeURIComponent(res.grade),
+    "time="      + timeMin,
+    "topicPcts=" + res.topicPcts.join(","),
+    "levelPcts=" + res.levelPcts.join(","),
+    "answers="   + res.ansLetters.join("")
+  ].join("&");
+
+  var fullUrl  = sheetsUrl + "?" + params;
+  var sent     = false;
+
+  function markSent() {
+    if (sent) return;
+    sent = true;
+    // Cập nhật badge "Đã gửi" ngay trên màn hình kết quả
+    var failBadge = document.getElementById("sheets-fail-badge");
+    var sentBadge = document.getElementById("sheets-sent-badge");
+    if (failBadge) failBadge.style.display = "none";
+    if (sentBadge) sentBadge.style.display = "block";
+    // Ẩn mã dự phòng nếu đang hiện
+    var codeBlock = document.getElementById("code-block");
+    if (codeBlock) codeBlock.style.display = "none";
+  }
+
+  function markFailed() {
+    if (sent) return;
+    sent = true;
+    // Giữ nguyên badge fail + mã dự phòng đã hiện sẵn
+  }
+
+  // ── Cách 1: fetch (Chrome, Safari, Android WebView hiện đại) ──
+  if (typeof fetch !== "undefined") {
+    var controller;
+    var fetchTimer;
+    try {
+      controller = new AbortController();
+      fetchTimer = setTimeout(function() { controller.abort(); }, 6000);
+    } catch(e) { controller = null; }
+
+    fetch(fullUrl, {
+      method: "GET",
+      mode:   "no-cors",
+      signal: controller ? controller.signal : undefined
+    })
+    .then(function() { clearTimeout(fetchTimer); markSent(); })
+    .catch(function(e) {
+      clearTimeout(fetchTimer);
+      if (!sent) {
+        // Cách 2: Image pixel (Zalo WebView cũ không có fetch)
+        sendViaImage(fullUrl, markSent, markFailed);
+      }
+    });
+  } else {
+    // Cách 2: Image pixel fallback
+    sendViaImage(fullUrl, markSent, markFailed);
+  }
+}
+
+function sendViaImage(url, onSuccess, onFail) {
+  var img      = new Image();
+  var imgTimer = setTimeout(function() {
+    img.onload = img.onerror = null;
+    onFail();
+  }, 6000);
+
+  img.onload = img.onerror = function() {
+    clearTimeout(imgTimer);
+    onSuccess();
+  };
+  img.src = url;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SHOW RESULT
+═══════════════════════════════════════════════════════ */
+function pctColor(p) {
+  if (p >= 70) return { bg: "#E6F4EE", text: "#1D5C3B", bar: "#1D7A4F" };
+  if (p >= 40) return { bg: "#FFF6E0", text: "#7A4A0A", bar: "#EF9F27" };
+  return { bg: "#FDEAEA", text: "#7A1F1F", bar: "#E24B4A" };
+}
+
+function showResult(res, sentOk) {
+  var score10 = Math.round(res.score / QS.length * 10 * 10) / 10;
+  document.getElementById("score-num").textContent = score10 % 1 === 0 ? score10.toFixed(1) : score10;
+  document.getElementById("score-denom").textContent = "/10";
+  document.getElementById("score-raw").textContent = "(" + res.score + "/" + QS.length + " câu)";
+  document.getElementById("result-name").textContent = studentName;
+
+  var gradeColors = {
+    "Tốt":        { bg: "#E6F4EE", text: "#1D5C3B" },
+    "Khá":        { bg: "#EBF2FB", text: "#0C447C" },
+    "Trung bình": { bg: "#FFF6E0", text: "#7A4A0A" },
+    "Cần bổ trợ": { bg: "#FDEAEA", text: "#7A1F1F" }
+  };
+  var gc = gradeColors[res.grade] || gradeColors["Cần bổ trợ"];
+  document.getElementById("result-grade-badge").innerHTML =
+    '<span style="font-size:13px;padding:4px 14px;border-radius:20px;font-weight:600;background:' +
+    gc.bg + ';color:' + gc.text + ';border:1px solid ' + gc.text + '30">' + res.grade + '</span>';
+
+  if (sentOk && sheetsUrl) {
+    document.getElementById("sheets-sent-badge").style.display = "block";
+  } else if (!sheetsUrl || !sentOk) {
+    document.getElementById("sheets-fail-badge").style.display = "block";
+    document.getElementById("code-block").style.display = "block";
+    var codeParts = [
+      studentName.replace(/[|]/g, "").substring(0, 12),
+      document.getElementById("inp-class").value || "?",
+      res.score,
+      res.pct + "%",
+      res.ansLetters.join("")
+    ];
+    document.getElementById("result-code").textContent = codeParts.join("|");
+  }
+
+  var s10 = Math.round(res.score / QS.length * 10 * 10) / 10;
+  document.getElementById("m-score").textContent = (s10 % 1 === 0 ? s10.toFixed(1) : s10) + " (" + res.score + "/" + QS.length + ")";
+  document.getElementById("m-pct").textContent = res.pct + "%";
+  var m = Math.floor(timer / 60), s = timer % 60;
+  document.getElementById("m-time").textContent = m + ":" + (s < 10 ? "0" : "") + s;
+
+  /* topic bars */
+  var tb = document.getElementById("topic-bars");
+  tb.innerHTML = TOPICS.map(function(t, i) {
+    var p = res.topicPcts[i];
+    var c = pctColor(p);
+    var tc = TOPIC_CLR[t] || { bg: "#eee", text: "#333" };
+    return '<div class="bar-row">' +
+      '<div class="bar-meta">' +
+        '<span class="tag" style="background:' + tc.bg + ';color:' + tc.text + '">' + t + '</span>' +
+        '<span style="font-size:13px;font-weight:600;color:' + c.text + '">' + p + '%</span>' +
+      '</div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + p + '%;background:' + c.bar + '"></div></div>' +
+    '</div>';
+  }).join("");
+
+  /* level bars */
+  var lb = document.getElementById("level-bars");
+  lb.innerHTML = LEVELS.map(function(l, i) {
+    var p = res.levelPcts[i];
+    var c = pctColor(p);
+    var lc = LVL_CLR[l];
+    return '<div class="bar-row">' +
+      '<div class="bar-meta">' +
+        '<span class="tag" style="background:' + lc.bg + ';color:' + lc.text + '">' + LVL_FULL[l] + '</span>' +
+        '<span style="font-size:13px;font-weight:600;color:' + c.text + '">' + p + '%</span>' +
+      '</div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + p + '%;background:' + c.bar + '"></div></div>' +
+    '</div>';
+  }).join("");
+
+  /* ── detail per question: expandable accordion ── */
+  var dr = document.getElementById("detail-rows");
+  var letters = ["A","B","C","D"];
+  dr.innerHTML = QS.map(function(q, i) {
+    var ok = answers[i] === q.ans;
+    var tc = TOPIC_CLR[q.topic] || { bg:"#eee", text:"#333" };
+    var userLetter  = answers[i] !== null ? letters[answers[i]] : "–";
+    var correctLetter = letters[q.ans];
+    var detailId = "detail-expand-" + i;
+    return (
+      '<div style="border-bottom:1px solid #F0F4FB">' +
+        // ── header row (clickable) ──
+        '<div onclick="toggleDetail(' + i + ')" style="display:flex;gap:10px;align-items:center;padding:11px 4px;cursor:pointer;-webkit-tap-highlight-color:transparent">' +
+          '<div style="width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;background:' + (ok?"#E6F4EE":"#FDEAEA") + ';color:' + (ok?"#1D5C3B":"#7A1F1F") + '">' + (ok?"✓":"✗") + '</div>' +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-size:13.5px;font-weight:500;color:#222;line-height:1.5" class="q-preview-' + i + '">' + q.id + '. ' + q.text + '</div>' +
+            (!ok ? '<div style="font-size:12px;color:#7A1F1F;margin-top:3px">Bạn chọn: <b>' + userLetter + '</b> · Đúng: <b>' + correctLetter + '</b></div>' : '<div style="font-size:12px;color:#1D5C3B;margin-top:3px">Đáp án đúng: <b>' + correctLetter + '</b></div>') +
+          '</div>' +
+          '<span class="tag" style="background:' + tc.bg + ';color:' + tc.text + ';flex-shrink:0;font-size:11px">' + q.topic + '</span>' +
+          '<span id="arrow-' + i + '" style="font-size:14px;color:#aaa;flex-shrink:0;transition:transform .2s">▸</span>' +
+        '</div>' +
+        // ── expanded content ──
+        '<div id="' + detailId + '" style="display:none;padding:0 4px 14px 36px">' +
+          // All choices
+          '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">' +
+            q.choices.map(function(ch, ci) {
+              var isCorrect = ci === q.ans;
+              var isUser    = ci === answers[i];
+              var bg  = isCorrect ? "#E6F4EE" : (isUser && !ok ? "#FDEAEA" : "#F8FAFD");
+              var clr = isCorrect ? "#1D5C3B"  : (isUser && !ok ? "#7A1F1F"  : "#555");
+              var brd = isCorrect ? "1.5px solid #9FE1CB" : (isUser && !ok ? "1.5px solid #F09595" : "1px solid #E8ECF2");
+              var prefix = isCorrect ? "✓ " : (isUser && !ok ? "✗ " : "");
+              return '<div style="padding:8px 12px;border-radius:8px;background:' + bg + ';border:' + brd + ';font-size:13px;color:' + clr + ';font-weight:' + (isCorrect?"600":"400") + '">' +
+                '<span style="font-weight:700;margin-right:6px">' + letters[ci] + '.</span>' + prefix + ch + '</div>';
+            }).join("") +
+          '</div>' +
+          // Explanation
+          '<div style="background:#F5F7FA;border-radius:8px;padding:10px 12px;border-left:3px solid #1A56A0">' +
+            '<div style="font-size:11px;font-weight:700;color:#1A56A0;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Giải thích</div>' +
+            '<div style="font-size:13px;color:#333;line-height:1.7" class="explain-' + i + '">' + q.explain + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }).join("");
+
+  // MathJax typeset all question previews and explains after rendering
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([document.getElementById("detail-rows")]).catch(function(e){console.log(e);});
+  }
+
+  /* ── remediation plan: chi tiết ── */
+  var weakTopics = TOPICS.filter(function(_, i) { return res.topicPcts[i] < 60; });
+  var pr = document.getElementById("plan-rows");
+  if (weakTopics.length === 0) {
+    pr.innerHTML = '<div style="text-align:center;padding:12px;font-size:14px;color:#1D7A4F;font-weight:600">Xuất sắc! Bạn đạt yêu cầu ở tất cả chủ đề.</div>';
+  } else {
+    var planHtml = weakTopics.map(function(t) {
+      var tc   = TOPIC_CLR[t] || { bg:"#eee", text:"#333" };
+      var p    = PLAN[t];
+      var wrongQs = QS.filter(function(q, i) { return q.topic === t && answers[i] !== q.ans; });
+      return (
+        '<div style="border-bottom:1px solid #F0F4FB;padding:16px 0">' +
+          // Topic header
+          '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">' +
+            '<div style="width:36px;height:36px;border-radius:50%;background:' + tc.bg + ';color:' + tc.text + ';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">' + t.substring(0,3) + '</div>' +
+            '<div style="font-size:15px;font-weight:700;color:#1a1a1a">' + t + '</div>' +
+            '<span style="font-size:12px;padding:2px 9px;border-radius:10px;background:#FDEAEA;color:#7A1F1F;font-weight:600">' + wrongQs.length + ' câu sai</span>' +
+          '</div>' +
+          // Công thức cần nhớ
+          '<div style="background:#F0F4FB;border-radius:10px;padding:12px 14px;margin-bottom:10px">' +
+            '<div style="font-size:11px;font-weight:700;color:#1A56A0;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Công thức cần nhớ</div>' +
+            '<div class="plan-formula-' + t.replace(/[^a-zA-Z]/g,'') + '">' + p.formula + '</div>' +
+          '</div>' +
+          // Lưu ý
+          '<div style="margin-bottom:10px">' +
+            '<div style="font-size:11px;font-weight:700;color:#555;margin-bottom:7px;text-transform:uppercase;letter-spacing:.05em">Điểm cần chú ý</div>' +
+            '<div style="display:flex;flex-direction:column;gap:5px">' +
+              p.notes.map(function(n) {
+                return '<div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:#333;line-height:1.6">' +
+                  '<span style="color:#1A56A0;flex-shrink:0;font-weight:700;margin-top:1px">•</span>' +
+                  '<span class="plan-note-text">' + n + '</span>' +
+                '</div>';
+              }).join("") +
+            '</div>' +
+          '</div>' +
+          // Bài tập đề nghị
+          '<div style="background:#FFFBF0;border-radius:10px;padding:12px 14px;border:1px solid #FAC77540">' +
+            '<div style="font-size:11px;font-weight:700;color:#7A4A0A;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Bài tập luyện thêm</div>' +
+            '<div style="display:flex;flex-direction:column;gap:7px">' +
+              p.exercises.map(function(ex, ei) {
+                return '<div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:#333;line-height:1.6">' +
+                  '<span style="background:#EF9F27;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px">' + (ei+1) + '</span>' +
+                  '<span class="plan-ex-text">' + ex + '</span>' +
+                '</div>';
+              }).join("") +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join("");
+    pr.innerHTML = planHtml;
+    // Typeset MathJax in plan section
+    if (window.MathJax && MathJax.typesetPromise) {
+      MathJax.typesetPromise([document.getElementById("plan-rows")]).catch(function(e){console.log(e);});
+    }
+  }
+
+  // ── Lưu kết quả vào biến global để doRenderHTML dùng ──
+  window._pdfRes     = res;
+  window._pdfAnswers = answers.slice();
+
+  // ── Hiện nút PDF chỉ khi có chủ đề yếu ──
+  if (weakTopics.length > 0) {
+    document.getElementById("btn-save-pdf").style.display = "flex";
+  }
+
+  showScreen("s-result");
+}
+
+function toggleDetail(i) {
+  var el  = document.getElementById("detail-expand-" + i);
+  var arr = document.getElementById("arrow-" + i);
+  var open = el.style.display === "block";
+  el.style.display = open ? "none" : "block";
+  arr.style.transform = open ? "" : "rotate(90deg)";
+  if (!open && window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([el]).catch(function(e){console.log(e);});
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(function(s) { s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+function restart() {
+  document.getElementById("inp-name").value = "";
+  showScreen("s-login");
+}
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════
+   SAVE PDF
+═══════════════════════════════════════════════════════ */
+function savePDF() {
+  var defaultName = (studentName || "hoc_sinh").replace(/\s+/g, "_")
+    + "_" + EXAM_NAME.replace(/[\s\/\\:*?<>|]+/g, "_");
+  document.getElementById("pdf-filename-input").value = defaultName;
+  document.getElementById("pdf-name-modal").style.display = "flex";
+  setTimeout(function() {
+    var inp = document.getElementById("pdf-filename-input");
+    inp.focus(); inp.select();
+  }, 80);
+}
+
+function closePDFModal(evt) {
+  if (evt && evt.target !== document.getElementById("pdf-name-modal")) return;
+  document.getElementById("pdf-name-modal").style.display = "none";
+}
+
+function confirmSavePDF() {
+  var raw = document.getElementById("pdf-filename-input").value.trim() || "ke_hoach_bo_tro";
+  var filename = raw + ".html";
+  document.getElementById("pdf-name-modal").style.display = "none";
+  doRenderHTML(filename);
+}
+
+function doRenderHTML(filename) {
+  var btn = document.getElementById("btn-save-pdf");
+  btn.disabled = true;
+
+  try {
+    // ── Đóng hết accordion trước khi chụp ──
+    var expandStates = [];
+    document.querySelectorAll('[id^="detail-expand-"]').forEach(function(el, i){
+      expandStates.push({ el: el, display: el.style.display });
+      el.style.display = "none";
+    });
+    var arrowStates = [];
+    document.querySelectorAll('[id^="arrow-"]').forEach(function(el){
+      arrowStates.push({ el: el, transform: el.style.transform });
+      el.style.transform = "";
+    });
+
+    // ── Ẩn các màn hình/nút không cần ──
+    document.querySelectorAll(".screen").forEach(function(s){
+      s.setAttribute("data-save-display", s.style.display);
+      s.style.display = s.id === "s-result" ? "block" : "none";
+    });
+    document.getElementById("btn-save-pdf").style.visibility = "hidden";
+    document.querySelectorAll(".btn-block").forEach(function(b){
+      b.setAttribute("data-save-vis", b.style.visibility);
+      b.style.visibility = "hidden";
+    });
+    document.getElementById("pdf-name-modal").style.display = "none";
+
+    // ── Chụp toàn bộ trang ──
+    var snap = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+
+    // ── Khôi phục trạng thái trang ──
+    expandStates.forEach(function(s){ s.el.style.display = s.display; });
+    arrowStates.forEach(function(s){ s.el.style.transform = s.transform; });
+    document.querySelectorAll(".screen").forEach(function(s){
+      s.style.display = s.getAttribute("data-save-display") || "";
+    });
+    document.getElementById("btn-save-pdf").style.visibility = "";
+    document.querySelectorAll(".btn-block").forEach(function(b){
+      b.style.visibility = b.getAttribute("data-save-vis") || "";
+    });
+
+    // ── Patch CSS cho file lưu ──
+    snap = snap.replace(
+      "</style>",
+      ".screen{display:none!important}#s-result{display:block!important}"
+      + "#btn-save-pdf,.btn-block{display:none!important}"
+      + "#pdf-name-modal{display:none!important}"
+      + "</style>"
+    );
+
+    var blob = new Blob([snap], {type: "text/html;charset=utf-8"});
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 3000);
+
+  } catch(err) {
+    alert("Không tạo được file: " + err.message);
+  }
+
+  btn.disabled = false;
+}
+
+// ── Khởi tạo sau khi tất cả hàm đã định nghĩa ──
+document.getElementById("sheets-badge").style.display = "block";
+showScreen("s-login");
+</script>
+</body>
+</html>
