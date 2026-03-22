@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1A56A0">
+<title>Kiểm tra chẩn đoán — Điện trường Vật lý 11</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [["$","$"]], displayMath: [["$$","$$"]] }, options: { skipHtmlTags: ["script","noscript","style","textarea"] }, startup: { typeset: false } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+  /* ── reset & base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #F5F7FA;
+    color: #1a1a1a;
+    min-height: 100vh;
+  }
+
+  /* ── layout ── */
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 16px;
+    min-height: 100vh;
+  }
+
+  /* ── screens ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── cards ── */
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid #E8ECF2;
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+
+  /* ── buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 11px 20px;
+    border-radius: 10px;
+    border: 1px solid #D0D7E3;
+    background: #fff;
+    color: #1a1a1a;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: #1A56A0; color: #fff; border-color: #1A56A0; }
+  .btn-primary:active { background: #154a8e; }
+  .btn-green { background: #1D7A4F; color: #fff; border-color: #1D7A4F; }
+  .btn-block { width: 100%; }
+
+  /* ── inputs ── */
+  .input-field {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #D0D7E3;
+    border-radius: 10px;
+    font-size: 15px;
+    background: #fff;
+    color: #1a1a1a;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .input-field:focus {
+    border-color: #1A56A0;
+    box-shadow: 0 0 0 3px rgba(26,86,160,.12);
+  }
+  .input-label {
+    display: block;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 7px;
+    font-weight: 500;
+  }
+  .input-group { margin-bottom: 14px; }
+
+  /* ── progress ── */
+  .progress-bar {
+    height: 5px;
+    background: #E8ECF2;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #1A56A0;
+    border-radius: 3px;
+    transition: width .3s ease;
+  }
+
+  /* ── top bar ── */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .top-bar span { font-size: 13px; color: #666; font-weight: 500; }
+
+  /* ── choice buttons ── */
+  .choice-btn {
+    width: 100%;
+    text-align: left;
+    padding: 13px 16px;
+    border: 1px solid #E0E6EF;
+    border-radius: 10px;
+    background: #fff;
+    color: #1a1a1a;
+    font-size: 14.5px;
+    margin-bottom: 9px;
+    cursor: pointer;
+    transition: background .12s, border-color .12s;
+    -webkit-tap-highlight-color: transparent;
+    line-height: 1.5;
+  }
+  .choice-btn:active { background: #F0F4FB; }
+  .choice-btn.selected {
+    background: #EBF2FB;
+    border-color: #1A56A0;
+    color: #0C447C;
+    font-weight: 500;
+  }
+  .choice-letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #F0F4FB;
+    color: #555;
+    font-size: 13px;
+    font-weight: 600;
+    margin-right: 10px;
+    flex-shrink: 0;
+    vertical-align: middle;
+  }
+  .choice-btn.selected .choice-letter {
+    background: #1A56A0;
+    color: #fff;
+  }
+
+  /* ── tags ── */
+  .tag {
+    display: inline-block;
+    font-size: 11.5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  /* ── dot nav ── */
+  .dot-nav { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 14px; }
+  .dot-nav-item {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #F0F4FB;
+    color: #888;
+    border: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .dot-nav-item.current { background: #1A56A0; color: #fff; }
+  .dot-nav-item.answered { background: #D6E4F7; color: #0C447C; }
+
+  /* ── metrics ── */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .metric-card {
+    background: #F5F7FA;
+    border-radius: 10px;
+    padding: 13px 10px;
+    text-align: center;
+  }
+  .metric-label { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .metric-value { font-size: 20px; font-weight: 600; color: #1a1a1a; }
+
+  /* ── score circle ── */
+  .score-wrap { text-align: center; margin-bottom: 20px; }
+  .score-circle {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    border: 3px solid #1A56A0;
+    background: #EBF2FB;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+  }
+  .score-circle-num { font-size: 30px; font-weight: 700; color: #0C447C; line-height: 1; }
+  .score-circle-denom { font-size: 12px; color: #1A56A0; }
+
+  /* ── bar chart ── */
+  .bar-row { margin-bottom: 13px; }
+  .bar-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+  .bar-track {
+    background: #EEF1F7;
+    border-radius: 5px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .bar-fill { height: 100%; border-radius: 5px; transition: width .5s ease; }
+
+  /* ── notice boxes ── */
+  .notice {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 14px;
+    line-height: 1.6;
+  }
+  .notice-info { background: #EBF2FB; color: #0C447C; border: 1px solid #B5D4F4; }
+  .notice-warn { background: #FFF6E0; color: #7A4A0A; border: 1px solid #FAC775; }
+  .notice-success { background: #E6F4EE; color: #1D5C3B; border: 1px solid #9FE1CB; }
+  .notice-error { background: #FDEAEA; color: #7A1F1F; border: 1px solid #F09595; }
+
+  /* ── step list ── */
+  .step-list { display: flex; flex-direction: column; gap: 13px; }
+  .step-item { display: flex; gap: 12px; align-items: flex-start; }
+  .step-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: #1A56A0;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-text { font-size: 14px; line-height: 1.65; color: #333; padding-top: 3px; }
+  .step-text a { color: #1A56A0; }
+  .step-text code {
+    background: #F0F4FB;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 12px;
+    font-family: monospace;
+  }
+
+  /* ── spinner ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 48px; height: 48px;
+    border: 3px solid #D6E4F7;
+    border-top-color: #1A56A0;
+    border-radius: 50%;
+    animation: spin .75s linear infinite;
+    margin: 0 auto 20px;
+  }
+
+  /* ── status badge ── */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  /* ── result code ── */
+  .result-code {
+    font-family: monospace;
+    font-size: 14px;
+    letter-spacing: 1.5px;
+    background: #F5F7FA;
+    border-radius: 8px;
+    padding: 12px 14px;
+    word-break: break-all;
+    margin-top: 8px;
+    border: 1px solid #E0E6EF;
+    color: #333;
+  }
+
+  /* ── divider ── */
+  hr { border: none; border-top: 1px solid #EEF1F7; margin: 14px 0; }
+
+  /* ── detail rows ── */
+  .detail-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #F0F4FB;
+    font-size: 13px;
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-icon {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── plan row ── */
+  .plan-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 11px 0;
+    border-bottom: 1px solid #F0F4FB;
+  }
+  .plan-row:last-child { border-bottom: none; }
+  .plan-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── modal đặt tên file PDF ── */
+  .pdf-modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999; padding: 20px;
+  }
+  .pdf-modal {
+    background: #fff; border-radius: 16px;
+    padding: 24px; width: 100%; max-width: 360px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  }
+  .pdf-modal-title {
+    font-size: 16px; font-weight: 600; margin-bottom: 6px; color: #1a1a1a;
+  }
+  .pdf-modal-sub {
+    font-size: 12px; color: #888; margin-bottom: 16px; line-height: 1.5;
+  }
+  .pdf-filename-wrap {
+    display: flex; align-items: center;
+    border: 1.5px solid #1A56A0; border-radius: 10px; overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .pdf-filename-wrap input {
+    flex: 1; padding: 10px 12px; border: none; outline: none;
+    font-size: 14px; background: #fff; color: #1a1a1a;
+  }
+  .pdf-ext {
+    padding: 10px 12px; background: #F0F4FB;
+    font-size: 13px; color: #1A56A0; font-weight: 600; flex-shrink: 0;
+  }
+  .pdf-modal-btns { display: flex; gap: 10px; }
+
+  /* ── accordion detail ── */
+  .detail-accordion { border-radius: 10px; overflow: hidden; border: 1px solid #E8ECF2; margin-bottom: 0; }
+  .detail-expand { background: #F8FAFD; }
+
+  /* ── MathJax SVG overrides ── */
+  mjx-container { overflow-x: auto; max-width: 100%; }
+  mjx-container svg { max-width: 100%; }
+
+  /* ── misc ── */
+  .page-title { font-size: 19px; font-weight: 700; margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: #888; }
+  .section-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 12px;
+  }
+  .flex-row { display: flex; gap: 10px; }
+  .flex-1 { flex: 1; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .text-center { text-align: center; }
+  .mt-4 { margin-top: 4px; }
+  .mt-8 { margin-top: 8px; }
+  .mt-14 { margin-top: 14px; }
+  .mt-20 { margin-top: 20px; }
+  .mb-4 { margin-bottom: 4px; }
+  .mb-8 { margin-bottom: 8px; }
+  .mb-12 { margin-bottom: 12px; }
+  .mb-16 { margin-bottom: 16px; }
+  .icon-wrap {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: #EBF2FB;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 0: SETUP (Giáo viên cài đặt 1 lần)
+═══════════════════════════════════════════════ -->
+<div id="s-setup" class="screen">
+  <div class="icon-wrap mt-20">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1A56A0" stroke-width="2.2">
+      <rect x="3" y="3" width="18" height="18" rx="2.5"/>
+      <path d="M3 9h18M9 21V9"/>
+    </svg>
+  </div>
+  <div class="text-center mb-16">
+    <div class="page-title">Cài đặt Google Sheets</div>
+    <div class="page-sub">Dành cho giáo viên · Chỉ làm 1 lần duy nhất</div>
+  </div>
+
+  <div class="card">
+    <div class="section-label mb-12">Các bước thực hiện</div>
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-text">Mở <a href="https://sheets.new" target="_blank">sheets.new</a> → đặt tên file <strong>"Kết quả kiểm tra"</strong></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-text">Vào menu <code>Extensions</code> → <code>Apps Script</code> → xoá code cũ → dán toàn bộ nội dung file <strong>google_apps_script.js</strong> vào → nhấn Save</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-text">Nhấn <code>Deploy</code> → <code>New deployment</code> → chọn <strong>Web app</strong> → <em>Execute as: Me</em> → <em>Who has access: Anyone</em> → <code>Deploy</code></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-text">Copy URL deployment (dạng <em>https://script.google.com/macros/s/…/exec</em>) → dán vào ô bên dưới</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="input-group">
+      <label class="input-label">URL Google Apps Script</label>
+      <input class="input-field" type="url" id="inp-url"
+        placeholder="https://script.google.com/macros/s/AKfy.../exec"/>
+    </div>
+    <div class="flex-row">
+      <button class="btn btn-primary flex-1" onclick="saveUrl()">Lưu &amp; Kiểm tra kết nối</button>
+    </div>
+    <div id="conn-status" style="display:none;margin-top:10px;font-size:13px;padding:10px 14px;border-radius:8px"></div>
+  </div>
+
+  <div class="notice notice-success" style="margin-top:4px">
+    <strong>Chia sẻ file HTML cho học sinh qua Zalo:</strong><br>
+    Zalo → Nhóm lớp → nhấn biểu tượng <strong>File</strong> (📎) → chọn file HTML → Gửi.<br>
+    HS nhận file → nhấn giữ → chọn <strong>"Mở bằng trình duyệt"</strong> (Chrome/Safari) → làm bài bình thường.
+  </div>
+  <div class="flex-row" style="margin-top:4px">
+    <button class="btn flex-1" onclick="showScreen('s-login')" style="color:#888">Bỏ qua →</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 1: LOGIN
+═══════════════════════════════════════════════ -->
+<div id="s-login" class="screen">
+  <div class="icon-wrap mt-20">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1A56A0" stroke-width="2.2">
+      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+    </svg>
+  </div>
+  <div class="text-center mb-16">
+    <div class="page-title">Kiểm tra chẩn đoán</div>
+    <div class="page-sub">Vật lý 11 · Chương Điện trường · 60 câu · ~40 phút</div>
+    <div id="sheets-badge" style="display:none;margin-top:10px">
+      <span class="status-badge" style="background:#E6F4EE;color:#1D5C3B;border:1px solid #9FE1CB">
+        <span class="status-dot" style="background:#1D7A4F"></span>
+        Kết nối Google Sheets
+      </span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="input-group">
+      <label class="input-label">Họ và tên</label>
+      <input class="input-field" type="text" id="inp-name" placeholder="Nguyễn Văn An" autocomplete="name"/>
+    </div>
+    <div class="input-group mb-4">
+      <label class="input-label">Lớp</label>
+      <input class="input-field" type="text" id="inp-class" placeholder="11A1"/>
+    </div>
+  </div>
+
+  <div class="notice notice-warn">
+    Mỗi câu chỉ có 1 đáp án đúng. Bạn có thể quay lại sửa câu trước. Không giới hạn thời gian.
+  </div>
+
+  <button class="btn btn-primary btn-block" style="padding:14px;font-size:16px" onclick="startTest()">
+    Bắt đầu làm bài →
+  </button>
+
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 2: TEST
+═══════════════════════════════════════════════ -->
+<div id="s-test" class="screen">
+  <div class="top-bar">
+    <span id="q-counter">Câu 1 / 20</span>
+    <span id="timer" style="font-variant-numeric:tabular-nums">0:00</span>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress" style="width:5%"></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
+      <span id="q-topic" class="tag"></span>
+      <span id="q-level" class="tag"></span>
+    </div>
+    <p id="q-text" style="font-size:15.5px;font-weight:500;line-height:1.7;margin-bottom:18px"></p>
+    <div id="choices"></div>
+  </div>
+
+  <div class="flex-row mb-12">
+    <button class="btn flex-1" id="btn-prev" onclick="prevQ()">← Câu trước</button>
+    <button class="btn btn-primary" id="btn-next" onclick="nextQ()"
+      style="flex:1.8;padding:11px 16px">Câu tiếp →</button>
+  </div>
+
+  <div class="dot-nav" id="dot-nav"></div>
+</div>
+
+
+<div id="s-submitting" style="display:none"></div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 4: RESULT
+═══════════════════════════════════════════════ -->
+<div id="s-result" class="screen">
+
+  <div class="score-wrap mt-20">
+    <div class="score-circle">
+      <div class="score-circle-num" id="score-num"></div>
+      <div class="score-circle-denom" id="score-denom">/10</div>
+      <div id="score-raw" style="font-size:10px;color:#888;margin-top:2px"></div>
+    </div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:6px" id="result-name"></div>
+    <div id="result-grade-badge"></div>
+    <div id="sheets-sent-badge" style="display:none;margin-top:8px">
+      <span class="status-badge" style="background:#E6F4EE;color:#1D5C3B;border:1px solid #9FE1CB">
+        <span class="status-dot" style="background:#1D7A4F"></span>
+        Đã gửi kết quả đến giáo viên
+      </span>
+    </div>
+    <div id="sheets-fail-badge" style="display:none;margin-top:8px">
+      <span class="status-badge" style="background:#FFF6E0;color:#7A4A0A;border:1px solid #FAC775">
+        <span class="status-dot" style="background:#EF9F27"></span>
+        Chưa gửi được — xem mã kết quả bên dưới
+      </span>
+    </div>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">Điểm số</div>
+      <div class="metric-value" id="m-score"></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Tỉ lệ đúng</div>
+      <div class="metric-value" id="m-pct"></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Thời gian</div>
+      <div class="metric-value" id="m-time"></div>
+    </div>
+  </div>
+
+  <!-- Topic bars -->
+  <div class="card">
+    <div class="section-label mb-12">Tỉ lệ đúng theo chủ đề</div>
+    <div id="topic-bars"></div>
+  </div>
+
+  <!-- Level bars -->
+  <div class="card">
+    <div class="section-label mb-12">Tỉ lệ đúng theo mức độ</div>
+    <div id="level-bars"></div>
+  </div>
+
+  <!-- Detail per question -->
+  <div class="card">
+    <div class="section-label mb-12">Chi tiết từng câu</div>
+    <div id="detail-rows"></div>
+  </div>
+
+  <!-- Remediation plan -->
+  <div class="card" id="plan-card">
+    <div class="section-label mb-12">Kế hoạch bổ trợ cho bạn</div>
+    <div id="plan-rows"></div>
+  </div>
+
+  <!-- Fallback result code -->
+  <div class="card" id="code-block" style="display:none;border-color:#FAC775">
+    <div class="section-label mb-4" style="color:#7A4A0A">Mã kết quả (báo hoặc chụp màn hình gửi GV)</div>
+    <div class="result-code" id="result-code"></div>
+    <div style="font-size:12px;color:#888;margin-top:8px">
+      GV dán mã này vào file Excel để giải mã tự động
+    </div>
+  </div>
+
+  <button class="btn btn-green btn-block" id="btn-save-pdf"
+    style="padding:13px;font-size:15px;margin-bottom:12px;display:none"
+    onclick="savePDF()">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Lưu kế hoạch bổ trợ (HTML)
+  </button>
+  <button class="btn btn-block" style="padding:13px;font-size:15px;margin-bottom:30px" onclick="restart()">
+    Làm lại từ đầu
+  </button>
+
+</div>
+<!-- ══ Modal đặt tên file PDF ══ -->
+<div id="pdf-name-modal" style="display:none" class="pdf-modal-overlay" onclick="closePDFModal(event)">
+  <div class="pdf-modal">
+    <div class="pdf-modal-title">Đặt tên file PDF</div>
+    <div class="pdf-modal-sub">Tên file sẽ được lưu về máy. Bạn có thể đổi tên tuỳ ý.</div>
+    <div class="pdf-filename-wrap">
+      <input type="text" id="pdf-filename-input" placeholder="ke_hoach_bo_tro" maxlength="80"
+        onkeydown="if(event.key==='Enter') confirmSavePDF()"
+        oninput="this.value=this.value.replace(/[\\/:*?&quot;&lt;&gt;|]/g,'_')"/>
+      <span class="pdf-ext">.html</span>
+    </div>
+    <div class="pdf-modal-btns">
+      <button class="btn flex-1" onclick="closePDFModal(null)" style="color:#888">Huỷ</button>
+      <button class="btn btn-green flex-1" onclick="confirmSavePDF()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Tải về
+      </button>
+    </div>
+  </div>
+</div>
+
+</div><!-- .wrap -->
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════ */
+var QS = [
+{id:1,
+  text:"Electron có điện tích bằng bao nhiêu?",
+  topic:"Điện tích", level:"NB",
+  choices:["$+1{,}6\\times10^{-19}\\,\\text{C}$","$-1{,}6\\times10^{-19}\\,\\text{C}$","$9{,}1\\times10^{-31}\\,\\text{C}$","$1{,}67\\times10^{-27}\\,\\text{C}$"],
+  ans:1,
+  explain:"Electron mang điện tích âm $q_e = -e = -1{,}6\\times10^{-19}\\,\\text{C}$. Đây là điện tích nguyên tố có giá trị nhỏ nhất trong tự nhiên."},
+
+{id:2,
+  text:"Vật nào sau đây là vật <b>dẫn điện</b>?",
+  topic:"Điện tích", level:"NB",
+  choices:["Cao su","Thủy tinh","Nhựa","Kim loại"],
+  ans:3,
+  explain:"Kim loại là vật dẫn điện vì có nhiều electron tự do. Cao su, thủy tinh, nhựa là điện môi (cách điện)."},
+
+{id:3,
+  text:"Hiện tượng nhiễm điện do <b>hưởng ứng</b> có đặc điểm nào sau đây?",
+  topic:"Điện tích", level:"NB",
+  choices:["Hai vật phải tiếp xúc nhau","Electron di chuyển từ vật này sang vật khác","Hai vật nhiễm điện cùng dấu","Hai đầu của vật A nhiễm điện trái dấu khi đặt gần vật B tích điện"],
+  ans:3,
+  explain:"Hưởng ứng: vật B nhiễm điện đặt gần A (không tiếp xúc). Điện tích trong A phân bố lại: đầu gần B nhiễm điện trái dấu với B, đầu xa B nhiễm điện cùng dấu với B. Electron không di chuyển sang B."},
+
+{id:4,
+  text:"Vật tích điện $Q = +3{,}2\\times10^{-18}\\,\\text{C}$ bị thiếu bao nhiêu electron so với trạng thái trung hòa?",
+  topic:"Điện tích", level:"TH",
+  choices:["10","15","20","25"],
+  ans:2,
+  explain:"$N = \\dfrac{|Q|}{e} = \\dfrac{3{,}2\\times10^{-18}}{1{,}6\\times10^{-19}} = 20$ electron."},
+
+{id:5,
+  text:"Ba quả cầu kim loại giống nhau tích điện $q_1 = 6\\,\\mu\\text{C}$, $q_2 = -2\\,\\mu\\text{C}$, $q_3 = 4\\,\\mu\\text{C}$ lần lượt tiếp xúc nhau. Điện tích mỗi quả sau khi tách là",
+  topic:"Điện tích", level:"TH",
+  choices:["$2{,}5\\,\\mu\\text{C}$","$2{,}67\\,\\mu\\text{C}$","$3\\,\\mu\\text{C}$","$4\\,\\mu\\text{C}$"],
+  ans:1,
+  explain:"$q' = \\dfrac{q_1+q_2+q_3}{3} = \\dfrac{6-2+4}{3} = \\dfrac{8}{3} \\approx 2{,}67\\,\\mu\\text{C}$."},
+
+{id:6,
+  text:"Điện tích $q_1 = 4\\,\\mu\\text{C}$ và $q_2 = -1\\,\\mu\\text{C}$ tiếp xúc nhau rồi tách ra. Sau đó đặt cách nhau $r = 10\\,\\text{cm}$ trong chân không. Lực tương tác giữa chúng là lực",
+  topic:"Điện tích", level:"VD",
+  choices:["Hút, $F = 2{,}025\\,\\text{N}$","Đẩy, $F = 2{,}025\\,\\text{N}$","Hút, $F = 1{,}35\\,\\text{N}$","Đẩy, $F = 4{,}05\\,\\text{N}$"],
+  ans:1,
+  explain:"Sau tiếp xúc: $q' = \\dfrac{q_1+q_2}{2} = \\dfrac{4+(-1)}{2} = 1{,}5\\,\\mu\\text{C}$. Hai quả đều dương → <b>đẩy nhau</b>. $F = 9\\times10^9\\cdot\\dfrac{(1{,}5\\times10^{-6})^2}{(0{,}1)^2} = 2{,}025\\,\\text{N}$."},
+
+{id:7,
+  text:"Một vật nhiễm điện do tiếp xúc với thanh thủy tinh nhiễm điện dương. Vật đó sẽ",
+  topic:"Điện tích", level:"VD",
+  choices:["Nhiễm điện âm","Nhiễm điện dương","Không nhiễm điện","Nhiễm điện cả hai loại"],
+  ans:1,
+  explain:"Nhiễm điện do tiếp xúc: vật trung hòa tiếp xúc vật nhiễm điện dương → electron từ vật di chuyển sang thanh thủy tinh → vật thiếu electron → nhiễm điện dương (cùng dấu với thanh)."},
+
+{id:8,
+  text:"Định luật Coulomb áp dụng cho trường hợp nào sau đây?",
+  topic:"Coulomb", level:"NB",
+  choices:["Hai vật dẫn bất kỳ","Hai điện tích phân bố đều","Hai điện tích điểm","Hai điện tích chuyển động"],
+  ans:2,
+  explain:"Định luật Coulomb chỉ áp dụng chính xác cho <b>điện tích điểm</b> (kích thước nhỏ so với khoảng cách)."},
+
+{id:9,
+  text:"Khi tăng khoảng cách giữa hai điện tích lên 4 lần thì lực Coulomb",
+  topic:"Coulomb", level:"NB",
+  choices:["Giảm 4 lần","Tăng 4 lần","Tăng 16 lần","Giảm 16 lần"],
+  ans:3,
+  explain:"$F \\propto \\dfrac{1}{r^2}$. Khi $r' = 4r$: $F' = \\dfrac{F}{16}$. Lực giảm 16 lần."},
+
+{id:10,
+  text:"Hai điện tích $q_1 = 3\\times10^{-8}\\,\\text{C}$ và $q_2 = -3\\times10^{-8}\\,\\text{C}$ đặt cách nhau $3\\,\\text{cm}$ trong chân không. Độ lớn lực Coulomb là",
+  topic:"Coulomb", level:"TH",
+  choices:["$3\\times10^{-3}\\,\\text{N}$","$9\\times10^{-3}\\,\\text{N}$","$3\\times10^{-2}\\,\\text{N}$","$9\\times10^{-2}\\,\\text{N}$"],
+  ans:1,
+  explain:"$F = 9\\times10^9\\cdot\\dfrac{(3\\times10^{-8})^2}{(0{,}03)^2} = 9\\times10^9\\cdot\\dfrac{9\\times10^{-16}}{9\\times10^{-4}} = 9\\times10^{-3}\\,\\text{N}$."},
+
+{id:11,
+  text:"Đặt hai điện tích trong dầu có $\\varepsilon = 2$ thì lực Coulomb so với trong chân không",
+  topic:"Coulomb", level:"TH",
+  choices:["Tăng gấp đôi","Tăng 4 lần","Giảm còn $\\tfrac{1}{4}$","Giảm còn $\\tfrac{1}{2}$"],
+  ans:3,
+  explain:"$F = k\\dfrac{|q_1 q_2|}{\\varepsilon r^2}$. Khi $\\varepsilon = 2$: lực giảm 2 lần. Đây là tác dụng của điện môi."},
+
+{id:12,
+  text:"Hai điện tích bằng nhau $q$ đặt cách nhau $r$ hút nhau với lực $F$. Để lực hút tăng lên $4F$ mà không thay đổi dấu điện tích thì khoảng cách mới là",
+  topic:"Coulomb", level:"TH",
+  choices:["$r/2$","$2r$","$r/4$","$4r$"],
+  ans:0,
+  explain:"$F' = 4F \\Rightarrow \\dfrac{1}{r'^2} = \\dfrac{4}{r^2} \\Rightarrow r' = \\dfrac{r}{2}$. Giảm khoảng cách còn một nửa."},
+
+{id:13,
+  text:"Hai điện tích $q_1 = 2\\,\\mu\\text{C}$ và $q_2 = 8\\,\\mu\\text{C}$ đặt cách nhau $r = 6\\,\\text{cm}$ trong chân không. Lực Coulomb là",
+  topic:"Coulomb", level:"VD",
+  choices:["$20\\,\\text{N}$","$40\\,\\text{N}$","$4\\,\\text{N}$","$400\\,\\text{N}$"],
+  ans:1,
+  explain:"$F = 9\\times10^9\\cdot\\dfrac{2\\times10^{-6}\\cdot 8\\times10^{-6}}{(0{,}06)^2} = 9\\times10^9\\cdot\\dfrac{16\\times10^{-12}}{36\\times10^{-4}} = 40\\,\\text{N}$."},
+
+{id:14,
+  text:"Hai quả cầu giống nhau, mỗi quả tích điện $q$. Lực đẩy giữa chúng là $F$. Chạm tay vào một quả rồi bỏ tay ra. Lực tương tác sau đó là",
+  topic:"Coulomb", level:"VD",
+  choices:["$F/4$","$F/2$","$0$","$F$"],
+  ans:1,
+  explain:"Chạm tay vào một quả: quả đó mất hết điện tích ($q_2' = 0$)... Không phải, quả đó sẽ chia điện tích với tay người (bản thân người nối đất) nên $q_2' \\approx 0$. Vậy: $F' \\approx 0$. Thực ra đáp án đúng là $F/4$ vì quả chạm tay chia đôi với tay. Xét kỹ: $q_2' = q/2$, $F' = k\\dfrac{q\\cdot q/2}{r^2} = F/2$."},
+
+{id:15,
+  text:"Hai điện tích điểm $q_1$ và $q_2$ đặt cách nhau $r$ trong môi trường điện môi $\\varepsilon$. Nếu giữ nguyên các điện tích nhưng tăng $\\varepsilon$ lên 3 lần và giảm $r$ còn $\\dfrac{r}{\\sqrt{3}}$ thì lực Coulomb",
+  topic:"Coulomb", level:"VDC",
+  choices:["Không đổi","Tăng gấp đôi","Giảm còn một nửa","Tăng 3 lần"],
+  ans:0,
+  explain:"$F' = k\\dfrac{|q_1 q_2|}{3\\varepsilon\\cdot(r/\\sqrt{3})^2} = k\\dfrac{|q_1 q_2|}{3\\varepsilon\\cdot r^2/3} = k\\dfrac{|q_1 q_2|}{\\varepsilon r^2} = F$. Lực không đổi."},
+
+{id:16,
+  text:"Đơn vị của cường độ điện trường là",
+  topic:"Điện trường", level:"NB",
+  choices:["Coulomb (C)","Vôn (V)","Vôn/mét (V/m)","Newton (N)"],
+  ans:2,
+  explain:"Cường độ điện trường $E = F/q$, đơn vị $\\text{N/C} = \\text{V/m}$."},
+
+{id:17,
+  text:"Điện trường gây ra bởi điện tích $Q < 0$ tại điểm M có vectơ $\\vec{E}$",
+  topic:"Điện trường", level:"NB",
+  choices:["Hướng ra xa Q","Hướng về phía Q","Vuông góc với QM","Phụ thuộc dấu điện tích thử"],
+  ans:1,
+  explain:"$Q < 0$: $\\vec{E}$ hướng <b>về phía</b> điện tích âm Q (đường sức đi vào điện tích âm)."},
+
+{id:18,
+  text:"Điện tích thử $q = -2\\times10^{-6}\\,\\text{C}$ đặt tại M chịu lực $F = 0{,}04\\,\\text{N}$. Cường độ điện trường tại M là",
+  topic:"Điện trường", level:"TH",
+  choices:["$8\\times10^{-8}\\,\\text{V/m}$","$2\\times10^4\\,\\text{V/m}$","$4\\times10^{-8}\\,\\text{V/m}$","$2\\times10^{-4}\\,\\text{V/m}$"],
+  ans:1,
+  explain:"$E = \\dfrac{F}{|q|} = \\dfrac{0{,}04}{2\\times10^{-6}} = 2\\times10^4\\,\\text{V/m}$."},
+
+{id:19,
+  text:"Điện tích điểm $Q = 5\\times10^{-9}\\,\\text{C}$ trong chân không. Cường độ điện trường tại điểm cách Q một đoạn $r = 15\\,\\text{cm}$ là",
+  topic:"Điện trường", level:"TH",
+  choices:["$100\\,\\text{V/m}$","$500\\,\\text{V/m}$","$1000\\,\\text{V/m}$","$2000\\,\\text{V/m}$"],
+  ans:3,
+  explain:"$E = k\\dfrac{|Q|}{r^2} = 9\\times10^9\\cdot\\dfrac{5\\times10^{-9}}{(0{,}15)^2} = 9\\times10^9\\cdot\\dfrac{5\\times10^{-9}}{225\\times10^{-4}} = 2000\\,\\text{V/m}$."},
+
+{id:20,
+  text:"Điện tích $q = 3\\times10^{-8}\\,\\text{C}$ đặt tại điểm có cường độ điện trường $E = 4\\times10^4\\,\\text{V/m}$. Lực điện tác dụng lên $q$ là",
+  topic:"Điện trường", level:"TH",
+  choices:["$7{,}5\\times10^{-5}\\,\\text{N}$","$1{,}2\\times10^{-3}\\,\\text{N}$","$1{,}2\\times10^{-4}\\,\\text{N}$","$7{,}5\\times10^{-4}\\,\\text{N}$"],
+  ans:1,
+  explain:"$F = |q|E = 3\\times10^{-8}\\times4\\times10^4 = 1{,}2\\times10^{-3}\\,\\text{N}$."},
+
+{id:21,
+  text:"Hai điện tích $q_1 = +4\\,\\mu\\text{C}$ và $q_2 = +9\\,\\mu\\text{C}$ đặt tại A và B cách nhau $30\\,\\text{cm}$. Điểm trên AB có $E = 0$ cách A bao nhiêu cm?",
+  topic:"Điện trường", level:"VD",
+  choices:["$10\\,\\text{cm}$","$12\\,\\text{cm}$","$15\\,\\text{cm}$","$20\\,\\text{cm}$"],
+  ans:1,
+  explain:"Hai điện tích cùng dấu: M nằm giữa AB.\\n$\\dfrac{|q_1|}{r_1^2}=\\dfrac{|q_2|}{r_2^2}$, $r_1+r_2=30$. $\\dfrac{4}{r_1^2}=\\dfrac{9}{r_2^2}\\Rightarrow \\dfrac{r_2}{r_1}=\\dfrac{3}{2}\\Rightarrow r_1=12\\,\\text{cm}$."},
+
+{id:22,
+  text:"Cường độ điện trường đều giữa hai bản tụ phẳng cách nhau $d = 5\\,\\text{mm}$, hiệu điện thế $U = 100\\,\\text{V}$. Lực điện tác dụng lên điện tích $q = 2\\times10^{-8}\\,\\text{C}$ là",
+  topic:"Điện trường", level:"VD",
+  choices:["$2\\times10^{-3}\\,\\text{N}$","$4\\times10^{-4}\\,\\text{N}$","$4\\times10^{-3}\\,\\text{N}$","$2\\times10^{-4}\\,\\text{N}$"],
+  ans:1,
+  explain:"$E = U/d = 100/0{,}005 = 2\\times10^4\\,\\text{V/m}$. $F = qE = 2\\times10^{-8}\\times2\\times10^4 = 4\\times10^{-4}\\,\\text{N}$."},
+
+{id:23,
+  text:"Hai điện tích $q_1 = +Q$ và $q_2 = -4Q$ đặt tại A và B cách nhau $d = 30\\,\\text{cm}$. Điểm M có $E_{\\text{tổng}} = 0$ nằm",
+  topic:"Điện trường", level:"VD",
+  choices:["Giữa AB, cách A $10\\,\\text{cm}$","Ngoài AB, cách A $10\\,\\text{cm}$","Ngoài AB, cách A $30\\,\\text{cm}$","Ngoài AB, cách B $10\\,\\text{cm}$"],
+  ans:1,
+  explain:"Trái dấu: M nằm <b>ngoài</b> AB, phía gần điện tích nhỏ hơn ($q_1 = +Q$). $\\dfrac{Q}{r_1^2} = \\dfrac{4Q}{r_2^2}$, $r_2 - r_1 = 30$. $r_2 = 2r_1 \\Rightarrow r_1 = 30\\,\\text{cm}$... Kiểm tra lại: $r_2=2r_1$, $r_2-r_1=r_1=30\\,\\text{cm}$, $r_2=60$. M cách A $30\\,\\text{cm}$, ngoài đoạn AB về phía A."},
+
+{id:24,
+  text:"Trong điện trường của điện tích điểm $Q$, nếu khoảng cách tăng lên 3 lần thì cường độ điện trường",
+  topic:"Điện trường", level:"VDC",
+  choices:["Giảm 3 lần","Tăng 3 lần","Giảm 9 lần","Tăng 9 lần"],
+  ans:2,
+  explain:"$E = k|Q|/r^2 \\propto 1/r^2$. Khi $r' = 3r$: $E' = E/9$. Cường độ giảm 9 lần."},
+
+{id:25,
+  text:"Đường sức điện của điện tích dương cô lập có đặc điểm là",
+  topic:"Đường sức", level:"NB",
+  choices:["Hướng vào điện tích","Là các đường cong khép kín","Hướng ra xa điện tích theo mọi hướng","Song song với nhau"],
+  ans:2,
+  explain:"Điện tích dương: đường sức hướng ra xa từ điện tích, phân bố đều theo mọi hướng."},
+
+{id:26,
+  text:"Điện phổ là",
+  topic:"Đường sức", level:"NB",
+  choices:["Sơ đồ mạch điện","Hình ảnh biểu diễn đường sức điện quan sát được","Đồ thị điện thế theo khoảng cách","Biểu đồ cường độ điện trường"],
+  ans:1,
+  explain:"Điện phổ là hình ảnh trực quan của đường sức điện, được tạo ra bằng cách dùng bột mịn cách điện trong dầu."},
+
+{id:27,
+  text:"Tính chất nào sau đây KHÔNG phải của đường sức điện?",
+  topic:"Đường sức", level:"NB",
+  choices:["Tiếp tuyến tại mỗi điểm trùng phương $\\vec{E}$","Số đường sức qua đơn vị diện tích đặc trưng độ mạnh","Không cắt nhau","Là đường cong khép kín"],
+  ans:3,
+  explain:"Đường sức điện <b>không khép kín</b> (khác với đường sức từ). Đường sức điện bắt đầu từ điện tích dương và kết thúc ở điện tích âm."},
+
+{id:28,
+  text:"Mặt đẳng thế và đường sức điện có mối quan hệ",
+  topic:"Đường sức", level:"TH",
+  choices:["Song song nhau","Trùng nhau","Vuông góc nhau tại mọi điểm","Hợp nhau một góc $45°$"],
+  ans:2,
+  explain:"Mặt đẳng thế luôn <b>vuông góc</b> với đường sức điện tại mọi điểm giao nhau. Đây là tính chất hình học cơ bản."},
+
+{id:29,
+  text:"Di chuyển điện tích dọc theo mặt đẳng thế thì công của lực điện",
+  topic:"Đường sức", level:"TH",
+  choices:["Dương","Âm","Bằng không","Phụ thuộc chiều di chuyển"],
+  ans:2,
+  explain:"Trên mặt đẳng thế: $V_M = V_N \\Rightarrow U_{MN} = 0 \\Rightarrow A = qU_{MN} = 0$."},
+
+{id:30,
+  text:"Giữa hai bản tụ phẳng tích điện trái dấu, mặt đẳng thế có dạng",
+  topic:"Đường sức", level:"VD",
+  choices:["Các đường cong phức tạp","Các mặt cầu đồng tâm","Các mặt phẳng song song với hai bản tụ","Các đường parabol"],
+  ans:2,
+  explain:"Trong điện trường đều giữa hai bản tụ, đường sức là các đường thẳng vuông góc với bản. Mặt đẳng thế vuông góc đường sức → là các mặt phẳng song song với hai bản tụ."},
+
+{id:31,
+  text:"Công của lực điện có tính chất gì?",
+  topic:"Công - Điện thế", level:"NB",
+  choices:["Phụ thuộc hình dạng đường đi","Luôn dương","Không phụ thuộc hình dạng đường đi (chỉ phụ thuộc điểm đầu, cuối)","Luôn bằng 0"],
+  ans:2,
+  explain:"Lực điện là lực thế: $A_{MN} = q(V_M - V_N)$ chỉ phụ thuộc điểm đầu M và điểm cuối N."},
+
+{id:32,
+  text:"Đơn vị của điện thế là",
+  topic:"Công - Điện thế", level:"NB",
+  choices:["Coulomb/Vôn","Joule/Coulomb = Vôn","Newton/Coulomb","Coulomb/Newton"],
+  ans:1,
+  explain:"Điện thế $V = W/q$, đơn vị là $\\text{J/C} = \\text{V}$ (Vôn)."},
+
+{id:33,
+  text:"Điện tích $q = 4\\times10^{-6}\\,\\text{C}$ di chuyển từ M đến N. Công lực điện $A_{MN} = 8\\times10^{-4}\\,\\text{J}$. Hiệu điện thế $U_{MN}$ là",
+  topic:"Công - Điện thế", level:"TH",
+  choices:["$50\\,\\text{V}$","$100\\,\\text{V}$","$200\\,\\text{V}$","$400\\,\\text{V}$"],
+  ans:2,
+  explain:"$U_{MN} = \\dfrac{A_{MN}}{q} = \\dfrac{8\\times10^{-4}}{4\\times10^{-6}} = 200\\,\\text{V}$."},
+
+{id:34,
+  text:"Hiệu điện thế $U_{MN} = 100\\,\\text{V}$, điện tích $q = -5\\times10^{-6}\\,\\text{C}$. Công của lực điện khi $q$ dịch chuyển từ M đến N là",
+  topic:"Công - Điện thế", level:"TH",
+  choices:["$5\\times10^{-4}\\,\\text{J}$","$-5\\times10^{-4}\\,\\text{J}$","$2\\times10^{-8}\\,\\text{J}$","$-2\\times10^{-8}\\,\\text{J}$"],
+  ans:1,
+  explain:"$A_{MN} = qU_{MN} = (-5\\times10^{-6})\\times100 = -5\\times10^{-4}\\,\\text{J}$."},
+
+{id:35,
+  text:"Điện trường đều $E = 4000\\,\\text{V/m}$, hai điểm M, N cùng phương với $\\vec{E}$, cách nhau $d = 3\\,\\text{cm}$ (N ở chiều ngược $\\vec{E}$). Hiệu điện thế $U_{MN}$ là",
+  topic:"Công - Điện thế", level:"TH",
+  choices:["$-120\\,\\text{V}$","$+120\\,\\text{V}$","$-240\\,\\text{V}$","$+240\\,\\text{V}$"],
+  ans:0,
+  explain:"N ngược chiều $\\vec{E}$ so với M nên $d_{MN} < 0$: $d_{MN} = -3\\,\\text{cm} = -0{,}03\\,\\text{m}$. $U_{MN} = Ed_{MN} = 4000\\times(-0{,}03) = -120\\,\\text{V}$."},
+
+{id:36,
+  text:"Trong điện trường đều giữa hai bản tụ $U = 300\\,\\text{V}$, $d = 6\\,\\text{cm}$. Điện tích $q = 3\\times10^{-9}\\,\\text{C}$ di chuyển dọc theo đường sức từ bản dương đến bản âm. Công của lực điện là",
+  topic:"Công - Điện thế", level:"TH",
+  choices:["$9\\times10^{-7}\\,\\text{J}$","$-9\\times10^{-7}\\,\\text{J}$","$1{,}5\\times10^{-8}\\,\\text{J}$","$-1{,}5\\times10^{-8}\\,\\text{J}$"],
+  ans:0,
+  explain:"Di chuyển xuôi chiều $\\vec{E}$ (từ bản $+$ đến bản $-$): $d = +0{,}06\\,\\text{m}$. $E = U/d = 300/0{,}06 = 5000\\,\\text{V/m}$. $A = qEd = 3\\times10^{-9}\\times5000\\times0{,}06 = 9\\times10^{-7}\\,\\text{J}$."},
+
+{id:37,
+  text:"Điện tích $q = -2\\,\\mu\\text{C}$ di chuyển từ điểm M có $V_M = 200\\,\\text{V}$ đến N có $V_N = -100\\,\\text{V}$. Công của lực điện là",
+  topic:"Công - Điện thế", level:"VD",
+  choices:["$6\\times10^{-4}\\,\\text{J}$","$-6\\times10^{-4}\\,\\text{J}$","$2\\times10^{-4}\\,\\text{J}$","$-2\\times10^{-4}\\,\\text{J}$"],
+  ans:1,
+  explain:"$A_{MN} = q(V_M-V_N) = (-2\\times10^{-6})(200-(-100)) = (-2\\times10^{-6})\\times300 = -6\\times10^{-4}\\,\\text{J}$."},
+
+{id:38,
+  text:"Một electron tăng tốc từ nghỉ qua hiệu điện thế $U = 500\\,\\text{V}$. Vận tốc electron khi đến điện cực là (cho $m_e = 9{,}1\\times10^{-31}\\,\\text{kg}$, $e = 1{,}6\\times10^{-19}\\,\\text{C}$)",
+  topic:"Công - Điện thế", level:"VD",
+  choices:["$\\approx 1{,}3\\times10^7\\,\\text{m/s}$","$\\approx 2{,}6\\times10^7\\,\\text{m/s}$","$\\approx 1{,}3\\times10^6\\,\\text{m/s}$","$\\approx 1{,}3\\times10^8\\,\\text{m/s}$"],
+  ans:0,
+  explain:"$eU = \\dfrac{1}{2}m_e v^2 \\Rightarrow v = \\sqrt{\\dfrac{2eU}{m_e}} = \\sqrt{\\dfrac{2\\times1{,}6\\times10^{-19}\\times500}{9{,}1\\times10^{-31}}} \\approx 1{,}33\\times10^7\\,\\text{m/s}$."},
+
+{id:39,
+  text:"Điện trường đều $E = 2000\\,\\text{V/m}$. Điện tích $q = 4\\times10^{-6}\\,\\text{C}$ di chuyển từ M đến N theo đường cong với tổng chiều dài $20\\,\\text{cm}$, nhưng hình chiếu MN lên phương $\\vec{E}$ là $5\\,\\text{cm}$. Công của lực điện là",
+  topic:"Công - Điện thế", level:"VD",
+  choices:["$1{,}6\\times10^{-3}\\,\\text{J}$","$4\\times10^{-4}\\,\\text{J}$","$1{,}6\\times10^{-6}\\,\\text{J}$","$4\\times10^{-7}\\,\\text{J}$"],
+  ans:1,
+  explain:"Công lực điện không phụ thuộc đường đi: $A = qEd = 4\\times10^{-6}\\times2000\\times0{,}05 = 4\\times10^{-4}\\,\\text{J}$."},
+
+{id:40,
+  text:"Giữa hai bản tụ phẳng $U = 1200\\,\\text{V}$, $d = 4\\,\\text{cm}$. Điện tích $q = 5\\times10^{-9}\\,\\text{C}$ di chuyển từ bản âm đến bản dương theo phương hợp $60°$ với đường sức. Công của lực điện là",
+  topic:"Công - Điện thế", level:"VDC",
+  choices:["$-3\\times10^{-6}\\,\\text{J}$","$3\\times10^{-6}\\,\\text{J}$","$-3\\times10^{-7}\\,\\text{J}$","$3\\times10^{-7}\\,\\text{J}$"],
+  ans:0,
+  explain:"$E = U/d = 1200/0{,}04 = 3\\times10^4\\,\\text{V/m}$. Hành trình: từ bản âm (điện thế thấp) đến bản dương (điện thế cao) → ngược chiều $\\vec{E}$ → $d_{MN} = -d\\cos60° = -0{,}04\\times0{,}5 = -0{,}02\\,\\text{m}$. $A = qEd_{MN} = 5\\times10^{-9}\\times3\\times10^4\\times(-0{,}02) = -3\\times10^{-6}\\,\\text{J}$."},
+
+{id:41,
+  text:"Đơn vị nào sau đây bằng $1\\,\\text{F}$?",
+  topic:"Tụ điện", level:"NB",
+  choices:["$1\\,\\text{C·V}$","$1\\,\\text{C/V}$","$1\\,\\text{V/C}$","$1\\,\\text{J/C}$"],
+  ans:1,
+  explain:"$C = Q/U \\Rightarrow 1\\,\\text{F} = 1\\,\\text{C/V}$."},
+
+{id:42,
+  text:"Trên vỏ một tụ ghi $20\\,\\mu\\text{F} - 200\\,\\text{V}$. Thông số $200\\,\\text{V}$ có nghĩa là",
+  topic:"Tụ điện", level:"NB",
+  choices:["Hiệu điện thế tối thiểu cần nạp","Hiệu điện thế tối đa cho phép","Điện thế của mỗi bản tụ","Điện áp nguồn cần dùng để nạp tụ"],
+  ans:1,
+  explain:"$200\\,\\text{V}$ là <b>hiệu điện thế tối đa</b> được phép đặt vào tụ. Nếu vượt quá, điện môi sẽ bị đánh thủng."},
+
+{id:43,
+  text:"Tụ phẳng $\\varepsilon = 2$, $S = 150\\,\\text{cm}^2$, $d = 3\\,\\text{mm}$. Điện dung của tụ là (cho $k = 9\\times10^9\\,\\text{N·m}^2/\\text{C}^2$)",
+  topic:"Tụ điện", level:"TH",
+  choices:["$\\approx 88{,}5\\,\\text{pF}$","$\\approx 177\\,\\text{pF}$","$\\approx 354\\,\\text{pF}$","$\\approx 44{,}3\\,\\text{pF}$"],
+  ans:0,
+  explain:"$C = \\dfrac{\\varepsilon S}{4\\pi kd} = \\dfrac{2\\times150\\times10^{-4}}{4\\pi\\times9\\times10^9\\times3\\times10^{-3}} \\approx 8{,}85\\times10^{-11}\\,\\text{F} \\approx 88{,}5\\,\\text{pF}$."},
+
+{id:44,
+  text:"Tụ điện $C = 30\\,\\mu\\text{F}$ tích điện đến $U = 60\\,\\text{V}$. Điện tích trên tụ là",
+  topic:"Tụ điện", level:"TH",
+  choices:["$0{,}5\\,\\text{mC}$","$1{,}8\\,\\text{mC}$","$18\\,\\text{mC}$","$0{,}18\\,\\text{mC}$"],
+  ans:1,
+  explain:"$Q = CU = 30\\times10^{-6}\\times60 = 1{,}8\\times10^{-3}\\,\\text{C} = 1{,}8\\,\\text{mC}$."},
+
+{id:45,
+  text:"Tụ điện $C = 50\\,\\mu\\text{F}$ tích điện đến $Q = 5\\times10^{-3}\\,\\text{C}$. Cường độ điện trường giữa hai bản cách nhau $d = 5\\,\\text{mm}$ là",
+  topic:"Tụ điện", level:"TH",
+  choices:["$5000\\,\\text{V/m}$","$10000\\,\\text{V/m}$","$20000\\,\\text{V/m}$","$2000\\,\\text{V/m}$"],
+  ans:2,
+  explain:"$U = Q/C = 5\\times10^{-3}/(50\\times10^{-6}) = 100\\,\\text{V}$. $E = U/d = 100/0{,}005 = 20000\\,\\text{V/m}$."},
+
+{id:46,
+  text:"Tụ phẳng: diện tích bản tụ tăng gấp 3 lần, khoảng cách giảm còn $\\dfrac{1}{2}$, giữ nguyên $\\varepsilon$. Điện dung thay đổi như thế nào?",
+  topic:"Tụ điện", level:"VD",
+  choices:["Tăng $1{,}5$ lần","Tăng $3$ lần","Tăng $6$ lần","Không đổi"],
+  ans:2,
+  explain:"$C' = \\dfrac{\\varepsilon\\cdot3S}{4\\pi k\\cdot(d/2)} = \\dfrac{3\\cdot2\\cdot\\varepsilon S}{4\\pi kd} = 6C$. Điện dung tăng 6 lần."},
+
+{id:47,
+  text:"Tụ điện $C = 10\\,\\mu\\text{F}$ tích điện đến $U = 40\\,\\text{V}$. Sau đó ngắt khỏi nguồn và nhúng vào điện môi lỏng $\\varepsilon = 4$ (điện môi lấp đầy giữa hai bản). Hiệu điện thế mới giữa hai bản là",
+  topic:"Tụ điện", level:"VD",
+  choices:["$160\\,\\text{V}$","$40\\,\\text{V}$","$20\\,\\text{V}$","$10\\,\\text{V}$"],
+  ans:3,
+  explain:"Ngắt nguồn → $Q = \\text{const} = CU = 10\\times10^{-6}\\times40 = 4\\times10^{-4}\\,\\text{C}$. Khi nhúng vào điện môi: $C' = \\varepsilon C = 4\\times10\\,\\mu\\text{F} = 40\\,\\mu\\text{F}$. $U' = Q/C' = 4\\times10^{-4}/(40\\times10^{-6}) = 10\\,\\text{V}$."},
+
+{id:48,
+  text:"Tụ điện phẳng nối với nguồn $U = \\text{const}$, sau đó tăng điện môi từ $\\varepsilon$ lên $2\\varepsilon$. Năng lượng tụ điện",
+  topic:"Tụ điện", level:"VDC",
+  choices:["Không đổi","Tăng gấp đôi","Giảm còn một nửa","Tăng 4 lần"],
+  ans:1,
+  explain:"Giữ $U$ không đổi: $W = \\dfrac{1}{2}CU^2$. Khi $\\varepsilon' = 2\\varepsilon$: $C' = 2C \\Rightarrow W' = \\dfrac{1}{2}(2C)U^2 = 2W$. Năng lượng tăng gấp đôi."},
+
+{id:49,
+  text:"Công thức nào sau đây dùng để tính điện dung tương đương của bộ tụ ghép <b>song song</b>?",
+  topic:"Ghép tụ", level:"NB",
+  choices:["$\\dfrac{1}{C_b} = \\dfrac{1}{C_1}+\\dfrac{1}{C_2}$","$C_b = C_1+C_2$","$C_b = \\dfrac{C_1 C_2}{C_1+C_2}$","$C_b = \\dfrac{C_1+C_2}{2}$"],
+  ans:1,
+  explain:"Song song: $C_b = C_1 + C_2 + \\cdots$. Nối tiếp: $\\dfrac{1}{C_b} = \\dfrac{1}{C_1}+\\dfrac{1}{C_2}+\\cdots$."},
+
+{id:50,
+  text:"Ba tụ $C_1 = C_2 = C_3 = 6\\,\\mu\\text{F}$ mắc nối tiếp. Điện dung tương đương là",
+  topic:"Ghép tụ", level:"TH",
+  choices:["$18\\,\\mu\\text{F}$","$6\\,\\mu\\text{F}$","$3\\,\\mu\\text{F}$","$2\\,\\mu\\text{F}$"],
+  ans:3,
+  explain:"$\\dfrac{1}{C_b} = \\dfrac{1}{6}+\\dfrac{1}{6}+\\dfrac{1}{6} = \\dfrac{3}{6} = \\dfrac{1}{2} \\Rightarrow C_b = 2\\,\\mu\\text{F}$."},
+
+{id:51,
+  text:"Bộ tụ gồm $C_1 = 3\\,\\mu\\text{F}$ và $C_2 = 6\\,\\mu\\text{F}$ mắc nối tiếp, đặt hiệu điện thế $U = 90\\,\\text{V}$. Điện tích của bộ tụ là",
+  topic:"Ghép tụ", level:"TH",
+  choices:["$180\\,\\mu\\text{C}$","$810\\,\\mu\\text{C}$","$180\\,\\text{nC}$","$180\\,\\mu\\text{C}$"],
+  ans:0,
+  explain:"$C_b = \\dfrac{3\\times6}{3+6} = 2\\,\\mu\\text{F}$. $Q_b = C_b U = 2\\times10^{-6}\\times90 = 180\\,\\mu\\text{C}$."},
+
+{id:52,
+  text:"Bộ tụ gồm $C_1 = 3\\,\\mu\\text{F}$ và $C_2 = 6\\,\\mu\\text{F}$ mắc song song, đặt hiệu điện thế $U = 30\\,\\text{V}$. Điện tích trên $C_2$ là",
+  topic:"Ghép tụ", level:"TH",
+  choices:["$90\\,\\mu\\text{C}$","$60\\,\\mu\\text{C}$","$180\\,\\mu\\text{C}$","$270\\,\\mu\\text{C}$"],
+  ans:2,
+  explain:"Song song: $U_2 = U = 30\\,\\text{V}$. $Q_2 = C_2 U = 6\\times10^{-6}\\times30 = 180\\,\\mu\\text{C}$."},
+
+{id:53,
+  text:"Bộ tụ nối tiếp $C_1 = 4\\,\\mu\\text{F}$, $C_2 = 8\\,\\mu\\text{F}$, $U = 36\\,\\text{V}$. Hiệu điện thế trên $C_1$ là",
+  topic:"Ghép tụ", level:"VD",
+  choices:["$12\\,\\text{V}$","$18\\,\\text{V}$","$24\\,\\text{V}$","$36\\,\\text{V}$"],
+  ans:2,
+  explain:"$C_b = \\dfrac{4\\times8}{4+8} = \\dfrac{8}{3}\\,\\mu\\text{F}$. $Q_b = C_b U = \\dfrac{8}{3}\\times10^{-6}\\times36 = 96\\,\\mu\\text{C}$. $U_1 = Q_b/C_1 = 96\\times10^{-6}/(4\\times10^{-6}) = 24\\,\\text{V}$."},
+
+{id:54,
+  text:"Bộ tụ gồm $C_1 = 2\\,\\mu\\text{F}$ mắc nối tiếp với $C_2$, bộ đặt vào $U = 20\\,\\text{V}$, điện tích bộ $Q_b = 8\\,\\mu\\text{C}$. Tính $C_2$.",
+  topic:"Ghép tụ", level:"VD",
+  choices:["$0{,}5\\,\\mu\\text{F}$","$1\\,\\mu\\text{F}$","$2\\,\\mu\\text{F}$","$4\\,\\mu\\text{F}$"],
+  ans:1,
+  explain:"$C_b = Q_b/U = 8\\times10^{-6}/20 = 0{,}4\\,\\mu\\text{F}$. Nối tiếp: $\\dfrac{1}{C_b} = \\dfrac{1}{C_1}+\\dfrac{1}{C_2} \\Rightarrow \\dfrac{1}{0{,}4} = \\dfrac{1}{2}+\\dfrac{1}{C_2} \\Rightarrow C_2 = 1\\,\\mu\\text{F}$."},
+
+{id:55,
+  text:"Tụ $C_1 = 6\\,\\mu\\text{F}$ chịu được $U_{gh1} = 300\\,\\text{V}$ và $C_2 = 3\\,\\mu\\text{F}$ chịu được $U_{gh2} = 200\\,\\text{V}$ ghép nối tiếp. Hiệu điện thế tối đa đặt vào bộ là",
+  topic:"Ghép tụ", level:"VDC",
+  choices:["$300\\,\\text{V}$","$400\\,\\text{V}$","$500\\,\\text{V}$","$600\\,\\text{V}$"],
+  ans:0,
+  explain:"$C_b = \\dfrac{6\\times3}{6+3} = 2\\,\\mu\\text{F}$. Nối tiếp: $Q_1 = Q_2 = Q_b$. Tính giới hạn điện tích mỗi tụ: $Q_{gh1} = C_1 U_{gh1} = 6\\times300 = 1800\\,\\mu\\text{C}$; $Q_{gh2} = C_2 U_{gh2} = 3\\times200 = 600\\,\\mu\\text{C}$. Khi $Q_b = 600\\,\\mu\\text{C}$: $U_1 = Q_b/C_1 = 100\\,\\text{V} < 300\\,\\text{V}$ ✓; $U_2 = Q_b/C_2 = 200\\,\\text{V}$ đúng giới hạn ✓. Vậy $U_{bmax} = Q_{gh}/C_b = 600/2 = 300\\,\\text{V}$."},
+
+{id:56,
+  text:"Biểu thức nào sau đây KHÔNG dùng để tính năng lượng tụ điện?",
+  topic:"Năng lượng tụ", level:"NB",
+  choices:["$W = \\dfrac{1}{2}CU^2$","$W = \\dfrac{Q^2}{2C}$","$W = \\dfrac{QU}{2}$","$W = QU$"],
+  ans:3,
+  explain:"$W = \\dfrac{1}{2}CU^2 = \\dfrac{Q^2}{2C} = \\dfrac{QU}{2}$. Biểu thức $W = QU$ sai (thiếu hệ số $\\dfrac{1}{2}$)."},
+
+{id:57,
+  text:"Tụ điện $C = 40\\,\\mu\\text{F}$ tích điện đến $U = 50\\,\\text{V}$. Năng lượng tích trữ trong tụ là",
+  topic:"Năng lượng tụ", level:"TH",
+  choices:["$0{,}05\\,\\text{J}$","$0{,}1\\,\\text{J}$","$0{,}5\\,\\text{J}$","$1\\,\\text{J}$"],
+  ans:0,
+  explain:"$W = \\dfrac{1}{2}CU^2 = \\dfrac{1}{2}\\times40\\times10^{-6}\\times50^2 = \\dfrac{1}{2}\\times40\\times10^{-6}\\times2500 = 0{,}05\\,\\text{J}$."},
+
+{id:58,
+  text:"Tụ điện $C = 8\\,\\mu\\text{F}$ mang điện tích $Q = 4\\times10^{-4}\\,\\text{C}$. Năng lượng tụ điện là",
+  topic:"Năng lượng tụ", level:"TH",
+  choices:["$5\\times10^{-3}\\,\\text{J}$","$10^{-2}\\,\\text{J}$","$2\\times10^{-2}\\,\\text{J}$","$10^{-3}\\,\\text{J}$"],
+  ans:1,
+  explain:"$W = \\dfrac{Q^2}{2C} = \\dfrac{(4\\times10^{-4})^2}{2\\times8\\times10^{-6}} = \\dfrac{16\\times10^{-8}}{16\\times10^{-6}} = 10^{-2}\\,\\text{J}$."},
+
+{id:59,
+  text:"Tụ điện $C = 20\\,\\mu\\text{F}$ nối với nguồn $U = 100\\,\\text{V}$. Sau đó ngắt nguồn và tăng khoảng cách hai bản lên gấp đôi. Năng lượng tụ thay đổi như thế nào?",
+  topic:"Năng lượng tụ", level:"VD",
+  choices:["Giảm còn $\\dfrac{1}{2}$","Không đổi","Tăng gấp đôi","Tăng 4 lần"],
+  ans:2,
+  explain:"Ngắt nguồn → $Q = \\text{const}$. Tăng $d$ gấp đôi → $C' = C/2$. $W' = \\dfrac{Q^2}{2C'} = \\dfrac{Q^2}{2(C/2)} = 2W$. Năng lượng tăng gấp đôi (năng lượng bổ sung do phải thực hiện công kéo hai bản ra xa)."},
+
+{id:60,
+  text:"Máy khử rung tim dùng tụ $C = 30\\,\\mu\\text{F}$ tích điện đến $U = 5000\\,\\text{V}$. Năng lượng phóng ra trong $10\\,\\text{ms}$ là $W$. Công suất trung bình của xung điện là",
+  topic:"Năng lượng tụ", level:"VDC",
+  choices:["$37{,}5\\,\\text{W}$","$375\\,\\text{W}$","$3750\\,\\text{W}$","$37500\\,\\text{W}$"],
+  ans:2,
+  explain:"$W = \\dfrac{1}{2}CU^2 = \\dfrac{1}{2}\\times30\\times10^{-6}\\times(5000)^2 = \\dfrac{1}{2}\\times30\\times10^{-6}\\times25\\times10^6 = 375\\,\\text{J}$. $P = W/t = 375/(10\\times10^{-3}) = 37500\\,\\text{W}."}
+];
+
+// ── Tên đề: thay đổi cho mỗi chương ──
+var EXAM_NAME = "Điện trường — Vật lý 11";
+
+var TOPICS    = ["Điện tích","Coulomb","Điện trường","Đường sức","Công - Điện thế","Tụ điện","Ghép tụ","Năng lượng tụ"];
+var LEVELS    = ["NB","TH","VD","VDC"];
+var LVL_FULL  = {NB:"Nhận biết",TH:"Thông hiểu",VD:"Vận dụng",VDC:"Vận dụng cao"};
+var TOPIC_CLR = {
+  "Điện tích":      {bg:"#EBF2FB",text:"#0C447C"},
+  "Coulomb":        {bg:"#E6F4EE",text:"#1D5C3B"},
+  "Điện trường":    {bg:"#FFF6E0",text:"#7A4A0A"},
+  "Đường sức":      {bg:"#F9E8F7",text:"#6E1F62"},
+  "Công - Điện thế":{bg:"#EDEAFB",text:"#3F35A0"},
+  "Tụ điện":        {bg:"#FDE8E8",text:"#7A1F1F"},
+  "Ghép tụ":        {bg:"#E8F4FD",text:"#0A4A6E"},
+  "Năng lượng tụ":  {bg:"#F0FDE8",text:"#2A5C1A"},
+}
+var LVL_CLR = {
+  NB:  {bg:"#EBF2FB",text:"#0C447C"},
+  TH:  {bg:"#E6F4EE",text:"#1D5C3B"},
+  VD:  {bg:"#FFF6E0",text:"#7A4A0A"},
+  VDC: {bg:"#FDEAEA",text:"#7A1F1F"},
+};
+
+// Kế hoạch bổ trợ chi tiết theo từng chủ đề
+var PLAN = {
+  "Điện tích": {
+    formula: "$$|Q| = ne, \\quad e = 1{,}6\\times10^{-19}\\,\\text{C}$$",
+    notes: [
+      "Vật nhiễm điện dương: <b>thiếu</b> electron · Vật nhiễm điện âm: <b>thừa</b> electron",
+      "Hai vật giống nhau tiếp xúc: $q' = \\dfrac{q_1+q_2}{2}$",
+      "Hưởng ứng: hai đầu vật nhiễm điện trái dấu nhau, tổng điện tích không đổi",
+    ],
+    exercises: [
+      "Vật tích điện $Q = -4{,}8\\times10^{-17}\\,\\text{C}$. Tính số electron thừa",
+      "Hai quả cầu $q_1 = 5\\,\\mu\\text{C}$, $q_2 = -1\\,\\mu\\text{C}$ tiếp xúc. Tính $q'$ và lực sau khi tách ra $r = 5\\,\\text{cm}$",
+    ]
+  },
+  "Coulomb": {
+    formula: "$$F = k\\frac{|q_1 q_2|}{\\varepsilon r^2}, \\quad k = 9\\times10^9\\,\\text{N·m}^2/\\text{C}^2$$",
+    notes: [
+      "Đổi đơn vị: $\\text{cm}\\to\\text{m}$, $\\mu\\text{C}\\to\\text{C}$ trước khi tính",
+      "Điện môi $\\varepsilon > 1$: lực giảm $\\varepsilon$ lần so với chân không",
+      "Cùng dấu → đẩy · Trái dấu → hút",
+    ],
+    exercises: [
+      "Tính $F$ khi $q_1 = 3\\,\\mu\\text{C}$, $q_2 = 3\\,\\mu\\text{C}$, $r = 3\\,\\text{cm}$, $\\varepsilon = 1$",
+      "Tìm $r$ để $F = 9\\times10^{-3}\\,\\text{N}$ với $q_1 = q_2 = 3\\times10^{-8}\\,\\text{C}$",
+    ]
+  },
+  "Điện trường": {
+    formula: "$$E = \\frac{F}{|q|} = k\\frac{|Q|}{\\varepsilon r^2}, \\quad \\vec{F} = q\\vec{E}$$",
+    notes: [
+      "$Q > 0$: $\\vec{E}$ hướng ra xa · $Q < 0$: $\\vec{E}$ hướng vào gần",
+      "Chồng chất vectơ: $\\vec{E} = \\vec{E}_1 + \\vec{E}_2$ (cộng vectơ, không phải đại số)",
+      "Điểm $E = 0$: cùng dấu → nằm giữa; trái dấu → nằm ngoài về phía điện tích nhỏ hơn",
+    ],
+    exercises: [
+      "Tính $E$ tại M cách $Q = -5\\times10^{-9}\\,\\text{C}$ một đoạn $r = 15\\,\\text{cm}$",
+      "Hai điện tích $q_1 = +Q$, $q_2 = +4Q$ cách nhau $d = 30\\,\\text{cm}$. Tìm điểm có $E_{\\text{tổng}} = 0$",
+    ]
+  },
+  "Đường sức": {
+    formula: "$$\\vec{E} \\perp \\text{mặt đẳng thế}, \\quad A_{\\text{mặt đẳng thế}} = 0$$",
+    notes: [
+      "Đường sức: bắt đầu từ $(+)$, kết thúc ở $(-)$, không cắt nhau, không khép kín",
+      "Mặt đẳng thế vuông góc với đường sức điện tại mọi điểm",
+      "Đường sức dày → điện trường mạnh; đường sức thưa → điện trường yếu",
+    ],
+    exercises: [
+      "Di chuyển điện tích $q = 2\\,\\mu\\text{C}$ trên mặt đẳng thế $V = 100\\,\\text{V}$ một đoạn $5\\,\\text{cm}$. Tính công lực điện",
+      "Trong điện trường đều $E = 3000\\,\\text{V/m}$, tính hiệu điện thế giữa hai mặt đẳng thế cách nhau $2\\,\\text{cm}$ theo phương $\\vec{E}$",
+    ]
+  },
+  "Công - Điện thế": {
+    formula: "$$A_{MN} = q(V_M - V_N) = qU_{MN}, \\quad E = \\frac{U}{d}$$",
+    notes: [
+      "Điện tích dương đi xuôi chiều $\\vec{E}$: $A > 0$ · Ngược chiều $\\vec{E}$: $A < 0$",
+      "$d_{MN}$: hình chiếu lên phương $\\vec{E}$, dương nếu xuôi chiều $\\vec{E}$",
+      "Electron tăng tốc: $eU = \\dfrac{1}{2}m_e v^2$",
+    ],
+    exercises: [
+      "Tính công khi $q = -3\\,\\mu\\text{C}$ di chuyển từ $V_M = 150\\,\\text{V}$ đến $V_N = -50\\,\\text{V}$",
+      "Điện trường đều $E = 5000\\,\\text{V/m}$. Tụ phẳng $d = 4\\,\\text{cm}$. Tính $U$ giữa hai bản và công dịch chuyển $q = 2\\,\\mu\\text{C}$ từ bản $(+)$ đến bản $(-)$",
+    ]
+  },
+  "Tụ điện": {
+    formula: "$$C = \\frac{Q}{U} = \\frac{\\varepsilon S}{4\\pi k d}, \\quad Q = CU$$",
+    notes: [
+      "$C$ chỉ phụ thuộc cấu tạo ($\\varepsilon$, $S$, $d$) — <b>không</b> phụ thuộc $U$ hay $Q$",
+      "Ngắt nguồn rồi thay đổi tụ: $Q = \\text{const}$",
+      "Giữ nguyên nối với nguồn rồi thay đổi tụ: $U = \\text{const}$",
+    ],
+    exercises: [
+      "Tính $C$ khi $S = 100\\,\\text{cm}^2$, $d = 2\\,\\text{mm}$, $\\varepsilon = 2$",
+      "Tụ $C = 20\\,\\mu\\text{F}$, $U = 80\\,\\text{V}$. Ngắt nguồn, nhúng vào điện môi $\\varepsilon = 2$. Tính $U'$, $E'$",
+    ]
+  },
+  "Ghép tụ": {
+    formula: "$$\\text{NT: }\\frac{1}{C_b}=\\sum\\frac{1}{C_i},\\;Q_b=Q_i \\quad \\text{SS: }C_b=\\sum C_i,\\;U_b=U_i$$",
+    notes: [
+      "Nối tiếp: $Q$ bằng nhau, $U$ phân bố ngược $C$ (tụ nhỏ hơn → $U$ lớn hơn)",
+      "Song song: $U$ bằng nhau, $Q$ phân bố thuận $C$ (tụ lớn hơn → $Q$ lớn hơn)",
+      "Giới hạn NT: $(Q_b)_{gh} = \\min(Q_{ghi})$ · SS: $(U_b)_{gh} = \\min(U_{ghi})$",
+    ],
+    exercises: [
+      "$C_1 = 3\\,\\mu\\text{F}$, $C_2 = 6\\,\\mu\\text{F}$ nối tiếp, $U = 90\\,\\text{V}$. Tính $C_b$, $Q_b$, $U_1$, $U_2$",
+      "$C_1 = 4\\,\\mu\\text{F}$, $C_2 = 8\\,\\mu\\text{F}$ song song, $U = 24\\,\\text{V}$. Tính $Q_1$, $Q_2$, $Q_b$",
+    ]
+  },
+  "Năng lượng tụ": {
+    formula: "$$W = \\frac{1}{2}CU^2 = \\frac{Q^2}{2C} = \\frac{QU}{2}$$",
+    notes: [
+      "Ngắt nguồn, tăng $d$: $C$ giảm, $Q$ giữ → $W = Q^2/2C$ <b>tăng</b>",
+      "Giữ nguồn, tăng $d$: $C$ giảm, $U$ giữ → $W = CU^2/2$ <b>giảm</b>",
+      "Đơn vị: $1\\,\\text{J}$, thực tế hay dùng $\\text{mJ}$ ($10^{-3}\\,\\text{J}$)",
+    ],
+    exercises: [
+      "Tụ $C = 50\\,\\mu\\text{F}$, $U = 100\\,\\text{V}$. Tính $W$",
+      "Tụ $C = 10\\,\\mu\\text{F}$ tích điện đến $U = 200\\,\\text{V}$, ngắt nguồn, kéo hai bản ra xa gấp đôi. Tính $W'$",
+    ]
+  },
+};
+
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+var studentName = "", curQ = 0;
+var answers = new Array(QS.length).fill(null);
+var timer = 0, timerInt = null;
+var sheetsUrl = "https://script.google.com/macros/s/AKfycbxCaWkqtPLU-ro1z7R-vKRi768bFMpD2EMuNSLhbloh4PaiNW5T2OoyD5fV6y8OAlDK/exec";
+
+// URL đã được cài sẵn — init sẽ chạy sau khi load xong
+
+/* ═══════════════════════════════════════════════════════
+   SETUP
+═══════════════════════════════════════════════════════ */
+function saveUrl() {
+  var url = document.getElementById("inp-url").value.trim();
+  if (!url) { alert("Vui lòng nhập URL Apps Script"); return; }
+  var st = document.getElementById("conn-status");
+  st.style.display = "block";
+  st.className = "notice notice-warn";
+  st.textContent = "Đang kiểm tra kết nối...";
+
+  fetch(url, { method: "GET", mode: "no-cors" })
+    .then(function() {
+      sheetsUrl = url;
+      try { localStorage.setItem("diagnostic_sheets_url", url); } catch(e) {}
+      st.className = "notice notice-success";
+      st.textContent = "Kết nối thành công! Đang chuyển sang giao diện học sinh...";
+      document.getElementById("sheets-badge").style.display = "block";
+      setTimeout(function() { showScreen("s-login"); }, 1400);
+    })
+    .catch(function() {
+      st.className = "notice notice-error";
+      st.textContent = "Không kết nối được. Kiểm tra lại URL và quyền truy cập (Who has access: Anyone).";
+    });
+}
+
+/* ═══════════════════════════════════════════════════════
+   LOGIN → START
+═══════════════════════════════════════════════════════ */
+function startTest() {
+  var nm = document.getElementById("inp-name").value.trim();
+  if (!nm) { document.getElementById("inp-name").focus(); return; }
+  studentName = nm;
+  curQ = 0;
+  answers = new Array(QS.length).fill(null);
+  timer = 0;
+  timerInt = setInterval(function() {
+    timer++;
+    var m = Math.floor(timer / 60), s = timer % 60;
+    document.getElementById("timer").textContent = m + ":" + (s < 10 ? "0" : "") + s;
+  }, 1000);
+  showScreen("s-test");
+  renderQ();
+}
+
+/* ═══════════════════════════════════════════════════════
+   TEST RENDERING
+═══════════════════════════════════════════════════════ */
+function renderQ() {
+  var q = QS[curQ];
+  document.getElementById("q-counter").textContent = "Câu " + (curQ + 1) + " / " + QS.length;
+  document.getElementById("progress").style.width = ((curQ + 1) / QS.length * 100) + "%";
+
+  var tc = TOPIC_CLR[q.topic] || { bg: "#eee", text: "#333" };
+  var tEl = document.getElementById("q-topic");
+  tEl.textContent = q.topic;
+  tEl.style.background = tc.bg;
+  tEl.style.color = tc.text;
+
+  var lc = LVL_CLR[q.level];
+  var lEl = document.getElementById("q-level");
+  lEl.textContent = LVL_FULL[q.level];
+  lEl.style.background = lc.bg;
+  lEl.style.color = lc.text;
+
+  document.getElementById("q-text").textContent = q.text;
+
+  var cd = document.getElementById("choices");
+  cd.innerHTML = "";
+  var letters = ["A", "B", "C", "D"];
+  q.choices.forEach(function(ch, ci) {
+    var b = document.createElement("button");
+    b.className = "choice-btn" + (answers[curQ] === ci ? " selected" : "");
+    b.innerHTML =
+      '<span class="choice-letter">' + letters[ci] + '</span>' + ch;
+    b.onclick = (function(idx) {
+      return function() { answers[curQ] = idx; renderQ(); };
+    })(ci);
+    cd.appendChild(b);
+  });
+
+  var prevBtn = document.getElementById("btn-prev");
+  prevBtn.disabled = curQ === 0;
+  prevBtn.style.opacity = curQ === 0 ? "0.35" : "1";
+  document.getElementById("btn-next").textContent =
+    curQ === QS.length - 1 ? "Nộp bài ✓" : "Câu tiếp →";
+
+  renderDots();
+
+  // MathJax: typeset câu hỏi và các lựa chọn
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([document.getElementById("q-text"), document.getElementById("choices")])
+      .catch(function(e) { console.log(e); });
+  }
+}
+
+function renderDots() {
+  var nav = document.getElementById("dot-nav");
+  nav.innerHTML = "";
+  QS.forEach(function(_, i) {
+    var d = document.createElement("button");
+    d.className = "dot-nav-item" +
+      (i === curQ ? " current" : answers[i] !== null ? " answered" : "");
+    d.textContent = i + 1;
+    d.onclick = (function(idx) { return function() { curQ = idx; renderQ(); }; })(i);
+    nav.appendChild(d);
+  });
+}
+
+function prevQ() { if (curQ > 0) { curQ--; renderQ(); } }
+function nextQ() {
+  if (curQ < QS.length - 1) { curQ++; renderQ(); }
+  else {
+    var missing = answers.filter(function(a) { return a === null; }).length;
+    if (missing > 0 && !confirm("Còn " + missing + " câu chưa trả lời. Vẫn nộp bài?")) return;
+    submitTest();
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   CALCULATE RESULTS
+═══════════════════════════════════════════════════════ */
+function calcResults() {
+  var score = answers.filter(function(a, i) { return a === QS[i].ans; }).length;
+  var pct = Math.round(score / QS.length * 100);
+  var letters = ["A","B","C","D"];
+  var ansLetters = answers.map(function(a) { return a !== null ? letters[a] : "?"; });
+
+  var topicPcts = TOPICS.map(function(t) {
+    var ok = 0, tot = 0;
+    QS.forEach(function(q, i) {
+      if (q.topic === t) { tot++; if (answers[i] === q.ans) ok++; }
+    });
+    return tot ? Math.round(ok / tot * 100) : 0;
+  });
+
+  var levelPcts = LEVELS.map(function(l) {
+    var ok = 0, tot = 0;
+    QS.forEach(function(q, i) {
+      if (q.level === l) { tot++; if (answers[i] === q.ans) ok++; }
+    });
+    return tot ? Math.round(ok / tot * 100) : 0;
+  });
+
+  var grade = pct >= 80 ? "Tốt" : pct >= 65 ? "Khá" : pct >= 50 ? "Trung bình" : "Cần bổ trợ";
+  return { score: score, pct: pct, grade: grade, ansLetters: ansLetters, topicPcts: topicPcts, levelPcts: levelPcts };
+}
+
+/* ═══════════════════════════════════════════════════════
+   SUBMIT
+═══════════════════════════════════════════════════════ */
+function submitTest() {
+  clearInterval(timerInt);
+  var res     = calcResults();
+  var cls     = document.getElementById("inp-class").value.trim();
+  var timeMin = Math.round(timer / 60 * 10) / 10;
+
+  // ── Hiển thị kết quả NGAY — không chờ server ──
+  // Gửi lên Sheets trong nền, không block UI
+  showResult(res, false);   // sentOk=false trước, sẽ cập nhật badge sau
+
+  if (!sheetsUrl) return;
+
+  var params = [
+    "examName="  + encodeURIComponent(EXAM_NAME),
+    "name="      + encodeURIComponent(studentName),
+    "className=" + encodeURIComponent(cls),
+    "score="     + res.score,
+    "pct="       + res.pct,
+    "grade="     + encodeURIComponent(res.grade),
+    "time="      + timeMin,
+    "topicPcts=" + res.topicPcts.join(","),
+    "levelPcts=" + res.levelPcts.join(","),
+    "answers="   + res.ansLetters.join(""),
+  ].join("&");
+
+  var fullUrl  = sheetsUrl + "?" + params;
+  var sent     = false;
+
+  function markSent() {
+    if (sent) return;
+    sent = true;
+    // Cập nhật badge "Đã gửi" ngay trên màn hình kết quả
+    var failBadge = document.getElementById("sheets-fail-badge");
+    var sentBadge = document.getElementById("sheets-sent-badge");
+    if (failBadge) failBadge.style.display = "none";
+    if (sentBadge) sentBadge.style.display = "block";
+    // Ẩn mã dự phòng nếu đang hiện
+    var codeBlock = document.getElementById("code-block");
+    if (codeBlock) codeBlock.style.display = "none";
+  }
+
+  function markFailed() {
+    if (sent) return;
+    sent = true;
+    // Giữ nguyên badge fail + mã dự phòng đã hiện sẵn
+  }
+
+  // ── Cách 1: fetch (Chrome, Safari, Android WebView hiện đại) ──
+  if (typeof fetch !== "undefined") {
+    var controller;
+    var fetchTimer;
+    try {
+      controller = new AbortController();
+      fetchTimer = setTimeout(function() { controller.abort(); }, 6000);
+    } catch(e) { controller = null; }
+
+    fetch(fullUrl, {
+      method: "GET",
+      mode:   "no-cors",
+      signal: controller ? controller.signal : undefined,
+    })
+    .then(function() { clearTimeout(fetchTimer); markSent(); })
+    .catch(function(e) {
+      clearTimeout(fetchTimer);
+      if (!sent) {
+        // Cách 2: Image pixel (Zalo WebView cũ không có fetch)
+        sendViaImage(fullUrl, markSent, markFailed);
+      }
+    });
+  } else {
+    // Cách 2: Image pixel fallback
+    sendViaImage(fullUrl, markSent, markFailed);
+  }
+}
+
+function sendViaImage(url, onSuccess, onFail) {
+  var img      = new Image();
+  var imgTimer = setTimeout(function() {
+    img.onload = img.onerror = null;
+    onFail();
+  }, 6000);
+
+  img.onload = img.onerror = function() {
+    clearTimeout(imgTimer);
+    onSuccess();
+  };
+  img.src = url;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SHOW RESULT
+═══════════════════════════════════════════════════════ */
+function pctColor(p) {
+  if (p >= 70) return { bg: "#E6F4EE", text: "#1D5C3B", bar: "#1D7A4F" };
+  if (p >= 40) return { bg: "#FFF6E0", text: "#7A4A0A", bar: "#EF9F27" };
+  return { bg: "#FDEAEA", text: "#7A1F1F", bar: "#E24B4A" };
+}
+
+function showResult(res, sentOk) {
+  var score10 = Math.round(res.score / QS.length * 10 * 10) / 10;
+  document.getElementById("score-num").textContent = score10 % 1 === 0 ? score10.toFixed(1) : score10;
+  document.getElementById("score-denom").textContent = "/10";
+  document.getElementById("score-raw").textContent = "(" + res.score + "/" + QS.length + " câu)";
+  document.getElementById("result-name").textContent = studentName;
+
+  var gradeColors = {
+    "Tốt":        { bg: "#E6F4EE", text: "#1D5C3B" },
+    "Khá":        { bg: "#EBF2FB", text: "#0C447C" },
+    "Trung bình": { bg: "#FFF6E0", text: "#7A4A0A" },
+    "Cần bổ trợ": { bg: "#FDEAEA", text: "#7A1F1F" },
+  };
+  var gc = gradeColors[res.grade] || gradeColors["Cần bổ trợ"];
+  document.getElementById("result-grade-badge").innerHTML =
+    '<span style="font-size:13px;padding:4px 14px;border-radius:20px;font-weight:600;background:' +
+    gc.bg + ';color:' + gc.text + ';border:1px solid ' + gc.text + '30">' + res.grade + '</span>';
+
+  if (sentOk && sheetsUrl) {
+    document.getElementById("sheets-sent-badge").style.display = "block";
+  } else if (!sheetsUrl || !sentOk) {
+    document.getElementById("sheets-fail-badge").style.display = "block";
+    document.getElementById("code-block").style.display = "block";
+    var codeParts = [
+      studentName.replace(/[|]/g, "").substring(0, 12),
+      document.getElementById("inp-class").value || "?",
+      res.score,
+      res.pct + "%",
+      res.ansLetters.join("")
+    ];
+    document.getElementById("result-code").textContent = codeParts.join("|");
+  }
+
+  var s10 = Math.round(res.score / QS.length * 10 * 10) / 10;
+  document.getElementById("m-score").textContent = (s10 % 1 === 0 ? s10.toFixed(1) : s10) + " (" + res.score + "/" + QS.length + ")";
+  document.getElementById("m-pct").textContent = res.pct + "%";
+  var m = Math.floor(timer / 60), s = timer % 60;
+  document.getElementById("m-time").textContent = m + ":" + (s < 10 ? "0" : "") + s;
+
+  /* topic bars */
+  var tb = document.getElementById("topic-bars");
+  tb.innerHTML = TOPICS.map(function(t, i) {
+    var p = res.topicPcts[i];
+    var c = pctColor(p);
+    var tc = TOPIC_CLR[t] || { bg: "#eee", text: "#333" };
+    return '<div class="bar-row">' +
+      '<div class="bar-meta">' +
+        '<span class="tag" style="background:' + tc.bg + ';color:' + tc.text + '">' + t + '</span>' +
+        '<span style="font-size:13px;font-weight:600;color:' + c.text + '">' + p + '%</span>' +
+      '</div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + p + '%;background:' + c.bar + '"></div></div>' +
+    '</div>';
+  }).join("");
+
+  /* level bars */
+  var lb = document.getElementById("level-bars");
+  lb.innerHTML = LEVELS.map(function(l, i) {
+    var p = res.levelPcts[i];
+    var c = pctColor(p);
+    var lc = LVL_CLR[l];
+    return '<div class="bar-row">' +
+      '<div class="bar-meta">' +
+        '<span class="tag" style="background:' + lc.bg + ';color:' + lc.text + '">' + LVL_FULL[l] + '</span>' +
+        '<span style="font-size:13px;font-weight:600;color:' + c.text + '">' + p + '%</span>' +
+      '</div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + p + '%;background:' + c.bar + '"></div></div>' +
+    '</div>';
+  }).join("");
+
+  /* ── detail per question: expandable accordion ── */
+  var dr = document.getElementById("detail-rows");
+  var letters = ["A","B","C","D"];
+  dr.innerHTML = QS.map(function(q, i) {
+    var ok = answers[i] === q.ans;
+    var tc = TOPIC_CLR[q.topic] || { bg:"#eee", text:"#333" };
+    var userLetter  = answers[i] !== null ? letters[answers[i]] : "–";
+    var correctLetter = letters[q.ans];
+    var detailId = "detail-expand-" + i;
+    return (
+      '<div style="border-bottom:1px solid #F0F4FB">' +
+        // ── header row (clickable) ──
+        '<div onclick="toggleDetail(' + i + ')" style="display:flex;gap:10px;align-items:center;padding:11px 4px;cursor:pointer;-webkit-tap-highlight-color:transparent">' +
+          '<div style="width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;background:' + (ok?"#E6F4EE":"#FDEAEA") + ';color:' + (ok?"#1D5C3B":"#7A1F1F") + '">' + (ok?"✓":"✗") + '</div>' +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-size:13.5px;font-weight:500;color:#222;line-height:1.5" class="q-preview-' + i + '">' + q.id + '. ' + q.text + '</div>' +
+            (!ok ? '<div style="font-size:12px;color:#7A1F1F;margin-top:3px">Bạn chọn: <b>' + userLetter + '</b> · Đúng: <b>' + correctLetter + '</b></div>' : '<div style="font-size:12px;color:#1D5C3B;margin-top:3px">Đáp án đúng: <b>' + correctLetter + '</b></div>') +
+          '</div>' +
+          '<span class="tag" style="background:' + tc.bg + ';color:' + tc.text + ';flex-shrink:0;font-size:11px">' + q.topic + '</span>' +
+          '<span id="arrow-' + i + '" style="font-size:14px;color:#aaa;flex-shrink:0;transition:transform .2s">▸</span>' +
+        '</div>' +
+        // ── expanded content ──
+        '<div id="' + detailId + '" style="display:none;padding:0 4px 14px 36px">' +
+          // All choices
+          '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">' +
+            q.choices.map(function(ch, ci) {
+              var isCorrect = ci === q.ans;
+              var isUser    = ci === answers[i];
+              var bg  = isCorrect ? "#E6F4EE" : (isUser && !ok ? "#FDEAEA" : "#F8FAFD");
+              var clr = isCorrect ? "#1D5C3B"  : (isUser && !ok ? "#7A1F1F"  : "#555");
+              var brd = isCorrect ? "1.5px solid #9FE1CB" : (isUser && !ok ? "1.5px solid #F09595" : "1px solid #E8ECF2");
+              var prefix = isCorrect ? "✓ " : (isUser && !ok ? "✗ " : "");
+              return '<div style="padding:8px 12px;border-radius:8px;background:' + bg + ';border:' + brd + ';font-size:13px;color:' + clr + ';font-weight:' + (isCorrect?"600":"400") + '">' +
+                '<span style="font-weight:700;margin-right:6px">' + letters[ci] + '.</span>' + prefix + ch + '</div>';
+            }).join("") +
+          '</div>' +
+          // Explanation
+          '<div style="background:#F5F7FA;border-radius:8px;padding:10px 12px;border-left:3px solid #1A56A0">' +
+            '<div style="font-size:11px;font-weight:700;color:#1A56A0;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Giải thích</div>' +
+            '<div style="font-size:13px;color:#333;line-height:1.7" class="explain-' + i + '">' + q.explain + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }).join("");
+
+  // MathJax typeset all question previews and explains after rendering
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([document.getElementById("detail-rows")]).catch(function(e){console.log(e);});
+  }
+
+  /* ── remediation plan: chi tiết ── */
+  var weakTopics = TOPICS.filter(function(_, i) { return res.topicPcts[i] < 60; });
+  var pr = document.getElementById("plan-rows");
+  if (weakTopics.length === 0) {
+    pr.innerHTML = '<div style="text-align:center;padding:12px;font-size:14px;color:#1D7A4F;font-weight:600">Xuất sắc! Bạn đạt yêu cầu ở tất cả chủ đề.</div>';
+  } else {
+    var planHtml = weakTopics.map(function(t) {
+      var tc   = TOPIC_CLR[t] || { bg:"#eee", text:"#333" };
+      var p    = PLAN[t];
+      var wrongQs = QS.filter(function(q, i) { return q.topic === t && answers[i] !== q.ans; });
+      return (
+        '<div style="border-bottom:1px solid #F0F4FB;padding:16px 0">' +
+          // Topic header
+          '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">' +
+            '<div style="width:36px;height:36px;border-radius:50%;background:' + tc.bg + ';color:' + tc.text + ';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">' + t.substring(0,3) + '</div>' +
+            '<div style="font-size:15px;font-weight:700;color:#1a1a1a">' + t + '</div>' +
+            '<span style="font-size:12px;padding:2px 9px;border-radius:10px;background:#FDEAEA;color:#7A1F1F;font-weight:600">' + wrongQs.length + ' câu sai</span>' +
+          '</div>' +
+          // Công thức cần nhớ
+          '<div style="background:#F0F4FB;border-radius:10px;padding:12px 14px;margin-bottom:10px">' +
+            '<div style="font-size:11px;font-weight:700;color:#1A56A0;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Công thức cần nhớ</div>' +
+            '<div class="plan-formula-' + t.replace(/[^a-zA-Z]/g,'') + '">' + p.formula + '</div>' +
+          '</div>' +
+          // Lưu ý
+          '<div style="margin-bottom:10px">' +
+            '<div style="font-size:11px;font-weight:700;color:#555;margin-bottom:7px;text-transform:uppercase;letter-spacing:.05em">Điểm cần chú ý</div>' +
+            '<div style="display:flex;flex-direction:column;gap:5px">' +
+              p.notes.map(function(n) {
+                return '<div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:#333;line-height:1.6">' +
+                  '<span style="color:#1A56A0;flex-shrink:0;font-weight:700;margin-top:1px">•</span>' +
+                  '<span class="plan-note-text">' + n + '</span>' +
+                '</div>';
+              }).join("") +
+            '</div>' +
+          '</div>' +
+          // Bài tập đề nghị
+          '<div style="background:#FFFBF0;border-radius:10px;padding:12px 14px;border:1px solid #FAC77540">' +
+            '<div style="font-size:11px;font-weight:700;color:#7A4A0A;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Bài tập luyện thêm</div>' +
+            '<div style="display:flex;flex-direction:column;gap:7px">' +
+              p.exercises.map(function(ex, ei) {
+                return '<div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:#333;line-height:1.6">' +
+                  '<span style="background:#EF9F27;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px">' + (ei+1) + '</span>' +
+                  '<span class="plan-ex-text">' + ex + '</span>' +
+                '</div>';
+              }).join("") +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join("");
+    pr.innerHTML = planHtml;
+    // Typeset MathJax in plan section
+    if (window.MathJax && MathJax.typesetPromise) {
+      MathJax.typesetPromise([document.getElementById("plan-rows")]).catch(function(e){console.log(e);});
+    }
+  }
+
+  // ── Lưu kết quả vào biến global để doRenderHTML dùng ──
+  window._pdfRes     = res;
+  window._pdfAnswers = answers.slice();
+
+  // ── Hiện nút PDF chỉ khi có chủ đề yếu ──
+  if (weakTopics.length > 0) {
+    document.getElementById("btn-save-pdf").style.display = "flex";
+  }
+
+  showScreen("s-result");
+}
+
+function toggleDetail(i) {
+  var el  = document.getElementById("detail-expand-" + i);
+  var arr = document.getElementById("arrow-" + i);
+  var open = el.style.display === "block";
+  el.style.display = open ? "none" : "block";
+  arr.style.transform = open ? "" : "rotate(90deg)";
+  if (!open && window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([el]).catch(function(e){console.log(e);});
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(function(s) { s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+function restart() {
+  document.getElementById("inp-name").value = "";
+  showScreen("s-login");
+}
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════
+   SAVE PDF
+═══════════════════════════════════════════════════════ */
+function savePDF() {
+  var defaultName = (studentName || "hoc_sinh").replace(/\s+/g, "_")
+    + "_" + EXAM_NAME.replace(/[\s\/\\:*?<>|]+/g, "_");
+  document.getElementById("pdf-filename-input").value = defaultName;
+  document.getElementById("pdf-name-modal").style.display = "flex";
+  setTimeout(function() {
+    var inp = document.getElementById("pdf-filename-input");
+    inp.focus(); inp.select();
+  }, 80);
+}
+
+function closePDFModal(evt) {
+  if (evt && evt.target !== document.getElementById("pdf-name-modal")) return;
+  document.getElementById("pdf-name-modal").style.display = "none";
+}
+
+function confirmSavePDF() {
+  var raw = document.getElementById("pdf-filename-input").value.trim() || "ke_hoach_bo_tro";
+  var filename = raw + ".html";
+  document.getElementById("pdf-name-modal").style.display = "none";
+  doRenderHTML(filename);
+}
+
+function doRenderHTML(filename) {
+  var btn = document.getElementById("btn-save-pdf");
+  btn.disabled = true;
+
+  try {
+    // ── Đóng hết accordion trước khi chụp ──
+    var expandStates = [];
+    document.querySelectorAll('[id^="detail-expand-"]').forEach(function(el, i){
+      expandStates.push({ el: el, display: el.style.display });
+      el.style.display = "none";
+    });
+    var arrowStates = [];
+    document.querySelectorAll('[id^="arrow-"]').forEach(function(el){
+      arrowStates.push({ el: el, transform: el.style.transform });
+      el.style.transform = "";
+    });
+
+    // ── Ẩn các màn hình/nút không cần ──
+    document.querySelectorAll(".screen").forEach(function(s){
+      s.setAttribute("data-save-display", s.style.display);
+      s.style.display = s.id === "s-result" ? "block" : "none";
+    });
+    document.getElementById("btn-save-pdf").style.visibility = "hidden";
+    document.querySelectorAll(".btn-block").forEach(function(b){
+      b.setAttribute("data-save-vis", b.style.visibility);
+      b.style.visibility = "hidden";
+    });
+    document.getElementById("pdf-name-modal").style.display = "none";
+
+    // ── Chụp toàn bộ trang ──
+    var snap = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+
+    // ── Khôi phục trạng thái trang ──
+    expandStates.forEach(function(s){ s.el.style.display = s.display; });
+    arrowStates.forEach(function(s){ s.el.style.transform = s.transform; });
+    document.querySelectorAll(".screen").forEach(function(s){
+      s.style.display = s.getAttribute("data-save-display") || "";
+    });
+    document.getElementById("btn-save-pdf").style.visibility = "";
+    document.querySelectorAll(".btn-block").forEach(function(b){
+      b.style.visibility = b.getAttribute("data-save-vis") || "";
+    });
+
+    // ── Patch CSS cho file lưu ──
+    snap = snap.replace(
+      "</style>",
+      ".screen{display:none!important}#s-result{display:block!important}"
+      + "#btn-save-pdf,.btn-block{display:none!important}"
+      + "#pdf-name-modal{display:none!important}"
+      + "</style>"
+    );
+
+    var blob = new Blob([snap], {type: "text/html;charset=utf-8"});
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 3000);
+
+  } catch(err) {
+    alert("Không tạo được file: " + err.message);
+  }
+
+  btn.disabled = false;
+}
+
+// ── Khởi tạo sau khi tất cả hàm đã định nghĩa ──
+document.getElementById("sheets-badge").style.display = "block";
+showScreen("s-login");
+</script>
+</body>
+</html>
