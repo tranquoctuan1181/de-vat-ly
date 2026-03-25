@@ -1,0 +1,2221 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1A56A0">
+<title>C4.VatLiHatNhan — Vật lý 12</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [["$","$"]], displayMath: [["$$","$$"]] }, options: { skipHtmlTags: ["script","noscript","style","textarea"] }, startup: { typeset: false } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+  /* ── reset & base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #F5F7FA;
+    color: #1a1a1a;
+    min-height: 100vh;
+  }
+
+  /* ── layout ── */
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 16px;
+    min-height: 100vh;
+  }
+
+  /* ── screens ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── cards ── */
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid #E8ECF2;
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+
+  /* ── buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 11px 20px;
+    border-radius: 10px;
+    border: 1px solid #D0D7E3;
+    background: #fff;
+    color: #1a1a1a;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: #1A56A0; color: #fff; border-color: #1A56A0; }
+  .btn-primary:active { background: #154a8e; }
+  .btn-green { background: #1D7A4F; color: #fff; border-color: #1D7A4F; }
+  .btn-block { width: 100%; }
+
+  /* ── inputs ── */
+  .input-field {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #D0D7E3;
+    border-radius: 10px;
+    font-size: 15px;
+    background: #fff;
+    color: #1a1a1a;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .input-field:focus {
+    border-color: #1A56A0;
+    box-shadow: 0 0 0 3px rgba(26,86,160,.12);
+  }
+  .input-label {
+    display: block;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 7px;
+    font-weight: 500;
+  }
+  .input-group { margin-bottom: 14px; }
+
+  /* ── progress ── */
+  .progress-bar {
+    height: 5px;
+    background: #E8ECF2;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #1A56A0;
+    border-radius: 3px;
+    transition: width .3s ease;
+  }
+
+  /* ── top bar ── */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .top-bar span { font-size: 13px; color: #666; font-weight: 500; }
+
+  /* ── choice buttons ── */
+  .choice-btn {
+    width: 100%;
+    text-align: left;
+    padding: 13px 16px;
+    border: 1px solid #E0E6EF;
+    border-radius: 10px;
+    background: #fff;
+    color: #1a1a1a;
+    font-size: 14.5px;
+    margin-bottom: 9px;
+    cursor: pointer;
+    transition: background .12s, border-color .12s;
+    -webkit-tap-highlight-color: transparent;
+    line-height: 1.5;
+  }
+  .choice-btn:active { background: #F0F4FB; }
+  .choice-btn.selected {
+    background: #EBF2FB;
+    border-color: #1A56A0;
+    color: #0C447C;
+    font-weight: 500;
+  }
+  .choice-letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #F0F4FB;
+    color: #555;
+    font-size: 13px;
+    font-weight: 600;
+    margin-right: 10px;
+    flex-shrink: 0;
+    vertical-align: middle;
+  }
+  .choice-btn.selected .choice-letter {
+    background: #1A56A0;
+    color: #fff;
+  }
+
+  /* ── tags ── */
+  .tag {
+    display: inline-block;
+    font-size: 11.5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  /* ── dot nav ── */
+  .dot-nav { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 14px; }
+  .dot-nav-item {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #F0F4FB;
+    color: #888;
+    border: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .dot-nav-item.current { background: #1A56A0; color: #fff; }
+  .dot-nav-item.answered { background: #D6E4F7; color: #0C447C; }
+
+  /* ── metrics ── */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .metric-card {
+    background: #F5F7FA;
+    border-radius: 10px;
+    padding: 13px 10px;
+    text-align: center;
+  }
+  .metric-label { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .metric-value { font-size: 20px; font-weight: 600; color: #1a1a1a; }
+
+  /* ── score circle ── */
+  .score-wrap { text-align: center; margin-bottom: 20px; }
+  .score-circle {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    border: 3px solid #1A56A0;
+    background: #EBF2FB;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+  }
+  .score-circle-num { font-size: 30px; font-weight: 700; color: #0C447C; line-height: 1; }
+  .score-circle-denom { font-size: 12px; color: #1A56A0; }
+
+  /* ── bar chart ── */
+  .bar-row { margin-bottom: 13px; }
+  .bar-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+  .bar-track {
+    background: #EEF1F7;
+    border-radius: 5px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .bar-fill { height: 100%; border-radius: 5px; transition: width .5s ease; }
+
+  /* ── notice boxes ── */
+  .notice {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 14px;
+    line-height: 1.6;
+  }
+  .notice-info { background: #EBF2FB; color: #0C447C; border: 1px solid #B5D4F4; }
+  .notice-warn { background: #FFF6E0; color: #7A4A0A; border: 1px solid #FAC775; }
+  .notice-success { background: #E6F4EE; color: #1D5C3B; border: 1px solid #9FE1CB; }
+  .notice-error { background: #FDEAEA; color: #7A1F1F; border: 1px solid #F09595; }
+
+  /* ── step list ── */
+  .step-list { display: flex; flex-direction: column; gap: 13px; }
+  .step-item { display: flex; gap: 12px; align-items: flex-start; }
+  .step-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: #1A56A0;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-text { font-size: 14px; line-height: 1.65; color: #333; padding-top: 3px; }
+  .step-text a { color: #1A56A0; }
+  .step-text code {
+    background: #F0F4FB;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 12px;
+    font-family: monospace;
+  }
+
+  /* ── spinner ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 48px; height: 48px;
+    border: 3px solid #D6E4F7;
+    border-top-color: #1A56A0;
+    border-radius: 50%;
+    animation: spin .75s linear infinite;
+    margin: 0 auto 20px;
+  }
+
+  /* ── status badge ── */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  /* ── result code ── */
+  .result-code {
+    font-family: monospace;
+    font-size: 14px;
+    letter-spacing: 1.5px;
+    background: #F5F7FA;
+    border-radius: 8px;
+    padding: 12px 14px;
+    word-break: break-all;
+    margin-top: 8px;
+    border: 1px solid #E0E6EF;
+    color: #333;
+  }
+
+  /* ── divider ── */
+  hr { border: none; border-top: 1px solid #EEF1F7; margin: 14px 0; }
+
+  /* ── detail rows ── */
+  .detail-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #F0F4FB;
+    font-size: 13px;
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-icon {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── plan row ── */
+  .plan-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 11px 0;
+    border-bottom: 1px solid #F0F4FB;
+  }
+  .plan-row:last-child { border-bottom: none; }
+  .plan-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── modal đặt tên file PDF ── */
+  .pdf-modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999; padding: 20px;
+  }
+  .pdf-modal {
+    background: #fff; border-radius: 16px;
+    padding: 24px; width: 100%; max-width: 360px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  }
+  .pdf-modal-title {
+    font-size: 16px; font-weight: 600; margin-bottom: 6px; color: #1a1a1a;
+  }
+  .pdf-modal-sub {
+    font-size: 12px; color: #888; margin-bottom: 16px; line-height: 1.5;
+  }
+  .pdf-filename-wrap {
+    display: flex; align-items: center;
+    border: 1.5px solid #1A56A0; border-radius: 10px; overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .pdf-filename-wrap input {
+    flex: 1; padding: 10px 12px; border: none; outline: none;
+    font-size: 14px; background: #fff; color: #1a1a1a;
+  }
+  .pdf-ext {
+    padding: 10px 12px; background: #F0F4FB;
+    font-size: 13px; color: #1A56A0; font-weight: 600; flex-shrink: 0;
+  }
+  .pdf-modal-btns { display: flex; gap: 10px; }
+
+  /* ── accordion detail ── */
+  .detail-accordion { border-radius: 10px; overflow: hidden; border: 1px solid #E8ECF2; margin-bottom: 0; }
+  .detail-expand { background: #F8FAFD; }
+
+  /* ── MathJax SVG overrides ── */
+  mjx-container { overflow-x: auto; max-width: 100%; }
+  mjx-container svg { max-width: 100%; }
+
+  /* ── misc ── */
+  .page-title { font-size: 19px; font-weight: 700; margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: #888; }
+  .section-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 12px;
+  }
+  .flex-row { display: flex; gap: 10px; }
+  .flex-1 { flex: 1; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .text-center { text-align: center; }
+  .mt-4 { margin-top: 4px; }
+  .mt-8 { margin-top: 8px; }
+  .mt-14 { margin-top: 14px; }
+  .mt-20 { margin-top: 20px; }
+  .mb-4 { margin-bottom: 4px; }
+  .mb-8 { margin-bottom: 8px; }
+  .mb-12 { margin-bottom: 12px; }
+  .mb-16 { margin-bottom: 16px; }
+  .icon-wrap {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: #EBF2FB;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 0: SETUP (Giáo viên cài đặt 1 lần)
+═══════════════════════════════════════════════ -->
+<div id="s-setup" class="screen">
+  <div class="icon-wrap mt-20">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1A56A0" stroke-width="2.2">
+      <rect x="3" y="3" width="18" height="18" rx="2.5"/>
+      <path d="M3 9h18M9 21V9"/>
+    </svg>
+  </div>
+  <div class="text-center mb-16">
+    <div class="page-title">Cài đặt Google Sheets</div>
+    <div class="page-sub">Dành cho giáo viên · Chỉ làm 1 lần duy nhất</div>
+  </div>
+
+  <div class="card">
+    <div class="section-label mb-12">Các bước thực hiện</div>
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-text">Mở <a href="https://sheets.new" target="_blank">sheets.new</a> → đặt tên file <strong>"Kết quả kiểm tra"</strong></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-text">Vào menu <code>Extensions</code> → <code>Apps Script</code> → xoá code cũ → dán toàn bộ nội dung file <strong>google_apps_script.js</strong> vào → nhấn Save</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-text">Nhấn <code>Deploy</code> → <code>New deployment</code> → chọn <strong>Web app</strong> → <em>Execute as: Me</em> → <em>Who has access: Anyone</em> → <code>Deploy</code></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-text">Copy URL deployment (dạng <em>https://script.google.com/macros/s/…/exec</em>) → dán vào ô bên dưới</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="input-group">
+      <label class="input-label">URL Google Apps Script</label>
+      <input class="input-field" type="url" id="inp-url"
+        placeholder="https://script.google.com/macros/s/AKfy.../exec"/>
+    </div>
+    <div class="flex-row">
+      <button class="btn btn-primary flex-1" onclick="saveUrl()">Lưu &amp; Kiểm tra kết nối</button>
+    </div>
+    <div id="conn-status" style="display:none;margin-top:10px;font-size:13px;padding:10px 14px;border-radius:8px"></div>
+  </div>
+
+  <div class="notice notice-success" style="margin-top:4px">
+    <strong>Chia sẻ file HTML cho học sinh qua Zalo:</strong><br>
+    Zalo → Nhóm lớp → nhấn biểu tượng <strong>File</strong> (📎) → chọn file HTML → Gửi.<br>
+    HS nhận file → nhấn giữ → chọn <strong>"Mở bằng trình duyệt"</strong> (Chrome/Safari) → làm bài bình thường.
+  </div>
+  <div class="flex-row" style="margin-top:4px">
+    <button class="btn flex-1" onclick="showScreen('s-login')" style="color:#888">Bỏ qua →</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 1: LOGIN
+═══════════════════════════════════════════════ -->
+<div id="s-login" class="screen">
+  <div class="icon-wrap mt-20">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1A56A0" stroke-width="2.2">
+      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+    </svg>
+  </div>
+  <div class="text-center mb-16">
+    <div class="page-title">Kiểm tra chẩn đoán</div>
+    <div class="page-sub">Vật lý 12 · Chương 4: Vật lí hạt nhân · 60 câu · ~45 phút</div>
+    <div id="sheets-badge" style="display:none;margin-top:10px">
+      <span class="status-badge" style="background:#E6F4EE;color:#1D5C3B;border:1px solid #9FE1CB">
+        <span class="status-dot" style="background:#1D7A4F"></span>
+        Kết nối Google Sheets
+      </span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="input-group">
+      <label class="input-label">Họ và tên</label>
+      <input class="input-field" type="text" id="inp-name" placeholder="Nguyễn Văn An" autocomplete="name"/>
+    </div>
+    <div class="input-group mb-4">
+      <label class="input-label">Lớp</label>
+      <input class="input-field" type="text" id="inp-class" placeholder="11A1"/>
+    </div>
+  </div>
+
+  <div class="notice notice-warn">
+    Mỗi câu chỉ có 1 đáp án đúng. Bạn có thể quay lại sửa câu trước. Không giới hạn thời gian.
+  </div>
+
+  <button class="btn btn-primary btn-block" style="padding:14px;font-size:16px" onclick="startTest()">
+    Bắt đầu làm bài →
+  </button>
+
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 2: TEST
+═══════════════════════════════════════════════ -->
+<div id="s-test" class="screen">
+  <div class="top-bar">
+    <span id="q-counter">Câu 1 / 100</span>
+    <span id="timer" style="font-variant-numeric:tabular-nums">0:00</span>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress" style="width:1.67%"></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
+      <span id="q-topic" class="tag"></span>
+      <span id="q-level" class="tag"></span>
+    </div>
+    <p id="q-text" style="font-size:15.5px;font-weight:500;line-height:1.7;margin-bottom:18px"></p>
+    <div id="choices"></div>
+  </div>
+
+  <div class="flex-row mb-12">
+    <button class="btn flex-1" id="btn-prev" onclick="prevQ()">← Câu trước</button>
+    <button class="btn btn-primary" id="btn-next" onclick="nextQ()"
+      style="flex:1.8;padding:11px 16px">Câu tiếp →</button>
+  </div>
+
+  <div class="dot-nav" id="dot-nav"></div>
+
+  <div style="margin-top:16px">
+    <button class="btn btn-green btn-block" style="padding:13px;font-size:15px;font-weight:600" onclick="doSubmit()">
+      Nộp bài &amp; Xem kết quả ✓
+    </button>
+  </div>
+</div>
+
+<!-- Submit confirm modal -->
+<div id="submit-confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:16px;padding:24px;max-width:340px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.2)">
+    <div style="font-size:16px;font-weight:700;margin-bottom:8px;color:#1a1a1a">Xác nhận nộp bài</div>
+    <div style="font-size:14px;color:#555;margin-bottom:20px;line-height:1.6">
+      Còn <b id="missing-count">0</b> câu chưa trả lời.<br>Bạn có chắc muốn nộp bài không?
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn flex-1" style="color:#888" onclick="document.getElementById('submit-confirm-modal').style.display='none'">Quay lại</button>
+      <button class="btn btn-primary flex-1" onclick="document.getElementById('submit-confirm-modal').style.display='none';submitTest()">Nộp bài ✓</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="s-submitting" style="display:none"></div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 4: RESULT
+═══════════════════════════════════════════════ -->
+<div id="s-result" class="screen">
+
+  <div class="score-wrap mt-20">
+    <div class="score-circle">
+      <div class="score-circle-num" id="score-num"></div>
+      <div class="score-circle-denom" id="score-denom">/10</div>
+      <div id="score-raw" style="font-size:10px;color:#888;margin-top:2px"></div>
+    </div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:6px" id="result-name"></div>
+    <div id="result-grade-badge"></div>
+    <div id="sheets-sent-badge" style="display:none;margin-top:8px">
+      <span class="status-badge" style="background:#E6F4EE;color:#1D5C3B;border:1px solid #9FE1CB">
+        <span class="status-dot" style="background:#1D7A4F"></span>
+        Đã gửi kết quả đến giáo viên
+      </span>
+    </div>
+    <div id="sheets-fail-badge" style="display:none;margin-top:8px">
+      <span class="status-badge" style="background:#FFF6E0;color:#7A4A0A;border:1px solid #FAC775">
+        <span class="status-dot" style="background:#EF9F27"></span>
+        Chưa gửi được — xem mã kết quả bên dưới
+      </span>
+    </div>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">Điểm số</div>
+      <div class="metric-value" id="m-score"></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Tỉ lệ đúng</div>
+      <div class="metric-value" id="m-pct"></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Thời gian</div>
+      <div class="metric-value" id="m-time"></div>
+    </div>
+  </div>
+
+  <!-- Topic bars -->
+  <div class="card">
+    <div class="section-label mb-12">Tỉ lệ đúng theo chủ đề</div>
+    <div id="topic-bars"></div>
+  </div>
+
+  <!-- Level bars -->
+  <div class="card">
+    <div class="section-label mb-12">Tỉ lệ đúng theo mức độ</div>
+    <div id="level-bars"></div>
+  </div>
+
+  <!-- Detail per question -->
+  <div class="card">
+    <div class="section-label mb-12">Chi tiết từng câu</div>
+    <div id="detail-rows"></div>
+  </div>
+
+  <!-- Remediation plan -->
+  <div class="card" id="plan-card">
+    <div class="section-label mb-12">Kế hoạch bổ trợ cho bạn</div>
+    <div id="plan-rows"></div>
+  </div>
+
+  <!-- Fallback result code -->
+  <div class="card" id="code-block" style="display:none;border-color:#FAC775">
+    <div class="section-label mb-4" style="color:#7A4A0A">Mã kết quả (báo hoặc chụp màn hình gửi GV)</div>
+    <div class="result-code" id="result-code"></div>
+    <div style="font-size:12px;color:#888;margin-top:8px">
+      GV dán mã này vào file Excel để giải mã tự động
+    </div>
+  </div>
+
+  <button class="btn btn-green btn-block" id="btn-save-pdf"
+    style="padding:13px;font-size:15px;margin-bottom:12px;display:none"
+    onclick="savePDF()">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Lưu kế hoạch bổ trợ (HTML)
+  </button>
+  <button class="btn btn-block" style="padding:13px;font-size:15px;margin-bottom:30px" onclick="restart()">
+    Làm lại từ đầu
+  </button>
+
+</div>
+<!-- ══ Modal đặt tên file PDF ══ -->
+<div id="pdf-name-modal" style="display:none" class="pdf-modal-overlay" onclick="closePDFModal(event)">
+  <div class="pdf-modal">
+    <div class="pdf-modal-title">Đặt tên file PDF</div>
+    <div class="pdf-modal-sub">Tên file sẽ được lưu về máy. Bạn có thể đổi tên tuỳ ý.</div>
+    <div class="pdf-filename-wrap">
+      <input type="text" id="pdf-filename-input" placeholder="ke_hoach_bo_tro" maxlength="80"
+        onkeydown="if(event.key==='Enter') confirmSavePDF()"
+        oninput="this.value=this.value.replace(/[\\/:*?&quot;&lt;&gt;|]/g,'_')"/>
+      <span class="pdf-ext">.html</span>
+    </div>
+    <div class="pdf-modal-btns">
+      <button class="btn flex-1" onclick="closePDFModal(null)" style="color:#888">Huỷ</button>
+      <button class="btn btn-green flex-1" onclick="confirmSavePDF()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Tải về
+      </button>
+    </div>
+  </div>
+</div>
+
+</div><!-- .wrap -->
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════ */
+var QS = 
+[
+  {
+    "id": 1,
+    "text": "Hạt nhân nguyên tử được cấu tạo từ những hạt nào?",
+    "topic": "Cấu tạo hạt nhân",
+    "level": "NB",
+    "choices": [
+      "Electron và proton",
+      "Proton và neutron (gọi chung là nucleon)",
+      "Electron và neutron",
+      "Proton, neutron và electron"
+    ],
+    "ans": 1,
+    "explain": "Hạt nhân gồm <b>proton</b> (mang điện $+e$) và <b>neutron</b> (trung hòa điện), gọi chung là <b>nucleon</b>. Electron chuyển động ở lớp vỏ ngoài hạt nhân."
+  },
+  {
+    "id": 2,
+    "text": "Trong kí hiệu hạt nhân $^A_ZX$, $Z$ và $A$ lần lượt là",
+    "topic": "Cấu tạo hạt nhân",
+    "level": "NB",
+    "choices": [
+      "Số khối và số proton",
+      "Số proton (nguyên tử số) và số khối (tổng số nucleon)",
+      "Số neutron và số nucleon",
+      "Số khối và số neutron"
+    ],
+    "ans": 1,
+    "explain": "$^A_ZX$: $Z$ là <b>số proton</b> (= số hiệu nguyên tử = điện tích hạt nhân tính theo $e$), $A$ là <b>số khối</b> (= tổng số nucleon = $Z + N$). Số neutron $N = A - Z$."
+  },
+  {
+    "id": 3,
+    "text": "Điện tích và khối lượng của proton lần lượt là",
+    "topic": "Cấu tạo hạt nhân",
+    "level": "NB",
+    "choices": [
+      "$q_p = 0$; $m_p = 1{,}67\\times10^{-27}$ kg",
+      "$q_p = +e = +1{,}6\\times10^{-19}$ C; $m_p = 1{,}6726\\times10^{-27}$ kg",
+      "$q_p = -e$; $m_p = 9{,}1\\times10^{-31}$ kg",
+      "$q_p = +2e$; $m_p = 4\\,u$"
+    ],
+    "ans": 1,
+    "explain": "Proton: điện tích $q_p = +e = +1{,}6\\times10^{-19}$ C; khối lượng $m_p = 1{,}6726\\times10^{-27}$ kg $\\approx 1{,}0073\\,u$."
+  },
+  {
+    "id": 4,
+    "text": "Điện tích và khối lượng của neutron lần lượt là",
+    "topic": "Cấu tạo hạt nhân",
+    "level": "NB",
+    "choices": [
+      "$q_n = 0$; $m_n \\approx m_p = 1{,}6749\\times10^{-27}$ kg",
+      "$q_n = +e$; $m_n = 1{,}67\\times10^{-27}$ kg",
+      "$q_n = -e$; $m_n = 9{,}1\\times10^{-31}$ kg",
+      "$q_n = 0$; $m_n \\gg m_p$"
+    ],
+    "ans": 0,
+    "explain": "Neutron: điện tích $q_n = 0$ (trung hòa điện); khối lượng $m_n = 1{,}6749\\times10^{-27}$ kg $\\approx 1{,}0087\\,u \\approx m_p$. Chính vì $m_n \\approx m_p$ nên số khối $A \\approx$ khối lượng tính bằng $u$."
+  },
+  {
+    "id": 5,
+    "text": "Hạt nhân $^{238}_{92}U$ có bao nhiêu proton và bao nhiêu neutron?",
+    "topic": "Cấu tạo hạt nhân",
+    "level": "NB",
+    "choices": [
+      "92 proton, 238 neutron",
+      "238 proton, 92 neutron",
+      "92 proton, 146 neutron",
+      "146 proton, 92 neutron"
+    ],
+    "ans": 2,
+    "explain": "$Z = 92$ proton; $N = A - Z = 238 - 92 = 146$ neutron."
+  },
+  {
+    "id": 6,
+    "text": "Đồng vị là những hạt nhân",
+    "topic": "Cấu tạo hạt nhân",
+    "level": "NB",
+    "choices": [
+      "Có cùng số khối $A$ nhưng khác $Z$",
+      "Có cùng số proton $Z$ nhưng khác số neutron $N$ (khác $A$)",
+      "Có cùng số neutron nhưng khác $Z$",
+      "Có cùng khối lượng hạt nhân"
+    ],
+    "ans": 1,
+    "explain": "Đồng vị: cùng $Z$ (cùng nguyên tố), khác $N$ → khác $A$. Ví dụ: $^1_1H$, $^2_1H$ (deuterium), $^3_1H$ (tritium) — ba đồng vị của hydrogen."
+  },
+  {
+    "id": 7,
+    "text": "Lực hạt nhân (lực tương tác mạnh) có đặc điểm nào sau đây?",
+    "topic": "Cấu tạo hạt nhân",
+    "level": "NB",
+    "choices": [
+      "Là lực điện Coulomb giữa các nucleon mang điện",
+      "Lực hút rất mạnh, tầm tác dụng rất ngắn $\\sim10^{-15}$ m, không phụ thuộc điện tích",
+      "Lực đẩy giữa các proton trong hạt nhân",
+      "Tác dụng ở khoảng cách vô hạn như lực hấp dẫn"
+    ],
+    "ans": 1,
+    "explain": "Lực hạt nhân: <b>lực hút rất mạnh</b>, tầm tác dụng rất ngắn $\\sim10^{-15}$ m, <b>không phụ thuộc điện tích</b> (tác dụng giữa mọi cặp nucleon: p-p, p-n, n-n như nhau)."
+  },
+  {
+    "id": 8,
+    "text": "Bán kính hạt nhân tính theo công thức $R = R_0 A^{1/3}$ với $R_0 \\approx 1{,}2$ fm. Điều này cho thấy",
+    "topic": "Cấu tạo hạt nhân",
+    "level": "TH",
+    "choices": [
+      "Bán kính hạt nhân tỉ lệ thuận với $A$",
+      "Thể tích hạt nhân $\\propto A$, suy ra khối lượng riêng hạt nhân xấp xỉ không đổi mọi loại hạt nhân",
+      "Hạt nhân nặng có mật độ lớn hơn hạt nhân nhẹ",
+      "Bán kính hạt nhân tỉ lệ nghịch với $A$"
+    ],
+    "ans": 1,
+    "explain": "$V = \\frac{4}{3}\\pi R^3 = \\frac{4}{3}\\pi R_0^3 A \\propto A$. Vì $m_{hn} \\propto A$ → khối lượng riêng $\\rho = m/V \\approx const \\approx 2{,}3\\times10^{17}$ kg/m³, không phụ thuộc loại hạt nhân."
+  },
+  {
+    "id": 9,
+    "text": "Hạt nhân $^{27}_{13}Al$ có bán kính xấp xỉ ($R_0 = 1{,}2$ fm)",
+    "topic": "Cấu tạo hạt nhân",
+    "level": "TH",
+    "choices": [
+      "$1{,}2$ fm",
+      "$2{,}4$ fm",
+      "$3{,}6$ fm",
+      "$7{,}2$ fm"
+    ],
+    "ans": 2,
+    "explain": "$R = R_0 A^{1/3} = 1{,}2 \\times 27^{1/3} = 1{,}2 \\times 3 = \\mathbf{3{,}6}$ fm. (1 fm = $10^{-15}$ m)"
+  },
+  {
+    "id": 10,
+    "text": "Thí nghiệm Rutherford bắn hạt $\\alpha$ vào lá vàng chứng minh điều gì?",
+    "topic": "Cấu tạo hạt nhân",
+    "level": "TH",
+    "choices": [
+      "Nguyên tử không có hạt nhân",
+      "Hạt nhân rất nhỏ ($\\sim10^{-15}$ m), đặc, mang điện dương; electron chuyển động xung quanh",
+      "Electron phân bố đều trong toàn nguyên tử",
+      "Nguyên tử trung hòa điện"
+    ],
+    "ans": 1,
+    "explain": "Hầu hết hạt $\\alpha$ đi xuyên qua lá vàng chứng tỏ nguyên tử rỗng; một số ít bị lệch lớn hoặc bật ngược lại chứng tỏ có <b>hạt nhân nhỏ, đặc, mang điện dương</b> tập trung hầu hết khối lượng nguyên tử."
+  },
+  {
+    "id": 11,
+    "text": "Hạt $^4_2He$ và hạt $^3_2He$ là",
+    "topic": "Cấu tạo hạt nhân",
+    "level": "TH",
+    "choices": [
+      "Hai nguyên tố hóa học khác nhau",
+      "Đồng vị của nhau vì cùng $Z=2$, khác $N$",
+      "Cùng khối lượng vì cùng $Z$",
+      "Không liên hệ gì với nhau"
+    ],
+    "ans": 1,
+    "explain": "$^4_2He$: 2p, 2n; $^3_2He$: 2p, 1n. Cùng $Z=2$ (cùng là Helium), khác $N$ → là <b>đồng vị</b> của nhau."
+  },
+  {
+    "id": 12,
+    "text": "Khối lượng riêng của hạt nhân $^{12}_6C$ tính từ $R_0=1{,}2$ fm, $1u = 1{,}66\\times10^{-27}$ kg là",
+    "topic": "Cấu tạo hạt nhân",
+    "level": "VD",
+    "choices": [
+      "$\\approx 2{,}3\\times10^{17}$ kg/m³",
+      "$\\approx 2{,}3\\times10^{14}$ kg/m³",
+      "$\\approx 8{,}9\\times10^3$ kg/m³",
+      "$\\approx 2{,}3\\times10^{10}$ kg/m³"
+    ],
+    "ans": 0,
+    "explain": "$R=1{,}2\\times12^{1/3}\\approx 2{,}75$ fm; $V=\\frac{4}{3}\\pi(2{,}75)^3\\times10^{-45}\\approx8{,}7\\times10^{-44}$ m³; $m=12\\times1{,}66\\times10^{-27}=2\\times10^{-26}$ kg; $\\rho=m/V\\approx \\mathbf{2{,}3\\times10^{17}}$ kg/m³. Kết quả không phụ thuộc loại hạt nhân."
+  },
+  {
+    "id": 13,
+    "text": "Hệ thức Einstein $E = mc^2$ cho biết điều gì?",
+    "topic": "Năng lượng liên kết hạt nhân",
+    "level": "NB",
+    "choices": [
+      "Năng lượng bằng khối lượng nhân tốc độ ánh sáng",
+      "Khối lượng và năng lượng là hai dạng của cùng một thực thể, có thể chuyển hóa cho nhau",
+      "Vật nặng hơn có năng lượng lớn hơn",
+      "Chỉ áp dụng cho hạt nhân nguyên tử"
+    ],
+    "ans": 1,
+    "explain": "$E = mc^2$: <b>khối lượng và năng lượng tương đương nhau</b>, có thể chuyển hóa cho nhau. Đây là nền tảng giải thích tại sao phản ứng hạt nhân có thể tỏa hoặc thu năng lượng rất lớn."
+  },
+  {
+    "id": 14,
+    "text": "Đơn vị khối lượng nguyên tử $u$ (amu) được định nghĩa là",
+    "topic": "Năng lượng liên kết hạt nhân",
+    "level": "NB",
+    "choices": [
+      "Khối lượng của 1 proton",
+      "Khối lượng của 1 neutron",
+      "$\\frac{1}{12}$ khối lượng của hạt nhân $^{12}C$",
+      "$\\frac{1}{6}$ khối lượng của hạt nhân $^{12}C$"
+    ],
+    "ans": 2,
+    "explain": "$1\\,u = \\frac{1}{12}m(^{12}C) = 1{,}66055\\times10^{-27}$ kg. Năng lượng tương đương: $1\\,u\\cdot c^2 = 931{,}5$ MeV."
+  },
+  {
+    "id": 15,
+    "text": "$1$ MeV bằng bao nhiêu Joule?",
+    "topic": "Năng lượng liên kết hạt nhân",
+    "level": "NB",
+    "choices": [
+      "$1{,}6\\times10^{-19}$ J",
+      "$1{,}6\\times10^{-13}$ J",
+      "$9\\times10^{16}$ J",
+      "$931{,}5$ J"
+    ],
+    "ans": 1,
+    "explain": "$1$ eV $= 1{,}6\\times10^{-19}$ J → $1$ MeV $= 10^6$ eV $= \\mathbf{1{,}6\\times10^{-13}}$ J."
+  },
+  {
+    "id": 16,
+    "text": "Năng lượng tương đương với $1\\,u$ là",
+    "topic": "Năng lượng liên kết hạt nhân",
+    "level": "NB",
+    "choices": [
+      "$1$ MeV",
+      "$931{,}5$ MeV",
+      "$0{,}511$ MeV",
+      "$938{,}3$ MeV"
+    ],
+    "ans": 1,
+    "explain": "$1\\,u\\cdot c^2 = 1{,}66055\\times10^{-27}\\times(3\\times10^8)^2 \\approx 1{,}494\\times10^{-10}$ J $= \\mathbf{931{,}5}$ MeV. Đây là hệ số chuyển đổi quan trọng nhất."
+  },
+  {
+    "id": 17,
+    "text": "Độ hụt khối $\\Delta m$ của hạt nhân $^A_ZX$ được tính bằng",
+    "topic": "Năng lượng liên kết hạt nhân",
+    "level": "NB",
+    "choices": [
+      "$\\Delta m = m_X - Zm_p - Nm_n$",
+      "$\\Delta m = Zm_p + Nm_n - m_X$",
+      "$\\Delta m = Am_p - m_X$",
+      "$\\Delta m = m_X - Am_u$"
+    ],
+    "ans": 1,
+    "explain": "$\\Delta m = Zm_p + Nm_n - m_X$ với $N = A-Z$. Độ hụt khối luôn <b>dương</b> vì khối lượng hạt nhân nhỏ hơn tổng khối lượng các nucleon riêng lẻ."
+  },
+  {
+    "id": 18,
+    "text": "Năng lượng liên kết $W_{lk}$ của hạt nhân là",
+    "topic": "Năng lượng liên kết hạt nhân",
+    "level": "NB",
+    "choices": [
+      "Năng lượng hạt nhân tỏa ra khi phân hạch",
+      "Năng lượng cần cung cấp để phá vỡ hạt nhân thành các nucleon riêng lẻ",
+      "Động năng của các nucleon trong hạt nhân",
+      "Năng lượng của electron lớp ngoài"
+    ],
+    "ans": 1,
+    "explain": "$W_{lk} = \\Delta m \\cdot c^2$: năng lượng <b>cần thiết để phá vỡ</b> hạt nhân thành các nucleon riêng lẻ. Hạt nhân có $W_{lk}$ lớn → bền vững hơn."
+  },
+  {
+    "id": 19,
+    "text": "Năng lượng liên kết riêng $W_{lk}/A$ dùng để",
+    "topic": "Năng lượng liên kết hạt nhân",
+    "level": "NB",
+    "choices": [
+      "Tính năng lượng phân hạch",
+      "So sánh độ bền vững của các hạt nhân khác nhau — hạt nhân nào có $W_{lk}/A$ lớn hơn thì bền vững hơn",
+      "Tính khối lượng hạt nhân",
+      "Tính bán kính hạt nhân"
+    ],
+    "ans": 1,
+    "explain": "$W_{lk}/A$ (MeV/nucleon): năng lượng liên kết trên mỗi nucleon — <b>càng lớn hạt nhân càng bền vững</b>. Đơn vị: MeV/nucleon hoặc J/nucleon."
+  },
+  {
+    "id": 20,
+    "text": "Đồ thị $W_{lk}/A$ theo $A$ cho thấy hạt nhân bền nhất thuộc vùng",
+    "topic": "Năng lượng liên kết hạt nhân",
+    "level": "TH",
+    "choices": [
+      "$A < 10$ (hạt nhân rất nhẹ)",
+      "$A > 200$ (hạt nhân rất nặng)",
+      "$50 < A < 80$ (vùng $^{56}Fe$, $^{58}Ni$) với $W_{lk}/A \\approx 8{,}8$ MeV/nucleon",
+      "$A = 238$ ($^{238}U$)"
+    ],
+    "ans": 2,
+    "explain": "$W_{lk}/A$ đạt <b>cực đại ~8,8 MeV/nucleon</b> tại vùng $A \\approx 50{-}80$ ($^{56}Fe$, $^{58}Ni$). Hạt nhân nhẹ ($^4He$: 7,1 MeV) và nặng ($^{238}U$: 7,6 MeV) đều kém bền hơn vùng trung bình."
+  },
+  {
+    "id": 21,
+    "text": "Năng lượng liên kết của $^4_2He$ ($\\Delta m = 0{,}0304\\,u$) là",
+    "topic": "Năng lượng liên kết hạt nhân",
+    "level": "TH",
+    "choices": [
+      "28,4 MeV",
+      "7,1 MeV",
+      "14,2 MeV",
+      "56,8 MeV"
+    ],
+    "ans": 0,
+    "explain": "$W_{lk} = \\Delta m \\cdot 931{,}5 = 0{,}0304 \\times 931{,}5 \\approx \\mathbf{28{,}4}$ MeV. Năng lượng liên kết riêng: $28{,}4/4 = 7{,}1$ MeV/nucleon."
+  },
+  {
+    "id": 22,
+    "text": "Hạt nhân $^{56}_{26}Fe$ có $m = 55{,}9207\\,u$, $m_p = 1{,}0073\\,u$, $m_n = 1{,}0087\\,u$. Độ hụt khối là",
+    "topic": "Năng lượng liên kết hạt nhân",
+    "level": "VD",
+    "choices": [
+      "$0{,}4289\\,u$",
+      "$0{,}5284\\,u$",
+      "$0{,}5301\\,u$",
+      "$0{,}3214\\,u$"
+    ],
+    "ans": 2,
+    "explain": "$\\Delta m = 26\\times1{,}0073 + 30\\times1{,}0087 - 55{,}9207 = 26{,}1898 + 30{,}2610 - 55{,}9207 = \\mathbf{0{,}5301}\\,u$."
+  },
+  {
+    "id": 23,
+    "text": "Năng lượng liên kết riêng của $^{56}Fe$ ($\\Delta m = 0{,}5301\\,u$) là",
+    "topic": "Năng lượng liên kết hạt nhân",
+    "level": "VD",
+    "choices": [
+      "6,23 MeV/nucleon",
+      "7,10 MeV/nucleon",
+      "8,79 MeV/nucleon",
+      "9,45 MeV/nucleon"
+    ],
+    "ans": 2,
+    "explain": "$W_{lk} = 0{,}5301 \\times 931{,}5 \\approx 494$ MeV. $W_{lk}/A = 494/56 \\approx \\mathbf{8{,}79}$ MeV/nucleon — cao nhất, xác nhận $^{56}Fe$ bền nhất."
+  },
+  {
+    "id": 24,
+    "text": "Năng lượng nghỉ của hạt proton ($m_p = 1{,}0073\\,u$) là",
+    "topic": "Năng lượng liên kết hạt nhân",
+    "level": "VD",
+    "choices": [
+      "931,5 MeV",
+      "938,3 MeV",
+      "0,511 MeV",
+      "1836 MeV"
+    ],
+    "ans": 1,
+    "explain": "$E_0 = m_p c^2 = 1{,}0073 \\times 931{,}5 \\approx \\mathbf{938{,}3}$ MeV. (Electron: $m_e c^2 = 0{,}511$ MeV; $m_p/m_e \\approx 1836$)"
+  },
+  {
+    "id": 25,
+    "text": "Phản ứng hạt nhân là",
+    "topic": "Phản ứng hạt nhân",
+    "level": "NB",
+    "choices": [
+      "Mọi quá trình dẫn đến sự biến đổi hạt nhân",
+      "Phản ứng hóa học giữa các nguyên tử",
+      "Quá trình electron rời khỏi nguyên tử",
+      "Quá trình hấp thụ photon của nguyên tử"
+    ],
+    "ans": 0,
+    "explain": "Phản ứng hạt nhân là <b>mọi quá trình dẫn đến sự biến đổi hạt nhân</b>, gồm: phân rã tự phát (hạt nhân không bền) và phản ứng kích thích (hạt nhân tương tác với nhau hoặc với hạt khác)."
+  },
+  {
+    "id": 26,
+    "text": "Các đại lượng bảo toàn trong phản ứng hạt nhân $^{A_1}_{Z_1}A + ^{A_2}_{Z_2}B \\to ^{A_3}_{Z_3}C + ^{A_4}_{Z_4}D$ là",
+    "topic": "Phản ứng hạt nhân",
+    "level": "NB",
+    "choices": [
+      "Chỉ số khối $A$",
+      "Số khối $A$, điện tích $Z$, năng lượng toàn phần và động lượng",
+      "Chỉ năng lượng và động lượng",
+      "Khối lượng nghỉ"
+    ],
+    "ans": 1,
+    "explain": "Bốn định luật bảo toàn: (1) <b>số khối</b> $A_1+A_2=A_3+A_4$; (2) <b>điện tích</b> $Z_1+Z_2=Z_3+Z_4$; (3) <b>năng lượng toàn phần</b>; (4) <b>động lượng</b>. Lưu ý: <b>khối lượng nghỉ không bảo toàn</b>."
+  },
+  {
+    "id": 27,
+    "text": "Phản ứng hạt nhân tỏa năng lượng khi",
+    "topic": "Phản ứng hạt nhân",
+    "level": "NB",
+    "choices": [
+      "Tổng khối lượng sản phẩm lớn hơn tổng khối lượng ban đầu",
+      "Tổng khối lượng sản phẩm nhỏ hơn tổng khối lượng ban đầu ($Q > 0$)",
+      "Số nucleon tăng lên",
+      "Nhiệt độ phản ứng cao"
+    ],
+    "ans": 1,
+    "explain": "$Q = (m_{trước} - m_{sau})c^2 = \\Delta m \\cdot 931{,}5$ MeV. $Q > 0$ khi $m_{trước} > m_{sau}$ → <b>tỏa năng lượng</b>; $Q < 0$ → thu năng lượng."
+  },
+  {
+    "id": 28,
+    "text": "Phản ứng hạt nhân khác phản ứng hóa học ở điểm cơ bản nào?",
+    "topic": "Phản ứng hạt nhân",
+    "level": "NB",
+    "choices": [
+      "Phản ứng hạt nhân diễn ra chậm hơn",
+      "Phản ứng hạt nhân biến đổi hạt nhân (có thể biến đổi nguyên tố), năng lượng lớn hơn hàng triệu lần, khối lượng nghỉ không bảo toàn",
+      "Phản ứng hóa học cần nhiệt độ cao hơn",
+      "Phản ứng hóa học tỏa nhiều năng lượng hơn"
+    ],
+    "ans": 1,
+    "explain": "Phản ứng hóa học: biến đổi liên kết electron, bảo toàn khối lượng, năng lượng cỡ eV. Phản ứng hạt nhân: <b>biến đổi hạt nhân</b>, có thể biến đổi nguyên tố, năng lượng cỡ <b>MeV</b> (lớn hơn triệu lần), khối lượng nghỉ không bảo toàn."
+  },
+  {
+    "id": 29,
+    "text": "Hoàn thành phản ứng: $^{27}_{13}Al + ^4_2He \\to ^{30}_{15}P + ?$",
+    "topic": "Phản ứng hạt nhân",
+    "level": "TH",
+    "choices": [
+      "$^1_1H$ (proton)",
+      "$^4_2He$ (hạt $\\alpha$)",
+      "$^1_0n$ (neutron)",
+      "$^0_{-1}e$ (electron)"
+    ],
+    "ans": 2,
+    "explain": "Bảo toàn $A$: $27+4=30+A_x \\Rightarrow A_x=1$. Bảo toàn $Z$: $13+2=15+Z_x \\Rightarrow Z_x=0$. X là $^1_0n$ — <b>neutron</b>. Đây là phản ứng Joliot-Curie phát hiện phóng xạ nhân tạo (1934)."
+  },
+  {
+    "id": 30,
+    "text": "Hoàn thành phản ứng: $^9_4Be + ^4_2He \\to ^{12}_6C + ?$",
+    "topic": "Phản ứng hạt nhân",
+    "level": "TH",
+    "choices": [
+      "$^1_1H$",
+      "$^0_0\\gamma$",
+      "$^2_1D$",
+      "$^1_0n$"
+    ],
+    "ans": 3,
+    "explain": "Bảo toàn $A$: $9+4=12+A_x \\Rightarrow A_x=1$. Bảo toàn $Z$: $4+2=6+Z_x \\Rightarrow Z_x=0$. X là $^1_0n$ — <b>neutron</b>. Chadwick (1932) dùng phản ứng này khám phá neutron."
+  },
+  {
+    "id": 31,
+    "text": "Phản ứng $^{14}_7N + ^4_2He \\to ^{17}_8O + ?$ (Rutherford, 1919) — hạt phát ra là",
+    "topic": "Phản ứng hạt nhân",
+    "level": "TH",
+    "choices": [
+      "$^1_0n$ (neutron)",
+      "$^1_1H$ (proton)",
+      "$^2_1D$ (deuteron)",
+      "$^4_2He$ ($\\alpha$)"
+    ],
+    "ans": 1,
+    "explain": "Bảo toàn $A$: $14+4=17+A_x \\Rightarrow A_x=1$. Bảo toàn $Z$: $7+2=8+Z_x \\Rightarrow Z_x=1$. X là $^1_1H$ — <b>proton</b>. Đây là phản ứng hạt nhân nhân tạo đầu tiên trong lịch sử."
+  },
+  {
+    "id": 32,
+    "text": "Năng lượng tỏa ra trong phản ứng $^2_1D + ^3_1T \\to ^4_2He + ^1_0n$ với $\\Delta m = 0{,}0189\\,u$ là",
+    "topic": "Phản ứng hạt nhân",
+    "level": "TH",
+    "choices": [
+      "5,48 MeV",
+      "17,6 MeV",
+      "28,4 MeV",
+      "200 MeV"
+    ],
+    "ans": 1,
+    "explain": "$Q = \\Delta m \\times 931{,}5 = 0{,}0189 \\times 931{,}5 \\approx \\mathbf{17{,}6}$ MeV. Đây là phản ứng D-T nhiệt hạch — tỏa năng lượng lớn nhất trong các phản ứng tổng hợp hạt nhân."
+  },
+  {
+    "id": 33,
+    "text": "Năng lượng tỏa ra trong phản ứng $^2_1D + ^2_1D \\to ^3_2He + ^1_0n$ với $\\Delta m = 0{,}00351\\,u$ là",
+    "topic": "Phản ứng hạt nhân",
+    "level": "VD",
+    "choices": [
+      "1,24 MeV",
+      "2,22 MeV",
+      "3,27 MeV",
+      "4,03 MeV"
+    ],
+    "ans": 2,
+    "explain": "$Q = 0{,}00351 \\times 931{,}5 \\approx \\mathbf{3{,}27}$ MeV. Phản ứng D-D cũng là phản ứng nhiệt hạch, tỏa ít năng lượng hơn D-T."
+  },
+  {
+    "id": 34,
+    "text": "Phản ứng $p + ^7_3Li \\to 2\\,^4_2He$ tỏa $Q = 17{,}3$ MeV. Nếu hạt nhân $Li$ đứng yên và proton có động năng nhỏ, mỗi hạt $\\alpha$ nhận động năng",
+    "topic": "Phản ứng hạt nhân",
+    "level": "VD",
+    "choices": [
+      "$\\approx 17{,}3$ MeV",
+      "$\\approx 8{,}65$ MeV",
+      "$\\approx 4{,}33$ MeV",
+      "$\\approx 34{,}6$ MeV"
+    ],
+    "ans": 1,
+    "explain": "Hai hạt $\\alpha$ sinh ra đối xứng và bằng nhau (do bảo toàn động lượng khi $v_p \\approx 0$) → mỗi hạt nhận $K_{\\alpha} = Q/2 = \\mathbf{8{,}65}$ MeV."
+  },
+  {
+    "id": 35,
+    "text": "Trong phản ứng hạt nhân, nếu hạt nhân mẹ ban đầu đứng yên thì sau phản ứng",
+    "topic": "Phản ứng hạt nhân",
+    "level": "VD",
+    "choices": [
+      "Tất cả các hạt sản phẩm đứng yên",
+      "Các hạt sản phẩm bay ra với tổng động lượng bằng 0 (ngược chiều nhau trong trường hợp 2 hạt)",
+      "Chỉ hạt nhẹ hơn chuyển động",
+      "Năng lượng toàn phần không bảo toàn"
+    ],
+    "ans": 1,
+    "explain": "Bảo toàn động lượng: $\\sum \\vec{p}_{trước} = 0 \\Rightarrow \\sum \\vec{p}_{sau} = 0$. Trong trường hợp 2 hạt sản phẩm: $\\vec{p}_1 + \\vec{p}_2 = 0 \\Rightarrow$ hai hạt <b>bay ngược chiều nhau</b> với $|p_1| = |p_2|$."
+  },
+  {
+    "id": 36,
+    "text": "Phản ứng $^{10}_{5}B + ^1_0n \\to ^4_2He + ?$ được dùng để phát hiện neutron chậm. Hạt nhân $?$ là",
+    "topic": "Phản ứng hạt nhân",
+    "level": "VDC",
+    "choices": [
+      "$^7_3Li$",
+      "$^6_3Li$",
+      "$^8_4Be$",
+      "$^3_1T$"
+    ],
+    "ans": 0,
+    "explain": "Bảo toàn $A$: $10+1=4+A_x \\Rightarrow A_x=7$. Bảo toàn $Z$: $5+0=2+Z_x \\Rightarrow Z_x=3$. X là $^7_3Li$. Phản ứng này tỏa $2{,}79$ MeV, dùng trong detector neutron."
+  },
+  {
+    "id": 37,
+    "text": "Phản ứng phân hạch là",
+    "topic": "Phân hạch hạt nhân",
+    "level": "NB",
+    "choices": [
+      "Hai hạt nhân nhẹ kết hợp tạo hạt nhân nặng hơn",
+      "Hạt nhân nặng vỡ thành hai hạt nhân có số khối trung bình và phát neutron",
+      "Hạt nhân phát ra electron",
+      "Hạt nhân hấp thụ proton rồi phát ra neutron"
+    ],
+    "ans": 1,
+    "explain": "Phân hạch: <b>hạt nhân nặng</b> (như $^{235}U$) <b>vỡ thành hai mảnh trung bình</b> kèm theo 2-3 neutron và năng lượng lớn (~200 MeV). Phân hạch tự phát có xác suất rất nhỏ; thường cần kích thích bằng neutron."
+  },
+  {
+    "id": 38,
+    "text": "Phương trình phân hạch của $^{235}U$ là $^1_0n + ^{235}_{92}U \\to ^{95}_{39}Y + ^{138}_{53}I + k\\,^1_0n$. Số neutron $k$ là",
+    "topic": "Phân hạch hạt nhân",
+    "level": "NB",
+    "choices": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "ans": 2,
+    "explain": "Bảo toàn $A$: $1+235=95+138+k \\Rightarrow k=236-233=\\mathbf{3}$. Bảo toàn $Z$: $0+92=39+53=92$ ✓."
+  },
+  {
+    "id": 39,
+    "text": "Mỗi phân hạch của $^{235}U$ tỏa năng lượng khoảng",
+    "topic": "Phân hạch hạt nhân",
+    "level": "NB",
+    "choices": [
+      "1 eV",
+      "1 keV",
+      "200 MeV",
+      "200 GeV"
+    ],
+    "ans": 2,
+    "explain": "Mỗi phân hạch $^{235}U$ tỏa $\\approx \\mathbf{200}$ MeV — lớn hơn phản ứng hóa học hàng triệu lần. Đây là nguồn năng lượng của lò phản ứng và bom A."
+  },
+  {
+    "id": 40,
+    "text": "Vì sao cần dùng neutron nhiệt (chậm) để kích thích phân hạch $^{235}U$?",
+    "topic": "Phân hạch hạt nhân",
+    "level": "NB",
+    "choices": [
+      "Neutron nhanh không thể vào hạt nhân",
+      "Tiết diện hấp thụ neutron của $^{235}U$ với neutron chậm rất lớn (xác suất gây phân hạch cao)",
+      "Neutron nhiệt có năng lượng lớn hơn neutron nhanh",
+      "$^{238}U$ không hấp thụ neutron nhanh"
+    ],
+    "ans": 1,
+    "explain": "Tiết diện hiệu dụng (xác suất gây phân hạch) của $^{235}U$ với <b>neutron nhiệt</b> ($E < 0{,}1$ eV) rất lớn. Với neutron nhanh thì xác suất thấp hơn nhiều → cần làm chậm neutron."
+  },
+  {
+    "id": 41,
+    "text": "Hệ số nhân neutron $k$ trong phản ứng phân hạch dây chuyền là",
+    "topic": "Phân hạch hạt nhân",
+    "level": "NB",
+    "choices": [
+      "Số neutron trung bình sinh ra từ mỗi phân hạch",
+      "Tỉ số số neutron gây phân hạch ở thế hệ sau so với thế hệ trước",
+      "Số lần phân hạch xảy ra trong 1 giây",
+      "Khối lượng uranium cần thiết"
+    ],
+    "ans": 1,
+    "explain": "$k = $ số neutron thế hệ $(n+1)$ / số neutron thế hệ $n$. $k<1$: phản ứng tắt; $k=1$: ổn định (lò điện); $k>1$: bùng nổ (bom A)."
+  },
+  {
+    "id": 42,
+    "text": "Trong lò phản ứng hạt nhân, thanh điều khiển bằng Cd hoặc B có tác dụng",
+    "topic": "Phân hạch hạt nhân",
+    "level": "NB",
+    "choices": [
+      "Làm chậm neutron",
+      "Cung cấp thêm neutron cho phản ứng",
+      "Hấp thụ bớt neutron để điều chỉnh hệ số nhân $k=1$",
+      "Tăng nhiệt độ vùng hoạt"
+    ],
+    "ans": 2,
+    "explain": "Cd, B <b>hấp thụ neutron</b> hiệu quả. Cắm sâu thanh điều khiển → hấp thụ nhiều neutron → $k$ giảm. Rút ra → $k$ tăng. Mục tiêu: duy trì $k=1$."
+  },
+  {
+    "id": 43,
+    "text": "Chất làm chậm neutron trong lò phản ứng có vai trò",
+    "topic": "Phân hạch hạt nhân",
+    "level": "TH",
+    "choices": [
+      "Hấp thụ neutron nhanh",
+      "Làm chậm neutron nhanh xuống năng lượng nhiệt (~0,025 eV) để tăng xác suất gây phân hạch $^{235}U$",
+      "Tăng tốc độ phân hạch đột ngột",
+      "Làm nguội lò phản ứng"
+    ],
+    "ans": 1,
+    "explain": "Chất làm chậm (nước nhẹ, nước nặng $D_2O$, than chì): <b>làm chậm neutron nhanh</b> về neutron nhiệt → tăng xác suất kích thích phân hạch $^{235}U$ lên rất nhiều."
+  },
+  {
+    "id": 44,
+    "text": "Uranium tự nhiên chứa 99,3% $^{238}U$ và chỉ 0,7% $^{235}U$. Vì sao cần làm giàu uranium để dùng trong nhiều loại lò phản ứng?",
+    "topic": "Phân hạch hạt nhân",
+    "level": "TH",
+    "choices": [
+      "$^{238}U$ quá nặng nên không dùng được",
+      "$^{235}U$ phân hạch hiệu quả với neutron chậm; $^{238}U$ thì không → cần tăng tỉ lệ $^{235}U$ lên 3-5%",
+      "$^{238}U$ hấp thụ quá nhiều neutron",
+      "Uranium tự nhiên bị phóng xạ quá mạnh"
+    ],
+    "ans": 1,
+    "explain": "$^{235}U$ mới phân hạch hiệu quả với neutron nhiệt. $^{238}U$ chiếm 99,3% nhưng ít phân hạch và thậm chí hấp thụ neutron → <b>làm giàu</b> (tăng %$^{235}U$ lên 3-5% dân dụng, 90%+ quân sự)."
+  },
+  {
+    "id": 45,
+    "text": "Khối lượng tới hạn $m_{th}$ của chất phân hạch là",
+    "topic": "Phân hạch hạt nhân",
+    "level": "TH",
+    "choices": [
+      "Khối lượng tối đa của uranium trong lò",
+      "Khối lượng tối thiểu để phản ứng dây chuyền tự duy trì ($k \\geq 1$) — giảm thiểu neutron thoát ra ngoài",
+      "Khối lượng thanh điều khiển",
+      "Khối lượng chất làm chậm"
+    ],
+    "ans": 1,
+    "explain": "$m_{th}$: khối lượng <b>tối thiểu</b> để đủ neutron ở lại trong mẫu gây phân hạch tiếp theo. $^{235}U$ không nén: $m_{th} \\approx 47$ kg; $^{239}Pu$: $m_{th} \\approx 10$ kg."
+  },
+  {
+    "id": 46,
+    "text": "Một lò phản ứng hạt nhân tiêu thụ $m = 4$ kg $^{235}U$ mỗi ngày (mỗi phân hạch tỏa 200 MeV). Công suất nhiệt của lò là",
+    "topic": "Phân hạch hạt nhân",
+    "level": "VD",
+    "choices": [
+      "$\\approx 3{,}8\\times10^9$ W",
+      "$\\approx 3{,}8\\times10^{12}$ W",
+      "$\\approx 3{,}8\\times10^6$ W",
+      "$\\approx 1{,}5\\times10^8$ W"
+    ],
+    "ans": 0,
+    "explain": "$N = \\frac{4000}{235}\\times6{,}022\\times10^{23} \\approx 1{,}025\\times10^{25}$. $E = 1{,}025\\times10^{25}\\times200\\times1{,}6\\times10^{-13} \\approx 3{,}28\\times10^{14}$ J/ngày. $P = 3{,}28\\times10^{14}/(24\\times3600) \\approx \\mathbf{3{,}8\\times10^9}$ W."
+  },
+  {
+    "id": 47,
+    "text": "So sánh năng lượng 1 kg $^{235}U$ phân hạch hoàn toàn ($\\approx 8{,}2\\times10^{13}$ J) với 1 kg than đốt ($\\approx 3\\times10^7$ J) cho thấy",
+    "topic": "Phân hạch hạt nhân",
+    "level": "VD",
+    "choices": [
+      "$U$ lớn hơn than ~1000 lần",
+      "$U$ lớn hơn than ~10 000 lần",
+      "$U$ lớn hơn than ~1 triệu lần",
+      "$U$ lớn hơn than ~3 triệu lần"
+    ],
+    "ans": 3,
+    "explain": "$\\frac{8{,}2\\times10^{13}}{3\\times10^7} \\approx 2{,}7\\times10^6 \\approx \\mathbf{3\\text{ triệu lần}}$. Đây là lý do nhiên liệu hạt nhân có mật độ năng lượng vượt trội so với nhiên liệu hóa thạch."
+  },
+  {
+    "id": 48,
+    "text": "Nhà máy điện hạt nhân không trực tiếp phát khí thải $CO_2$ nhưng vẫn có nhược điểm là",
+    "topic": "Phân hạch hạt nhân",
+    "level": "VD",
+    "choices": [
+      "Không thể tạo ra điện liên tục",
+      "Nhiên liệu uranium rất đắt",
+      "Chất thải phóng xạ từ lò cần lưu trữ hàng trăm năm với công nghệ phức tạp",
+      "Công suất lò nhỏ, không đủ dùng"
+    ],
+    "ans": 2,
+    "explain": "Nhà máy điện hạt nhân: ưu điểm — không phát $CO_2$, hoạt động liên tục nhiều năm. Nhược điểm — <b>chất thải phóng xạ</b> (như $^{90}Sr$, $^{137}Cs$ với $T_{1/2} \\approx 30$ năm) cần lưu trữ đặc biệt hàng trăm năm."
+  },
+  {
+    "id": 49,
+    "text": "Phản ứng nhiệt hạch (tổng hợp hạt nhân) là",
+    "topic": "Phản ứng nhiệt hạch",
+    "level": "NB",
+    "choices": [
+      "Hạt nhân nặng vỡ thành các mảnh nhỏ",
+      "Hai hay nhiều hạt nhân nhẹ ($A \\leq 10$) tổng hợp tạo hạt nhân nặng hơn và bền vững hơn",
+      "Phân rã phóng xạ $\\alpha$",
+      "Hạt nhân hấp thụ neutron"
+    ],
+    "ans": 1,
+    "explain": "Nhiệt hạch: <b>hai hạt nhân nhẹ ($A \\leq 10$)</b> kết hợp tạo hạt nhân nặng hơn, bền vững hơn, tỏa năng lượng. Ví dụ: D + T → He + n + 17,6 MeV."
+  },
+  {
+    "id": 50,
+    "text": "Phản ứng nhiệt hạch tỏa năng lượng vì",
+    "topic": "Phản ứng nhiệt hạch",
+    "level": "NB",
+    "choices": [
+      "Hạt nhân tạo thành có số khối lớn hơn",
+      "Hạt nhân tạo thành có $W_{lk}/A$ lớn hơn → tổng khối lượng giảm → năng lượng giải phóng",
+      "Hạt nhân tạo thành nhẹ hơn các hạt ban đầu về số khối",
+      "Phản ứng hấp thụ nhiệt từ môi trường"
+    ],
+    "ans": 1,
+    "explain": "Hạt nhân nhẹ có $W_{lk}/A$ nhỏ. Hạt nhân tổng hợp ($^4He$, $W_{lk}/A = 7{,}1$ MeV/nucleon) <b>bền hơn</b> các hạt ban đầu → $m_{sau} < m_{trước}$ → tỏa năng lượng theo $Q = \\Delta m \\cdot c^2$."
+  },
+  {
+    "id": 51,
+    "text": "Điều kiện nhiệt độ để xảy ra phản ứng nhiệt hạch là",
+    "topic": "Phản ứng nhiệt hạch",
+    "level": "NB",
+    "choices": [
+      "$100°C$",
+      "$10^4$ K",
+      "Tối thiểu $\\sim 10^8$ K (hàng trăm triệu độ)",
+      "Nhiệt độ phòng với xúc tác"
+    ],
+    "ans": 2,
+    "explain": "Cần $T \\geq 10^8$ K để các hạt nhân nhẹ có động năng đủ lớn <b>thắng lực đẩy Coulomb</b> và tiến lại đủ gần để lực hạt nhân hút mạnh → tổng hợp."
+  },
+  {
+    "id": 52,
+    "text": "Ngoài nhiệt độ cao, phản ứng nhiệt hạch còn cần thêm điều kiện",
+    "topic": "Phản ứng nhiệt hạch",
+    "level": "NB",
+    "choices": [
+      "Áp suất thấp",
+      "Mật độ hạt nhân $n$ đủ lớn và thời gian duy trì $\\Delta t$ đủ dài: $n \\cdot \\Delta t > 10^{14}$ s/cm³",
+      "Từ trường mạnh đủ để hấp thụ neutron",
+      "Uranium làm chất xúc tác"
+    ],
+    "ans": 1,
+    "explain": "Tiêu chuẩn Lawson: $\\mathbf{n \\cdot \\Delta t > 10^{14}}$ s/cm³. Mật độ plasma đủ cao và thời gian giam giữ đủ dài để đủ số va chạm dẫn đến phản ứng tổng hợp."
+  },
+  {
+    "id": 53,
+    "text": "Phản ứng D-T được nghiên cứu nhiều nhất vì",
+    "topic": "Phản ứng nhiệt hạch",
+    "level": "TH",
+    "choices": [
+      "D và T đều có sẵn trong thiên nhiên với lượng lớn",
+      "Phản ứng D-T tỏa năng lượng lớn nhất (17,6 MeV) và đòi hỏi nhiệt độ thấp nhất trong các phản ứng nhiệt hạch",
+      "D-T là phản ứng duy nhất tổng hợp được",
+      "Phản ứng D-T không sinh ra chất phóng xạ"
+    ],
+    "ans": 1,
+    "explain": "$^2_1D + ^3_1T \\to ^4_2He + ^1_0n + 17{,}6$ MeV: tỏa nhiều năng lượng nhất và <b>đòi hỏi nhiệt độ kích hoạt thấp nhất</b> (~10⁸ K) so với các phản ứng nhiệt hạch khác → được ưu tiên nghiên cứu (ITER)."
+  },
+  {
+    "id": 54,
+    "text": "Tại sao Mặt Trời và các ngôi sao phát sáng và nhiệt liên tục?",
+    "topic": "Phản ứng nhiệt hạch",
+    "level": "TH",
+    "choices": [
+      "Đốt cháy khí H và O",
+      "Phân hạch uranium trong lõi ngôi sao",
+      "Phản ứng nhiệt hạch tổng hợp hydrogen → helium ở nhiệt độ hàng chục triệu độ K trong lõi",
+      "Phóng xạ tự nhiên của các nguyên tố nặng"
+    ],
+    "ans": 2,
+    "explain": "Trong lõi Mặt Trời ($T \\sim 10^7$ K): $4\\,^1_1H \\to ^4_2He + 2e^+ + 2\\nu_e + Q \\approx 26$ MeV. Phản ứng này cung cấp năng lượng Mặt Trời liên tục hàng tỉ năm."
+  },
+  {
+    "id": 55,
+    "text": "So sánh năng lượng tổng hợp $1$ g $^4He$ từ phản ứng nhiệt hạch và phân hạch $1$ g $^{235}U$",
+    "topic": "Phản ứng nhiệt hạch",
+    "level": "TH",
+    "choices": [
+      "Phân hạch tỏa nhiều hơn",
+      "Bằng nhau",
+      "Nhiệt hạch tỏa nhiều hơn phân hạch khoảng 10 lần",
+      "Nhiệt hạch tỏa nhiều hơn phân hạch khoảng 85 lần (và gấp 85 lần đốt 1 tấn than)"
+    ],
+    "ans": 2,
+    "explain": "Năng lượng tổng hợp $1$ g He $\\approx 10$ lần năng lượng phân hạch $1$ g U (tính trên đơn vị khối lượng). Lý do: hạt nhân nhẹ có tỉ lệ $\\Delta m/m$ lớn hơn nhiều."
+  },
+  {
+    "id": 56,
+    "text": "Hiện tại, tại sao chưa xây dựng được nhà máy điện nhiệt hạch thương mại?",
+    "topic": "Phản ứng nhiệt hạch",
+    "level": "TH",
+    "choices": [
+      "Không đủ nguyên liệu D và T",
+      "Chưa đạt được và duy trì ổn định nhiệt độ $\\sim10^8$ K cùng mật độ plasma đủ lớn trong thời gian đủ dài",
+      "Nhiệt hạch tỏa ít năng lượng hơn phân hạch",
+      "Nhiệt hạch gây ô nhiễm phóng xạ nghiêm trọng"
+    ],
+    "ans": 1,
+    "explain": "Thách thức kỹ thuật: <b>tạo và giam giữ plasma</b> ở $\\sim10^8$ K đủ lâu để đạt tiêu chuẩn Lawson. Tokamak (ITER đang xây dựng) dùng từ trường mạnh giam giữ plasma. Chưa có lò nào đạt năng lượng đầu ra > đầu vào."
+  },
+  {
+    "id": 57,
+    "text": "Năng lượng tổng hợp $1$ gam He từ D và T ($Q_{D-T} = 17{,}6$ MeV/phản ứng) là (biết $N_A = 6\\times10^{23}$)",
+    "topic": "Phản ứng nhiệt hạch",
+    "level": "VD",
+    "choices": [
+      "$\\approx 2{,}5\\times10^{11}$ J",
+      "$\\approx 6{,}4\\times10^{11}$ J",
+      "$\\approx 4{,}2\\times10^{11}$ J",
+      "$\\approx 1{,}7\\times10^{11}$ J"
+    ],
+    "ans": 2,
+    "explain": "1 gam He ($A=4$): số nguyên tử $N = (1/4)\\times6\\times10^{23} = 1{,}5\\times10^{23}$. Mỗi phản ứng sinh 1 He → $1{,}5\\times10^{23}$ phản ứng. $E = 1{,}5\\times10^{23}\\times17{,}6\\times1{,}6\\times10^{-13} \\approx \\mathbf{4{,}2\\times10^{11}}$ J."
+  },
+  {
+    "id": 58,
+    "text": "Phản ứng $^2_1D + ^2_1D \\to ^3_1T + ^1_1H$ tỏa $Q = 4{,}03$ MeV. Nếu $10^{20}$ phản ứng xảy ra, năng lượng tỏa ra là",
+    "topic": "Phản ứng nhiệt hạch",
+    "level": "VD",
+    "choices": [
+      "$6{,}4\\times10^6$ J",
+      "$6{,}4\\times10^7$ J",
+      "$6{,}4\\times10^8$ J",
+      "$4{,}03\\times10^{20}$ J"
+    ],
+    "ans": 1,
+    "explain": "$E = N \\times Q = 10^{20} \\times 4{,}03 \\times 1{,}6\\times10^{-13} = 10^{20} \\times 6{,}45\\times10^{-13} \\approx \\mathbf{6{,}4\\times10^7}$ J = 64 MJ."
+  },
+  {
+    "id": 59,
+    "text": "Phân hạch và nhiệt hạch đều tỏa năng lượng vì cùng một lý do. Lý do đó là",
+    "topic": "Tổng hợp & Vận dụng",
+    "level": "TH",
+    "choices": [
+      "Cả hai đều biến đổi hạt nhân nặng thành hạt nhân nhẹ",
+      "Sản phẩm của cả hai phản ứng đều có $W_{lk}/A$ lớn hơn hạt nhân ban đầu → tổng khối lượng giảm → tỏa năng lượng",
+      "Cả hai đều dùng uranium làm nguyên liệu",
+      "Cả hai đều sinh neutron"
+    ],
+    "ans": 1,
+    "explain": "Nguyên lý chung: phản ứng nào tạo ra hạt nhân có <b>$W_{lk}/A$ lớn hơn</b> thì tỏa năng lượng. Phân hạch: từ hạt nhân nặng ($^{235}U$) → hạt nhân trung bình (bền hơn). Nhiệt hạch: từ hạt nhân rất nhẹ (D, T) → hạt nhân nặng hơn (He, bền hơn). Cả hai đều tiến về vùng $A \\approx 56$ (bền nhất)."
+  },
+  {
+    "id": 60,
+    "text": "Trong lòng Mặt Trời đang diễn ra phản ứng nhiệt hạch, còn lò phản ứng hạt nhân trên Trái Đất dùng phản ứng phân hạch. Phát biểu nào đúng về lợi ích và thách thức của mỗi loại?",
+    "topic": "Tổng hợp & Vận dụng",
+    "level": "VDC",
+    "choices": [
+      "Phân hạch sạch hơn vì không sinh chất thải",
+      "Nhiệt hạch đã được ứng dụng rộng rãi trong công nghiệp điện",
+      "Phân hạch đã thương mại hóa nhưng có chất thải phóng xạ; nhiệt hạch tỏa nhiều năng lượng hơn và sạch hơn nhưng chưa kiểm soát được thực tế",
+      "Cả hai đều chưa được ứng dụng trong thực tế"
+    ],
+    "ans": 2,
+    "explain": "<b>Phân hạch</b>: đã thương mại hóa (>400 lò điện hạt nhân toàn cầu), nhược điểm là chất thải phóng xạ. <b>Nhiệt hạch</b>: tỏa nhiều năng lượng hơn, nguyên liệu D dồi dào, ít chất thải phóng xạ, nhưng chưa đạt điều kiện kỹ thuật để xây nhà máy thương mại (ITER đang thử nghiệm)."
+  }
+]
+;
+
+// ── Tên đề: thay đổi cho mỗi chương ──
+var EXAM_NAME = "C4.VatLiHatNhan — Vật lý 12";
+
+var TOPICS    = ["Cấu tạo hạt nhân", "Năng lượng liên kết hạt nhân", "Phản ứng hạt nhân", "Phân hạch hạt nhân", "Phản ứng nhiệt hạch", "Tổng hợp & Vận dụng"];
+var LEVELS    = ["NB","TH","VD","VDC"];
+var LVL_FULL  = {NB:"Nhận biết",TH:"Thông hiểu",VD:"Vận dụng",VDC:"Vận dụng cao"};
+var TOPIC_CLR = {
+  "Cấu tạo hạt nhân":         {bg:"#EBF2FB",text:"#0C447C"},
+  "Năng lượng liên kết hạt nhân":{bg:"#E6F4EE",text:"#1D5C3B"},
+  "Phản ứng hạt nhân":{bg:"#FFF6E0",text:"#7A4A0A"},
+  "Phân hạch hạt nhân":       {bg:"#FDE8E8",text:"#7A1F1F"},
+  "Phản ứng nhiệt hạch":      {bg:"#F9E8F7",text:"#6E1F62"},
+  "Tổng hợp & Vận dụng":      {bg:"#EDEAFB",text:"#3F35A0"}
+};
+var LVL_CLR = {
+  NB:  {bg:"#EBF2FB",text:"#0C447C"},
+  TH:  {bg:"#E6F4EE",text:"#1D5C3B"},
+  VD:  {bg:"#FFF6E0",text:"#7A4A0A"},
+  VDC: {bg:"#FDEAEA",text:"#7A1F1F"}
+};
+
+// Kế hoạch bổ trợ chi tiết theo từng chủ đề
+var PLAN = 
+{
+  "Cấu tạo hạt nhân": {
+    "formula": "$$^A_ZX:\\; N=A-Z \\qquad R=R_0A^{1/3},\\; R_0\\approx1{,}2\\text{ fm}\\qquad \\rho_{hn}\\approx2{,}3\\times10^{17}\\text{ kg/m}^3$$",
+    "notes": [
+      "Hạt nhân gồm proton ($+e$, $m_p\\approx1{,}0073u$) và neutron ($q=0$, $m_n\\approx1{,}0087u$)",
+      "$Z$ = số proton = số hiệu nguyên tử; $N=A-Z$ neutron; Đồng vị: cùng $Z$, khác $N$",
+      "Lực hạt nhân: hút rất mạnh, tầm ngắn $\\sim10^{-15}$ m, không phụ thuộc điện tích",
+      "Thể tích $\\propto A$ → khối lượng riêng hạt nhân không phụ thuộc loại hạt nhân"
+    ],
+    "exercises": [
+      "Tính $R$ của $^{56}Fe$; Tính $\\rho$ hạt nhân $^{208}Pb$; Xác định đồng vị của $^{235}U$"
+    ]
+  },
+  "Năng lượng liên kết hạt nhân": {
+    "formula": "$$\\Delta m=Zm_p+Nm_n-m_X \\qquad W_{lk}=\\Delta m\\cdot c^2=\\Delta m(u)\\times931{,}5\\text{ MeV}$$",
+    "notes": [
+      "$1u=1{,}66055\\times10^{-27}$ kg; $1u\\cdot c^2=931{,}5$ MeV; $1$ MeV $=1{,}6\\times10^{-13}$ J",
+      "$W_{lk}/A$ (MeV/nucleon) — càng lớn hạt nhân càng bền vững",
+      "Hạt nhân bền nhất: vùng $50<A<80$ (~$^{56}Fe$: $W_{lk}/A\\approx8{,}8$ MeV/nucleon)",
+      "$^1H$ không có $W_{lk}$; $^4He$: 7,1; $^{56}Fe$: 8,79; $^{238}U$: 7,6 MeV/nucleon"
+    ],
+    "exercises": [
+      "Tính $\\Delta m$ và $W_{lk}/A$ của $^{16}_8O$; So sánh độ bền $^{12}C$ và $^{208}Pb$"
+    ]
+  },
+  "Phản ứng hạt nhân": {
+    "formula": "$$Q=(m_{trước}-m_{sau})\\cdot931{,}5\\text{ MeV} \\qquad \\vec{p}_A+\\vec{p}_B=\\vec{p}_C+\\vec{p}_D$$",
+    "notes": [
+      "4 bảo toàn: số khối $A$, điện tích $Z$, năng lượng toàn phần, động lượng",
+      "Khối lượng nghỉ KHÔNG bảo toàn; $Q>0$ tỏa; $Q<0$ thu năng lượng",
+      "Mẹ đứng yên, 2 con: bay ngược chiều nhau, $p_1=p_2$, $K_1/K_2=m_2/m_1$",
+      "Cách hoàn thành PT: $A_x=\\sum A_{trước}-\\sum A_{đã\\,biết\\,sau}$; tương tự $Z_x$"
+    ],
+    "exercises": [
+      "Hoàn thành: $^{235}_{92}U \\to ^{141}_{56}Ba + ^{92}_{36}Kr + ?\\,n$; Tính $Q$ từ khối lượng các hạt"
+    ]
+  },
+  "Phân hạch hạt nhân": {
+    "formula": "$$^1_0n+^{235}_{92}U\\to X_1+X_2+k\\,^1_0n+Q\\approx200\\text{ MeV}\\qquad k<1/=1/>1$$",
+    "notes": [
+      "Cần neutron nhiệt (<0,1 eV) để kích thích phân hạch $^{235}U$ hiệu quả",
+      "Hệ số nhân $k$: $k<1$ tắt; $k=1$ ổn định (lò điện); $k>1$ bùng nổ (bom A)",
+      "Lò phản ứng: thanh điều khiển (Cd, B hấp thụ $n$), chất làm chậm, chất tải nhiệt",
+      "1 kg $^{235}U$ phân hạch hoàn toàn $\\approx 8{,}2\\times10^{13}$ J $\\approx$ 3 triệu kg than"
+    ],
+    "exercises": [
+      "Tìm mảnh phân hạch khi $^{235}U$ vỡ thành $^{95}_{38}Sr$ + ? + $3n$; Tính công suất lò"
+    ]
+  },
+  "Phản ứng nhiệt hạch": {
+    "formula": "$$^2_1D+^3_1T\\to^4_2He+^1_0n+17{,}6\\text{ MeV}\\qquad T\\geq10^8\\text{ K};\\; n\\cdot\\Delta t>10^{14}\\text{ s/cm}^3$$",
+    "notes": [
+      "Nhiệt hạch: hạt nhân nhẹ ($A\\leq10$) tổng hợp → hạt nhân nặng hơn, bền hơn",
+      "Điều kiện: $T\\geq10^8$ K (plasma) và tiêu chuẩn Lawson $n\\Delta t>10^{14}$ s/cm³",
+      "Tổng hợp 1 g He tỏa gấp ~10 lần phân hạch 1 g U, gấp ~85 lần đốt 1 tấn than",
+      "Mặt Trời: $4H\\to He + 26$ MeV; Chưa có nhà máy nhiệt hạch thương mại (ITER đang xây)"
+    ],
+    "exercises": [
+      "Tính $Q$ phản ứng $D+D\\to^3He+n$ từ khối lượng; Tính $E$ từ $10^{23}$ phản ứng D-T"
+    ]
+  },
+  "Tổng hợp & Vận dụng": {
+    "formula": "$$W_{lk}/A\\nearrow\\text{ hạt nhân nhẹ}\\to\\text{nhiệt hạch tỏa NL} \\qquad W_{lk}/A\\searrow\\text{ hạt nhân nặng}\\to\\text{phân hạch tỏa NL}$$",
+    "notes": [
+      "Cả phân hạch và nhiệt hạch tỏa NL vì sản phẩm có $W_{lk}/A$ lớn hơn hạt nhân gốc",
+      "Phân hạch: đã thương mại hóa, có chất thải phóng xạ cần lưu trữ lâu dài",
+      "Nhiệt hạch: sạch hơn, NL lớn hơn, nhưng chưa kiểm soát được thực tế (ITER)",
+      "Nhớ: $1u=931{,}5$ MeV/$c^2$; $1$ MeV $=1{,}6\\times10^{-13}$ J; $1$ fm $=10^{-15}$ m"
+    ],
+    "exercises": [
+      "So sánh toàn diện phân hạch và nhiệt hạch: nguyên lý, nhiên liệu, sản phẩm, ứng dụng"
+    ]
+  }
+}
+;
+
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+var studentName = "", curQ = 0;
+var answers = new Array(QS.length).fill(null);
+var timer = 0, timerInt = null;
+var sheetsUrl = "https://script.google.com/macros/s/AKfycbxCaWkqtPLU-ro1z7R-vKRi768bFMpD2EMuNSLhbloh4PaiNW5T2OoyD5fV6y8OAlDK/exec";
+
+// URL đã được cài sẵn — init sẽ chạy sau khi load xong
+
+/* ═══════════════════════════════════════════════════════
+   SETUP
+═══════════════════════════════════════════════════════ */
+function saveUrl() {
+  var url = document.getElementById("inp-url").value.trim();
+  if (!url) { alert("Vui lòng nhập URL Apps Script"); return; }
+  var st = document.getElementById("conn-status");
+  st.style.display = "block";
+  st.className = "notice notice-warn";
+  st.textContent = "Đang kiểm tra kết nối...";
+
+  fetch(url, { method: "GET", mode: "no-cors" })
+    .then(function() {
+      sheetsUrl = url;
+      try { localStorage.setItem("diagnostic_sheets_url", url); } catch(e) {}
+      st.className = "notice notice-success";
+      st.textContent = "Kết nối thành công! Đang chuyển sang giao diện học sinh...";
+      document.getElementById("sheets-badge").style.display = "block";
+      setTimeout(function() { showScreen("s-login"); }, 1400);
+    })
+    .catch(function() {
+      st.className = "notice notice-error";
+      st.textContent = "Không kết nối được. Kiểm tra lại URL và quyền truy cập (Who has access: Anyone).";
+    });
+}
+
+/* ═══════════════════════════════════════════════════════
+   LOGIN → START
+═══════════════════════════════════════════════════════ */
+function startTest() {
+  var nm = document.getElementById("inp-name").value.trim();
+  if (!nm) { document.getElementById("inp-name").focus(); return; }
+  studentName = nm;
+  curQ = 0;
+  answers = new Array(QS.length).fill(null);
+  timer = 0;
+  timerInt = setInterval(function() {
+    timer++;
+    var m = Math.floor(timer / 60), s = timer % 60;
+    document.getElementById("timer").textContent = m + ":" + (s < 10 ? "0" : "") + s;
+  }, 1000);
+  showScreen("s-test");
+  renderQ();
+}
+
+/* ═══════════════════════════════════════════════════════
+   TEST RENDERING
+═══════════════════════════════════════════════════════ */
+function renderQ() {
+  var q = QS[curQ];
+  document.getElementById("q-counter").textContent = "Câu " + (curQ + 1) + " / " + QS.length;
+  document.getElementById("progress").style.width = ((curQ + 1) / QS.length * 100) + "%";
+
+  var tc = TOPIC_CLR[q.topic] || { bg: "#eee", text: "#333" };
+  var tEl = document.getElementById("q-topic");
+  tEl.textContent = q.topic;
+  tEl.style.background = tc.bg;
+  tEl.style.color = tc.text;
+
+  var lc = LVL_CLR[q.level];
+  var lEl = document.getElementById("q-level");
+  lEl.textContent = LVL_FULL[q.level];
+  lEl.style.background = lc.bg;
+  lEl.style.color = lc.text;
+
+  document.getElementById("q-text").textContent = q.text;
+
+  var cd = document.getElementById("choices");
+  cd.innerHTML = "";
+  var letters = ["A", "B", "C", "D"];
+  q.choices.forEach(function(ch, ci) {
+    var b = document.createElement("button");
+    b.className = "choice-btn" + (answers[curQ] === ci ? " selected" : "");
+    b.innerHTML =
+      '<span class="choice-letter">' + letters[ci] + '</span>' + ch;
+    b.onclick = (function(idx) {
+      return function() { answers[curQ] = idx; renderQ(); };
+    })(ci);
+    cd.appendChild(b);
+  });
+
+  var prevBtn = document.getElementById("btn-prev");
+  prevBtn.disabled = curQ === 0;
+  prevBtn.style.opacity = curQ === 0 ? "0.35" : "1";
+  document.getElementById("btn-next").textContent =
+    curQ === QS.length - 1 ? "Nộp bài ✓" : "Câu tiếp →";
+
+  renderDots();
+
+  // MathJax: typeset câu hỏi và các lựa chọn
+  if (window.MathJax && MathJax.typesetPromise) {
+    try {
+      MathJax.typesetPromise([document.getElementById("q-text"), document.getElementById("choices")])
+        .catch(function(e) { /* silent */ });
+    } catch(e) { /* silent */ }
+  }
+}
+
+function renderDots() {
+  var nav = document.getElementById("dot-nav");
+  nav.innerHTML = "";
+  QS.forEach(function(_, i) {
+    var d = document.createElement("button");
+    d.className = "dot-nav-item" +
+      (i === curQ ? " current" : answers[i] !== null ? " answered" : "");
+    d.textContent = i + 1;
+    d.onclick = (function(idx) { return function() { curQ = idx; renderQ(); }; })(i);
+    nav.appendChild(d);
+  });
+}
+
+function prevQ() { if (curQ > 0) { curQ--; renderQ(); } }
+function nextQ() {
+  if (curQ < QS.length - 1) { curQ++; renderQ(); }
+  else { doSubmit(); }
+}
+
+function doSubmit() {
+  var missing = answers.filter(function(a) { return a === null; }).length;
+  if (missing > 0) {
+    var modal = document.getElementById('submit-confirm-modal');
+    document.getElementById('missing-count').textContent = missing;
+    if (modal) { modal.style.display = 'flex'; return; }
+  }
+  submitTest();
+}
+
+/* ═══════════════════════════════════════════════════════
+   CALCULATE RESULTS
+═══════════════════════════════════════════════════════ */
+function calcResults() {
+  var score = answers.filter(function(a, i) { return a === QS[i].ans; }).length;
+  var pct = Math.round(score / QS.length * 100);
+  var letters = ["A","B","C","D"];
+  var ansLetters = answers.map(function(a) { return a !== null ? letters[a] : "?"; });
+
+  var topicPcts = TOPICS.map(function(t) {
+    var ok = 0, tot = 0;
+    QS.forEach(function(q, i) {
+      if (q.topic === t) { tot++; if (answers[i] === q.ans) ok++; }
+    });
+    return tot ? Math.round(ok / tot * 100) : 0;
+  });
+
+  var levelPcts = LEVELS.map(function(l) {
+    var ok = 0, tot = 0;
+    QS.forEach(function(q, i) {
+      if (q.level === l) { tot++; if (answers[i] === q.ans) ok++; }
+    });
+    return tot ? Math.round(ok / tot * 100) : 0;
+  });
+
+  var grade = pct >= 80 ? "Tốt" : pct >= 65 ? "Khá" : pct >= 50 ? "Trung bình" : "Cần bổ trợ";
+  return { score: score, pct: pct, grade: grade, ansLetters: ansLetters, topicPcts: topicPcts, levelPcts: levelPcts };
+}
+
+/* ═══════════════════════════════════════════════════════
+   SUBMIT
+═══════════════════════════════════════════════════════ */
+function submitTest() {
+  clearInterval(timerInt);
+  var res     = calcResults();
+  var cls     = document.getElementById("inp-class").value.trim();
+  var timeMin = Math.round(timer / 60 * 10) / 10;
+
+  // ── Hiển thị kết quả NGAY — không chờ server ──
+  // Gửi lên Sheets trong nền, không block UI
+  showResult(res, false);   // sentOk=false trước, sẽ cập nhật badge sau
+
+  if (!sheetsUrl) return;
+
+  var params = [
+    "examName="  + encodeURIComponent(EXAM_NAME),
+    "name="      + encodeURIComponent(studentName),
+    "className=" + encodeURIComponent(cls),
+    "score="     + res.score,
+    "pct="       + res.pct,
+    "grade="     + encodeURIComponent(res.grade),
+    "time="      + timeMin,
+    "topicPcts=" + res.topicPcts.join(","),
+    "levelPcts=" + res.levelPcts.join(","),
+    "answers="   + res.ansLetters.join("")
+  ].join("&");
+
+  var fullUrl  = sheetsUrl + "?" + params;
+  var sent     = false;
+
+  function markSent() {
+    if (sent) return;
+    sent = true;
+    // Cập nhật badge "Đã gửi" ngay trên màn hình kết quả
+    var failBadge = document.getElementById("sheets-fail-badge");
+    var sentBadge = document.getElementById("sheets-sent-badge");
+    if (failBadge) failBadge.style.display = "none";
+    if (sentBadge) sentBadge.style.display = "block";
+    // Ẩn mã dự phòng nếu đang hiện
+    var codeBlock = document.getElementById("code-block");
+    if (codeBlock) codeBlock.style.display = "none";
+  }
+
+  function markFailed() {
+    if (sent) return;
+    sent = true;
+    // Giữ nguyên badge fail + mã dự phòng đã hiện sẵn
+  }
+
+  // ── Cách 1: fetch (Chrome, Safari, Android WebView hiện đại) ──
+  if (typeof fetch !== "undefined") {
+    var controller;
+    var fetchTimer;
+    try {
+      controller = new AbortController();
+      fetchTimer = setTimeout(function() { controller.abort(); }, 6000);
+    } catch(e) { controller = null; }
+
+    fetch(fullUrl, {
+      method: "GET",
+      mode:   "no-cors",
+      signal: controller ? controller.signal : undefined
+    })
+    .then(function() { clearTimeout(fetchTimer); markSent(); })
+    .catch(function(e) {
+      clearTimeout(fetchTimer);
+      if (!sent) {
+        // Cách 2: Image pixel (Zalo WebView cũ không có fetch)
+        sendViaImage(fullUrl, markSent, markFailed);
+      }
+    });
+  } else {
+    // Cách 2: Image pixel fallback
+    sendViaImage(fullUrl, markSent, markFailed);
+  }
+}
+
+function sendViaImage(url, onSuccess, onFail) {
+  var img      = new Image();
+  var imgTimer = setTimeout(function() {
+    img.onload = img.onerror = null;
+    onFail();
+  }, 6000);
+
+  img.onload = img.onerror = function() {
+    clearTimeout(imgTimer);
+    onSuccess();
+  };
+  img.src = url;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SHOW RESULT
+═══════════════════════════════════════════════════════ */
+function pctColor(p) {
+  if (p >= 70) return { bg: "#E6F4EE", text: "#1D5C3B", bar: "#1D7A4F" };
+  if (p >= 40) return { bg: "#FFF6E0", text: "#7A4A0A", bar: "#EF9F27" };
+  return { bg: "#FDEAEA", text: "#7A1F1F", bar: "#E24B4A" };
+}
+
+function showResult(res, sentOk) {
+  var score10 = Math.round(res.score / QS.length * 10 * 10) / 10;
+  document.getElementById("score-num").textContent = score10 % 1 === 0 ? score10.toFixed(1) : score10;
+  document.getElementById("score-denom").textContent = "/10";
+  document.getElementById("score-raw").textContent = "(" + res.score + "/" + QS.length + " câu)";
+  document.getElementById("result-name").textContent = studentName;
+
+  var gradeColors = {
+    "Tốt":        { bg: "#E6F4EE", text: "#1D5C3B" },
+    "Khá":        { bg: "#EBF2FB", text: "#0C447C" },
+    "Trung bình": { bg: "#FFF6E0", text: "#7A4A0A" },
+    "Cần bổ trợ": { bg: "#FDEAEA", text: "#7A1F1F" }
+  };
+  var gc = gradeColors[res.grade] || gradeColors["Cần bổ trợ"];
+  document.getElementById("result-grade-badge").innerHTML =
+    '<span style="font-size:13px;padding:4px 14px;border-radius:20px;font-weight:600;background:' +
+    gc.bg + ';color:' + gc.text + ';border:1px solid ' + gc.text + '30">' + res.grade + '</span>';
+
+  if (sentOk && sheetsUrl) {
+    document.getElementById("sheets-sent-badge").style.display = "block";
+  } else if (!sheetsUrl || !sentOk) {
+    document.getElementById("sheets-fail-badge").style.display = "block";
+    document.getElementById("code-block").style.display = "block";
+    var codeParts = [
+      studentName.replace(/[|]/g, "").substring(0, 12),
+      document.getElementById("inp-class").value || "?",
+      res.score,
+      res.pct + "%",
+      res.ansLetters.join("")
+    ];
+    document.getElementById("result-code").textContent = codeParts.join("|");
+  }
+
+  var s10 = Math.round(res.score / QS.length * 10 * 10) / 10;
+  document.getElementById("m-score").textContent = (s10 % 1 === 0 ? s10.toFixed(1) : s10) + " (" + res.score + "/" + QS.length + ")";
+  document.getElementById("m-pct").textContent = res.pct + "%";
+  var m = Math.floor(timer / 60), s = timer % 60;
+  document.getElementById("m-time").textContent = m + ":" + (s < 10 ? "0" : "") + s;
+
+  /* topic bars */
+  var tb = document.getElementById("topic-bars");
+  tb.innerHTML = TOPICS.map(function(t, i) {
+    var p = res.topicPcts[i];
+    var c = pctColor(p);
+    var tc = TOPIC_CLR[t] || { bg: "#eee", text: "#333" };
+    return '<div class="bar-row">' +
+      '<div class="bar-meta">' +
+        '<span class="tag" style="background:' + tc.bg + ';color:' + tc.text + '">' + t + '</span>' +
+        '<span style="font-size:13px;font-weight:600;color:' + c.text + '">' + p + '%</span>' +
+      '</div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + p + '%;background:' + c.bar + '"></div></div>' +
+    '</div>';
+  }).join("");
+
+  /* level bars */
+  var lb = document.getElementById("level-bars");
+  lb.innerHTML = LEVELS.map(function(l, i) {
+    var p = res.levelPcts[i];
+    var c = pctColor(p);
+    var lc = LVL_CLR[l];
+    return '<div class="bar-row">' +
+      '<div class="bar-meta">' +
+        '<span class="tag" style="background:' + lc.bg + ';color:' + lc.text + '">' + LVL_FULL[l] + '</span>' +
+        '<span style="font-size:13px;font-weight:600;color:' + c.text + '">' + p + '%</span>' +
+      '</div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + p + '%;background:' + c.bar + '"></div></div>' +
+    '</div>';
+  }).join("");
+
+  /* ── detail per question: expandable accordion ── */
+  var dr = document.getElementById("detail-rows");
+  var letters = ["A","B","C","D"];
+  dr.innerHTML = QS.map(function(q, i) {
+    var ok = answers[i] === q.ans;
+    var tc = TOPIC_CLR[q.topic] || { bg:"#eee", text:"#333" };
+    var userLetter  = answers[i] !== null ? letters[answers[i]] : "–";
+    var correctLetter = letters[q.ans];
+    var detailId = "detail-expand-" + i;
+    return (
+      '<div style="border-bottom:1px solid #F0F4FB">' +
+        // ── header row (clickable) ──
+        '<div onclick="toggleDetail(' + i + ')" style="display:flex;gap:10px;align-items:center;padding:11px 4px;cursor:pointer;-webkit-tap-highlight-color:transparent">' +
+          '<div style="width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;background:' + (ok?"#E6F4EE":"#FDEAEA") + ';color:' + (ok?"#1D5C3B":"#7A1F1F") + '">' + (ok?"✓":"✗") + '</div>' +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-size:13.5px;font-weight:500;color:#222;line-height:1.5" class="q-preview-' + i + '">' + q.id + '. ' + q.text + '</div>' +
+            (!ok ? '<div style="font-size:12px;color:#7A1F1F;margin-top:3px">Bạn chọn: <b>' + userLetter + '</b> · Đúng: <b>' + correctLetter + '</b></div>' : '<div style="font-size:12px;color:#1D5C3B;margin-top:3px">Đáp án đúng: <b>' + correctLetter + '</b></div>') +
+          '</div>' +
+          '<span class="tag" style="background:' + tc.bg + ';color:' + tc.text + ';flex-shrink:0;font-size:11px">' + q.topic + '</span>' +
+          '<span id="arrow-' + i + '" style="font-size:14px;color:#aaa;flex-shrink:0;transition:transform .2s">▸</span>' +
+        '</div>' +
+        // ── expanded content ──
+        '<div id="' + detailId + '" style="display:none;padding:0 4px 14px 36px">' +
+          // All choices
+          '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">' +
+            q.choices.map(function(ch, ci) {
+              var isCorrect = ci === q.ans;
+              var isUser    = ci === answers[i];
+              var bg  = isCorrect ? "#E6F4EE" : (isUser && !ok ? "#FDEAEA" : "#F8FAFD");
+              var clr = isCorrect ? "#1D5C3B"  : (isUser && !ok ? "#7A1F1F"  : "#555");
+              var brd = isCorrect ? "1.5px solid #9FE1CB" : (isUser && !ok ? "1.5px solid #F09595" : "1px solid #E8ECF2");
+              var prefix = isCorrect ? "✓ " : (isUser && !ok ? "✗ " : "");
+              return '<div style="padding:8px 12px;border-radius:8px;background:' + bg + ';border:' + brd + ';font-size:13px;color:' + clr + ';font-weight:' + (isCorrect?"600":"400") + '">' +
+                '<span style="font-weight:700;margin-right:6px">' + letters[ci] + '.</span>' + prefix + ch + '</div>';
+            }).join("") +
+          '</div>' +
+          // Explanation
+          '<div style="background:#F5F7FA;border-radius:8px;padding:10px 12px;border-left:3px solid #1A56A0">' +
+            '<div style="font-size:11px;font-weight:700;color:#1A56A0;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Giải thích</div>' +
+            '<div style="font-size:13px;color:#333;line-height:1.7" class="explain-' + i + '">' + q.explain + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }).join("");
+
+  // MathJax typeset all question previews and explains after rendering
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([document.getElementById("detail-rows")]).catch(function(e){console.log(e);});
+  }
+
+  /* ── remediation plan: chi tiết ── */
+  var weakTopics = TOPICS.filter(function(_, i) { return res.topicPcts[i] < 60; });
+  var pr = document.getElementById("plan-rows");
+  if (weakTopics.length === 0) {
+    pr.innerHTML = '<div style="text-align:center;padding:12px;font-size:14px;color:#1D7A4F;font-weight:600">Xuất sắc! Bạn đạt yêu cầu ở tất cả chủ đề.</div>';
+  } else {
+    var planHtml = weakTopics.map(function(t) {
+      var tc   = TOPIC_CLR[t] || { bg:"#eee", text:"#333" };
+      var p    = PLAN[t];
+      var wrongQs = QS.filter(function(q, i) { return q.topic === t && answers[i] !== q.ans; });
+      return (
+        '<div style="border-bottom:1px solid #F0F4FB;padding:16px 0">' +
+          // Topic header
+          '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">' +
+            '<div style="width:36px;height:36px;border-radius:50%;background:' + tc.bg + ';color:' + tc.text + ';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">' + t.substring(0,3) + '</div>' +
+            '<div style="font-size:15px;font-weight:700;color:#1a1a1a">' + t + '</div>' +
+            '<span style="font-size:12px;padding:2px 9px;border-radius:10px;background:#FDEAEA;color:#7A1F1F;font-weight:600">' + wrongQs.length + ' câu sai</span>' +
+          '</div>' +
+          // Công thức cần nhớ
+          '<div style="background:#F0F4FB;border-radius:10px;padding:12px 14px;margin-bottom:10px">' +
+            '<div style="font-size:11px;font-weight:700;color:#1A56A0;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Công thức cần nhớ</div>' +
+            '<div class="plan-formula-' + t.replace(/[^a-zA-Z]/g,'') + '">' + p.formula + '</div>' +
+          '</div>' +
+          // Lưu ý
+          '<div style="margin-bottom:10px">' +
+            '<div style="font-size:11px;font-weight:700;color:#555;margin-bottom:7px;text-transform:uppercase;letter-spacing:.05em">Điểm cần chú ý</div>' +
+            '<div style="display:flex;flex-direction:column;gap:5px">' +
+              p.notes.map(function(n) {
+                return '<div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:#333;line-height:1.6">' +
+                  '<span style="color:#1A56A0;flex-shrink:0;font-weight:700;margin-top:1px">•</span>' +
+                  '<span class="plan-note-text">' + n + '</span>' +
+                '</div>';
+              }).join("") +
+            '</div>' +
+          '</div>' +
+          // Bài tập đề nghị
+          '<div style="background:#FFFBF0;border-radius:10px;padding:12px 14px;border:1px solid #FAC77540">' +
+            '<div style="font-size:11px;font-weight:700;color:#7A4A0A;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Bài tập luyện thêm</div>' +
+            '<div style="display:flex;flex-direction:column;gap:7px">' +
+              p.exercises.map(function(ex, ei) {
+                return '<div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:#333;line-height:1.6">' +
+                  '<span style="background:#EF9F27;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px">' + (ei+1) + '</span>' +
+                  '<span class="plan-ex-text">' + ex + '</span>' +
+                '</div>';
+              }).join("") +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join("");
+    pr.innerHTML = planHtml;
+    // Typeset MathJax in plan section
+    if (window.MathJax && MathJax.typesetPromise) {
+      MathJax.typesetPromise([document.getElementById("plan-rows")]).catch(function(e){console.log(e);});
+    }
+  }
+
+  // ── Lưu kết quả vào biến global để doRenderHTML dùng ──
+  window._pdfRes     = res;
+  window._pdfAnswers = answers.slice();
+
+  // ── Hiện nút PDF chỉ khi có chủ đề yếu ──
+  if (weakTopics.length > 0) {
+    document.getElementById("btn-save-pdf").style.display = "flex";
+  }
+
+  showScreen("s-result");
+}
+
+function toggleDetail(i) {
+  var el  = document.getElementById("detail-expand-" + i);
+  var arr = document.getElementById("arrow-" + i);
+  var open = el.style.display === "block";
+  el.style.display = open ? "none" : "block";
+  arr.style.transform = open ? "" : "rotate(90deg)";
+  if (!open && window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([el]).catch(function(e){console.log(e);});
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(function(s) { s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+function restart() {
+  document.getElementById("inp-name").value = "";
+  showScreen("s-login");
+}
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════
+   SAVE PDF
+═══════════════════════════════════════════════════════ */
+function savePDF() {
+  var defaultName = (studentName || "hoc_sinh").replace(/\s+/g, "_")
+    + "_" + EXAM_NAME.replace(/[\s\/\\:*?<>|]+/g, "_");
+  document.getElementById("pdf-filename-input").value = defaultName;
+  document.getElementById("pdf-name-modal").style.display = "flex";
+  setTimeout(function() {
+    var inp = document.getElementById("pdf-filename-input");
+    inp.focus(); inp.select();
+  }, 80);
+}
+
+function closePDFModal(evt) {
+  if (evt && evt.target !== document.getElementById("pdf-name-modal")) return;
+  document.getElementById("pdf-name-modal").style.display = "none";
+}
+
+function confirmSavePDF() {
+  var raw = document.getElementById("pdf-filename-input").value.trim() || "ke_hoach_bo_tro";
+  var filename = raw + ".html";
+  document.getElementById("pdf-name-modal").style.display = "none";
+  doRenderHTML(filename);
+}
+
+function doRenderHTML(filename) {
+  var btn = document.getElementById("btn-save-pdf");
+  btn.disabled = true;
+
+  try {
+    // ── Đóng hết accordion trước khi chụp ──
+    var expandStates = [];
+    document.querySelectorAll('[id^="detail-expand-"]').forEach(function(el, i){
+      expandStates.push({ el: el, display: el.style.display });
+      el.style.display = "none";
+    });
+    var arrowStates = [];
+    document.querySelectorAll('[id^="arrow-"]').forEach(function(el){
+      arrowStates.push({ el: el, transform: el.style.transform });
+      el.style.transform = "";
+    });
+
+    // ── Ẩn các màn hình/nút không cần ──
+    document.querySelectorAll(".screen").forEach(function(s){
+      s.setAttribute("data-save-display", s.style.display);
+      s.style.display = s.id === "s-result" ? "block" : "none";
+    });
+    document.getElementById("btn-save-pdf").style.visibility = "hidden";
+    document.querySelectorAll(".btn-block").forEach(function(b){
+      b.setAttribute("data-save-vis", b.style.visibility);
+      b.style.visibility = "hidden";
+    });
+    document.getElementById("pdf-name-modal").style.display = "none";
+
+    // ── Chụp toàn bộ trang ──
+    var snap = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+
+    // ── Khôi phục trạng thái trang ──
+    expandStates.forEach(function(s){ s.el.style.display = s.display; });
+    arrowStates.forEach(function(s){ s.el.style.transform = s.transform; });
+    document.querySelectorAll(".screen").forEach(function(s){
+      s.style.display = s.getAttribute("data-save-display") || "";
+    });
+    document.getElementById("btn-save-pdf").style.visibility = "";
+    document.querySelectorAll(".btn-block").forEach(function(b){
+      b.style.visibility = b.getAttribute("data-save-vis") || "";
+    });
+
+    // ── Patch CSS cho file lưu ──
+    snap = snap.replace(
+      "</style>",
+      ".screen{display:none!important}#s-result{display:block!important}"
+      + "#btn-save-pdf,.btn-block{display:none!important}"
+      + "#pdf-name-modal{display:none!important}"
+      + "</style>"
+    );
+
+    var blob = new Blob([snap], {type: "text/html;charset=utf-8"});
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 3000);
+
+  } catch(err) {
+    alert("Không tạo được file: " + err.message);
+  }
+
+  btn.disabled = false;
+}
+
+// ── Khởi tạo sau khi tất cả hàm đã định nghĩa ──
+document.getElementById("sheets-badge").style.display = "block";
+showScreen("s-login");
+</script>
+</body>
+</html>
