@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C1.vatlinhiet — Vật lý 12</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [["$","$"]], displayMath: [["$$","$$"]] }, startup: { typeset: false } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #f5f7fa; color: #1a1a1a; padding: 16px; }
+.card { background: #fff; border-radius: 12px; border: 1px solid #e0e6ef; padding: 20px; margin-bottom: 14px; max-width: 600px; margin-left: auto; margin-right: auto; }
+.screen { display: none; }
+.screen.active { display: block; }
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 11px 20px; border-radius: 10px; border: 1px solid #d0d7e3; background: #fff; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; margin-bottom: 8px; }
+.btn-primary { background: #1a56a0; color: #fff; border-color: #1a56a0; }
+.btn-green   { background: #1d7a4f; color: #fff; border-color: #1d7a4f; }
+.choice-btn { width: 100%; text-align: left; padding: 12px 14px; border: 1px solid #e0e6ef; border-radius: 10px; background: #fff; font-size: 14px; margin-bottom: 8px; cursor: pointer; }
+.choice-btn.selected { background: #ebf2fb; border-color: #1a56a0; font-weight: 500; }
+.progress { height: 5px; background: #e0e6ef; border-radius: 3px; margin-bottom: 16px; }
+.progress-fill { height: 100%; background: #1a56a0; border-radius: 3px; transition: width .3s; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.input-field { width: 100%; padding: 10px 12px; border: 1px solid #d0d7e3; border-radius: 10px; font-size: 15px; margin-bottom: 10px; }
+.score-circle { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #1a56a0; background: #ebf2fb; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 12px; }
+.dot { width:32px;height:32px;border-radius:50%;border:1px solid #d0d7e3;background:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#555; }
+.dot.current { background:#1a56a0;color:#fff;border-color:#1a56a0; }
+.dot.answered { background:#e6f4ee;border-color:#1d7a4f;color:#1d7a4f; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen">
+  <div class="card" style="margin-top:40px; text-align:center">
+    <div style="font-size:20px;font-weight:700;margin-bottom:4px">Vật lí nhiệt — Chương 1</div>
+    <div style="font-size:13px;color:#888;margin-bottom:16px">Vật lý 12 · 60 câu · Có tính năng làm lại câu sai</div>
+    <input id="inp-name"  class="input-field" placeholder="Họ và tên" />
+    <input id="inp-class" class="input-field" placeholder="Lớp" />
+    <button class="btn btn-primary" onclick="startTest()">Bắt đầu →</button>
+  </div>
+</div>
+
+<!-- TEST -->
+<div id="s-test" class="screen">
+  <div class="card">
+    <p id="q-text" style="font-size:15px;font-weight:500;line-height:1.7;margin-bottom:16px"></p>
+    <div id="choices"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn" id="btn-prev" onclick="prevQ()" style="flex:1">← Trước</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQ()" style="flex:2">Tiếp →</button>
+    </div>
+    <div style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-bottom:6px">
+        <span id="q-counter"></span>
+        <span id="round-label" style="color:#1a56a0;font-weight:600"></span>
+      </div>
+      <div class="progress"><div class="progress-fill" id="progress"></div></div>
+      <div id="dot-nav" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <div class="card" style="text-align:center;margin-top:20px">
+    <div class="score-circle">
+      <div id="score-num" style="font-size:28px;font-weight:700;color:#0c447c"></div>
+      <div style="font-size:11px;color:#1a56a0">/10</div>
+    </div>
+    <div id="result-name" style="font-size:17px;font-weight:700;margin-bottom:4px"></div>
+    <div id="round-badge" style="margin-bottom:8px"></div>
+  </div>
+
+  <div id="hist-card" class="card" style="display:none">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Lịch sử lượt</div>
+    <div id="hist-rows"></div>
+  </div>
+
+  <div id="detail-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>
+    <div id="detail-rows"></div>
+  </div>
+
+  <div id="plan-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Kiến thức bổ trợ</div>
+    <div id="plan-rows"></div>
+  </div>
+
+  <div style="max-width:600px;margin:0 auto">
+    <button id="btn-retry"   class="btn btn-primary" style="display:none" onclick="startRetry()"></button>
+    <button id="btn-save"    class="btn btn-green"   onclick="doSave()">Lưu kết quả & Kiến thức bổ trợ</button>
+    <button id="btn-restart" class="btn"             onclick="restartFull()">Làm lại từ đầu</button>
+  </div>
+</div>
+
+<script>
+/* === DỮ LIỆU === */
+var QS = [
+{id:1,
+  text:"Theo mô hình động học phân tử, các chất được cấu tạo từ",
+  topic:"Mô hình phân tử", level:"NB",
+  choices:["Các nguyên tử dương liên kết với nhau", "Các hạt riêng biệt gọi là phân tử (nguyên tử, ion)", "Các electron tự do", "Các proton và neutron"],
+  ans:1,
+  explain:"Theo mô hình động học phân tử, các chất được cấu tạo từ các <b>hạt riêng biệt</b> gọi là phân tử — thuật ngữ \"phân tử\" dùng để chỉ chung phân tử, nguyên tử, ion."},
+
+{id:2,
+  text:"Chuyển động nhiệt của các phân tử có đặc điểm nào sau đây?",
+  topic:"Mô hình phân tử", level:"NB",
+  choices:["Chuyển động có hướng xác định", "Chuyển động không ngừng, hỗn loạn", "Chỉ xảy ra khi nhiệt độ trên $0^\\circ\\text{C}$", "Dừng lại khi vật đứng yên"],
+  ans:1,
+  explain:"Các phân tử <b>chuyển động không ngừng, hỗn loạn</b>. Chuyển động này gọi là chuyển động nhiệt và xảy ra ở mọi nhiệt độ, không phụ thuộc vào trạng thái đứng yên hay chuyển động của vật."},
+
+{id:3,
+  text:"Khi khoảng cách giữa các phân tử <b>rất lớn</b> so với kích thước phân tử thì lực liên kết phân tử",
+  topic:"Mô hình phân tử", level:"NB",
+  choices:["Là lực đẩy rất mạnh", "Là lực hút rất mạnh", "Hầu như không đáng kể", "Bằng nhau giữa lực hút và lực đẩy"],
+  ans:2,
+  explain:"Khi khoảng cách giữa các phân tử <b>rất lớn</b> so với kích thước của chúng: lực liên kết phân tử <b>hầu như không đáng kể</b>. Đây là trường hợp của chất khí ở điều kiện bình thường."},
+
+{id:4,
+  text:"Khi khoảng cách giữa hai phân tử <b>lớn hơn</b> kích thước phân tử thì",
+  topic:"Mô hình phân tử", level:"TH",
+  choices:["Lực đẩy lớn hơn lực hút", "Lực hút lớn hơn lực đẩy", "Không có lực tương tác", "Lực đẩy bằng lực hút"],
+  ans:1,
+  explain:"Khi khoảng cách giữa các phân tử lớn hơn kích thước phân tử: <b>lực hút lớn hơn lực đẩy</b>. Ngược lại, khi khoảng cách rất nhỏ (cỡ kích thước phân tử): lực đẩy lớn hơn lực hút."},
+
+{id:5,
+  text:"Chuyển động Brown là bằng chứng thực nghiệm chứng tỏ điều gì?",
+  topic:"Mô hình phân tử", level:"TH",
+  choices:["Ánh sáng có tính chất sóng", "Các phân tử vật chất chuyển động hỗn loạn không ngừng", "Lực hấp dẫn tồn tại ở mọi vật", "Điện tích có thể dịch chuyển trong chất lỏng"],
+  ans:1,
+  explain:"Chuyển động Brown (chuyển động hỗn loạn của các hạt nhỏ trong chất lỏng hoặc khí) là bằng chứng thực nghiệm trực tiếp chứng tỏ <b>các phân tử chuyển động hỗn loạn không ngừng</b>."},
+
+{id:6,
+  text:"Vì sao chất rắn và chất lỏng rất khó nén?",
+  topic:"Mô hình phân tử", level:"VD",
+  choices:["Vì phân tử của chúng đứng yên", "Vì khi nén lại, khoảng cách phân tử giảm xuống cỡ kích thước phân tử nên lực đẩy tăng mạnh", "Vì lực hút phân tử quá lớn", "Vì khối lượng riêng của chúng lớn"],
+  ans:1,
+  explain:"Khi nén chất rắn/lỏng, khoảng cách phân tử tiến về cỡ kích thước phân tử, khi đó <b>lực đẩy phân tử tăng mạnh</b> và lớn hơn lực hút, tạo ra lực đàn hồi chống lại sự nén."},
+
+{id:7,
+  text:"Nhiệt độ của một vật tăng lên có nghĩa là",
+  topic:"Mô hình phân tử", level:"VD",
+  choices:["Kích thước phân tử tăng lên", "Số lượng phân tử tăng lên", "Tốc độ chuyển động nhiệt trung bình của các phân tử tăng lên", "Lực liên kết phân tử tăng lên"],
+  ans:2,
+  explain:"Nhiệt độ tăng ↔ <b>tốc độ chuyển động nhiệt trung bình của các phân tử tăng</b>. Đây là nội dung trực tiếp của mô hình động học phân tử: các phân tử chuyển động càng nhanh thì nhiệt độ càng cao."},
+
+{id:8,
+  text:"Chất rắn kết tinh có đặc điểm nào sau đây?",
+  topic:"Cấu trúc chất", level:"NB",
+  choices:["Không có cấu trúc tinh thể", "Có cấu trúc tinh thể, phân tử sắp xếp tuần hoàn trong không gian", "Không có nhiệt độ nóng chảy xác định", "Có hình dạng thay đổi theo bình chứa"],
+  ans:1,
+  explain:"Chất rắn kết tinh có <b>cấu trúc tinh thể</b> — các phân tử liên kết chặt và sắp xếp theo trật tự hình học xác định, tuần hoàn trong không gian, gọi là mạng tinh thể. Ví dụ: muối ăn, kim cương, kim loại."},
+
+{id:9,
+  text:"Chất rắn vô định hình khác chất rắn kết tinh ở điểm nào?",
+  topic:"Cấu trúc chất", level:"NB",
+  choices:["Chất rắn vô định hình cứng hơn", "Chất rắn vô định hình không có cấu trúc tinh thể và không có nhiệt độ nóng chảy xác định", "Chất rắn vô định hình dẫn điện tốt hơn", "Chất rắn vô định hình nhẹ hơn"],
+  ans:1,
+  explain:"Chất rắn vô định hình <b>không có cấu trúc tinh thể</b> và <b>không có nhiệt độ nóng chảy xác định</b> — khi nung nóng, chúng mềm dần và chuyển sang lỏng một cách liên tục. Ví dụ: thủy tinh, nhựa đường, cao su."},
+
+{id:10,
+  text:"So sánh cấu trúc chất lỏng và chất rắn: điều nào sau đây ĐÚNG?",
+  topic:"Cấu trúc chất", level:"TH",
+  choices:["Phân tử chất lỏng sắp xếp theo mạng tinh thể", "Lực liên kết phân tử chất lỏng mạnh hơn chất rắn", "Phân tử chất lỏng xa nhau hơn, lực liên kết yếu hơn chất rắn", "Chất lỏng có hình dạng xác định như chất rắn"],
+  ans:2,
+  explain:"Trong chất lỏng, phân tử <b>ở xa nhau hơn</b> và <b>lực tương tác yếu hơn</b> so với chất rắn. Do đó: chất lỏng có thể tích xác định nhưng không có hình dạng riêng (có hình dạng bình chứa). Vị trí cân bằng của phân tử có thể thay đổi."},
+
+{id:11,
+  text:"Vì sao chất khí không có thể tích và hình dạng riêng?",
+  topic:"Cấu trúc chất", level:"TH",
+  choices:["Vì phân tử khí có khối lượng rất nhỏ", "Vì lực tương tác giữa các phân tử khí hầu như không đáng kể nên các phân tử chuyển động hỗn loạn về mọi phía", "Vì phân tử khí chuyển động rất nhanh", "Vì chất khí không có phân tử"],
+  ans:1,
+  explain:"Lực tương tác giữa các phân tử khí <b>hầu như không đáng kể</b> (trừ khi va chạm nhau), nên các phân tử khí <b>chuyển động hỗn loạn về mọi phía</b> → chất khí luôn chiếm toàn bộ thể tích bình chứa, không có hình dạng và thể tích riêng."},
+
+{id:12,
+  text:"Thể plasma khác các thể rắn, lỏng, khí ở điểm nào?",
+  topic:"Cấu trúc chất", level:"TH",
+  choices:["Plasma có nhiệt độ rất thấp", "Ở thể plasma, chất tồn tại dưới dạng các ion và electron tự do, không còn là nguyên tử/phân tử nguyên vẹn", "Plasma không dẫn điện", "Plasma không tồn tại trong tự nhiên"],
+  ans:1,
+  explain:"Ở thể plasma, chất <b>không tồn tại dưới dạng nguyên tử/phân tử</b> mà tồn tại dưới dạng <b>các ion và electron tự do</b>. Plasma thường xuất hiện ở nhiệt độ rất cao (mặt trời, tia sét, đèn huỳnh quang...)."},
+
+{id:13,
+  text:"Tại sao than chì và kim cương đều được cấu tạo từ carbon nhưng có tính chất vật lí rất khác nhau?",
+  topic:"Cấu trúc chất", level:"VD",
+  choices:["Vì chúng khác nhau về thành phần hóa học", "Vì cấu trúc tinh thể (cách sắp xếp phân tử) khác nhau", "Vì kim cương có thêm tạp chất", "Vì than chì có nhiều nguyên tử carbon hơn"],
+  ans:1,
+  explain:"Than chì và kim cương đều từ carbon nhưng có <b>cấu trúc tinh thể khác nhau</b>: kim cương có mạng tứ diện rất bền, còn than chì có cấu trúc lớp. Chính sự sắp xếp phân tử khác nhau quyết định tính chất vật lí hoàn toàn khác nhau."},
+
+{id:14,
+  text:"Chất lỏng có thể tích xác định nhưng không có hình dạng riêng. Điều này được giải thích bởi",
+  topic:"Cấu trúc chất", level:"VDC",
+  choices:["Lực liên kết phân tử chất lỏng bằng 0", "Lực liên kết đủ mạnh để giữ thể tích xác định nhưng vị trí cân bằng phân tử có thể thay đổi", "Phân tử chất lỏng không dao động", "Chất lỏng luôn ở trạng thái cân bằng tĩnh"],
+  ans:1,
+  explain:"Lực liên kết phân tử chất lỏng <b>đủ mạnh để giữ thể tích xác định</b>, nhưng yếu hơn chất rắn nên <b>vị trí cân bằng của phân tử có thể thay đổi</b> — phân tử dao động quanh vị trí cân bằng nhưng vị trí cân bằng đó có thể di chuyển → chất lỏng có hình dạng bình chứa."},
+
+{id:15,
+  text:"Sự nóng chảy là quá trình chuyển thể từ",
+  topic:"Chuyển thể", level:"NB",
+  choices:["Lỏng sang khí", "Rắn sang lỏng", "Khí sang lỏng", "Lỏng sang rắn"],
+  ans:1,
+  explain:"Sự nóng chảy là quá trình chuyển từ <b>thể rắn sang thể lỏng</b>. Quá trình ngược lại (lỏng → rắn) gọi là sự đông đặc. Nhiệt độ nóng chảy = nhiệt độ đông đặc của cùng một chất."},
+
+{id:16,
+  text:"Trong suốt quá trình nóng chảy của chất rắn kết tinh, nhiệt độ của vật",
+  topic:"Chuyển thể", level:"NB",
+  choices:["Tăng liên tục", "Giảm liên tục", "Không đổi", "Tăng rồi giảm"],
+  ans:2,
+  explain:"Trong suốt quá trình nóng chảy của chất rắn kết tinh, <b>nhiệt độ không đổi</b>. Nhiệt lượng cung cấp vào chỉ dùng để phá vỡ liên kết tinh thể, không làm tăng tốc độ chuyển động nhiệt của phân tử."},
+
+{id:17,
+  text:"Điểm khác nhau giữa sự bay hơi và sự sôi là",
+  topic:"Chuyển thể", level:"TH",
+  choices:["Sự bay hơi xảy ra ở nhiệt độ xác định, sự sôi xảy ra ở mọi nhiệt độ", "Sự bay hơi xảy ra trên bề mặt ở mọi nhiệt độ; sự sôi xảy ra cả trong lòng và bề mặt ở nhiệt độ sôi xác định", "Sự bay hơi cần cung cấp nhiệt, sự sôi thì không", "Sự sôi xảy ra chậm hơn sự bay hơi"],
+  ans:1,
+  explain:"<b>Sự bay hơi</b>: xảy ra trên bề mặt chất lỏng ở <b>mọi nhiệt độ</b>. <b>Sự sôi</b>: xảy ra đồng thời ở cả bên trong và bề mặt chất lỏng, ở <b>nhiệt độ sôi xác định</b> (phụ thuộc áp suất và bản chất chất lỏng)."},
+
+{id:18,
+  text:"Tốc độ bay hơi của chất lỏng tăng khi",
+  topic:"Chuyển thể", level:"TH",
+  choices:["Diện tích mặt thoáng giảm", "Nhiệt độ giảm", "Độ ẩm không khí tăng", "Tốc độ gió tăng"],
+  ans:3,
+  explain:"Tốc độ bay hơi tăng khi: diện tích mặt thoáng lớn, nhiệt độ cao, độ ẩm không khí thấp, và <b>tốc độ gió lớn</b>. Gió mang các phân tử hơi nước đi xa, ngăn sự ngưng tụ, tạo điều kiện cho bay hơi tiếp diễn."},
+
+{id:19,
+  text:"Chất rắn vô định hình khi nung nóng sẽ",
+  topic:"Chuyển thể", level:"TH",
+  choices:["Nóng chảy đột ngột ở một nhiệt độ xác định", "Không bao giờ nóng chảy", "Mềm dần và chuyển sang lỏng một cách liên tục, nhiệt độ tăng liên tục", "Vẫn giữ nguyên trạng thái rắn"],
+  ans:2,
+  explain:"Chất rắn vô định hình <b>không có nhiệt độ nóng chảy xác định</b>. Khi nung nóng, vật mềm dần và chuyển sang lỏng một cách liên tục trong khi nhiệt độ vẫn tăng (khác với chất rắn kết tinh có nhiệt độ nóng chảy xác định)."},
+
+{id:20,
+  text:"Vì sao băng nổi trên mặt nước?",
+  topic:"Chuyển thể", level:"VD",
+  choices:["Vì băng nhẹ hơn nước", "Vì khi nước đóng băng, thể tích tăng nên khối lượng riêng giảm, nhỏ hơn khối lượng riêng của nước", "Vì lực đẩy Archimedes tác dụng lên băng lớn hơn trọng lực", "Vì băng không hút nước"],
+  ans:1,
+  explain:"Nước là trường hợp đặc biệt: khi nhiệt độ giảm từ $4^\\circ\\text{C}$ đến $0^\\circ\\text{C}$, <b>thể tích nước tăng</b>. Do đó băng có thể tích lớn hơn nước lỏng cùng khối lượng → khối lượng riêng băng < nước → băng nổi."},
+
+{id:21,
+  text:"Nhiệt độ sôi của nước thay đổi theo áp suất như thế nào?",
+  topic:"Chuyển thể", level:"VD",
+  choices:["Không phụ thuộc áp suất, luôn là $100^\\circ\\text{C}$", "Áp suất tăng thì nhiệt độ sôi tăng", "Áp suất tăng thì nhiệt độ sôi giảm", "Áp suất chỉ ảnh hưởng đến tốc độ sôi, không ảnh hưởng nhiệt độ sôi"],
+  ans:1,
+  explain:"<b>Áp suất tăng → nhiệt độ sôi tăng</b>. Ở mực nước biển ($p = 1\\,\\text{atm}$): nước sôi ở $100^\\circ\\text{C}$. Trên núi cao (áp suất thấp hơn): nước sôi dưới $100^\\circ\\text{C}$. Nồi áp suất (áp suất cao hơn): nước sôi trên $100^\\circ\\text{C}$."},
+
+{id:22,
+  text:"Trong quá trình nóng chảy của chất rắn kết tinh, nhiệt lượng cung cấp được dùng để làm gì?",
+  topic:"Chuyển thể", level:"VDC",
+  choices:["Tăng tốc độ dao động nhiệt của phân tử", "Phá vỡ liên kết tinh thể mà không làm tăng nhiệt độ", "Giảm khoảng cách giữa các phân tử", "Tăng lực liên kết phân tử"],
+  ans:1,
+  explain:"Trong quá trình nóng chảy: nhiệt lượng cung cấp chỉ dùng để <b>phá vỡ liên kết tinh thể</b>, không làm tăng tốc độ chuyển động nhiệt → nhiệt độ không đổi. Năng lượng này gọi là <b>ẩn nhiệt</b>. Sau khi tinh thể phá vỡ hoàn toàn, nhiệt độ mới tăng trở lại."},
+
+{id:23,
+  text:"Nội năng của một vật là",
+  topic:"Nội năng & NĐL1", level:"NB",
+  choices:["Tổng động năng của vật", "Tổng thế năng tương tác giữa các phân tử", "Tổng động năng và thế năng của các phân tử cấu tạo nên vật", "Năng lượng nhiệt mà vật trao đổi với môi trường"],
+  ans:2,
+  explain:"Nội năng $U$ của vật là <b>tổng động năng và thế năng của các phân tử</b> cấu tạo nên vật. Nội năng phụ thuộc vào nhiệt độ (qua động năng phân tử) và thể tích (qua thế năng phân tử)."},
+
+{id:24,
+  text:"Có mấy cách làm thay đổi nội năng của vật?",
+  topic:"Nội năng & NĐL1", level:"NB",
+  choices:["1 cách: truyền nhiệt", "2 cách: thực hiện công và truyền nhiệt", "3 cách: thực hiện công, truyền nhiệt và bức xạ", "4 cách"],
+  ans:1,
+  explain:"Có <b>hai cách</b> làm thay đổi nội năng: (1) <b>Thực hiện công</b> — có sự chuyển hóa từ dạng năng lượng khác sang nội năng; (2) <b>Truyền nhiệt</b> — chỉ có sự truyền nội năng từ vật này sang vật khác."},
+
+{id:25,
+  text:"Biểu thức định luật I Nhiệt động lực học là $\\Delta U = A + Q$. Nếu $A > 0$ và $Q > 0$ thì",
+  topic:"Nội năng & NĐL1", level:"TH",
+  choices:["Hệ thực hiện công và tỏa nhiệt", "Hệ nhận công và nhận nhiệt → nội năng tăng", "Nội năng không đổi", "Hệ nhận công nhưng tỏa nhiệt"],
+  ans:1,
+  explain:"Quy ước dấu: $A > 0$: hệ <b>nhận công</b>; $Q > 0$: hệ <b>nhận nhiệt</b>. Khi cả $A > 0$ và $Q > 0$: hệ nhận cả công lẫn nhiệt → $\\Delta U = A + Q > 0$ → <b>nội năng tăng</b>."},
+
+{id:26,
+  text:"Đẩy pittông nén khí trong xilanh là ví dụ về cách làm thay đổi nội năng bằng",
+  topic:"Nội năng & NĐL1", level:"TH",
+  choices:["Truyền nhiệt", "Bức xạ nhiệt", "Thực hiện công", "Dẫn nhiệt"],
+  ans:2,
+  explain:"Đẩy pittông nén khí là <b>thực hiện công</b> lên khí — cơ năng chuyển hóa thành nội năng làm khí nóng lên. Điểm khác biệt: trong truyền nhiệt không có chuyển hóa dạng năng lượng, còn thực hiện công thì có."},
+
+{id:27,
+  text:"Hiệu suất của động cơ nhiệt được tính bằng",
+  topic:"Nội năng & NĐL1", level:"TH",
+  choices:["$H = \\dfrac{Q_2}{Q_1}$", "$H = \\dfrac{Q_1 - Q_2}{Q_1}$", "$H = \\dfrac{Q_1}{Q_1 - Q_2}$", "$H = \\dfrac{Q_2}{Q_1 - Q_2}$"],
+  ans:1,
+  explain:"Hiệu suất động cơ nhiệt: $H = \\dfrac{|A|}{Q_1} = \\dfrac{Q_1 - Q_2}{Q_1}$, trong đó $Q_1$ là nhiệt lượng nguồn nóng cung cấp, $Q_2$ là nhiệt lượng nguồn lạnh nhận. Vì $A = Q_1 - Q_2$."},
+
+{id:28,
+  text:"Một hệ nhận nhiệt lượng $Q = 500\\,\\text{J}$ và đồng thời bị nén với công $A' = 300\\,\\text{J}$ (hệ nhận công). Độ biến thiên nội năng $\\Delta U$ là",
+  topic:"Nội năng & NĐL1", level:"VD",
+  choices:["$\\Delta U = 200\\,\\text{J}$", "$\\Delta U = 800\\,\\text{J}$", "$\\Delta U = -200\\,\\text{J}$", "$\\Delta U = 300\\,\\text{J}$"],
+  ans:1,
+  explain:"$Q = +500\\,\\text{J}$ (hệ nhận nhiệt); $A = +300\\,\\text{J}$ (hệ nhận công). $\\Delta U = A + Q = 300 + 500 = 800\\,\\text{J}$. Nội năng tăng $800\\,\\text{J}$."},
+
+{id:29,
+  text:"Động cơ nhiệt nhận từ nguồn nóng $Q_1 = 6000\\,\\text{J}$, nhả cho nguồn lạnh $Q_2 = 4200\\,\\text{J}$. Hiệu suất động cơ là",
+  topic:"Nội năng & NĐL1", level:"VD",
+  choices:["$H = 30\\%$", "$H = 70\\%$", "$H = 43\\%$", "$H = 57\\%$"],
+  ans:0,
+  explain:"$H = \\dfrac{Q_1 - Q_2}{Q_1} = \\dfrac{6000 - 4200}{6000} = \\dfrac{1800}{6000} = 0{,}3 = 30\\%$."},
+
+{id:30,
+  text:"Nội năng của khí lí tưởng phụ thuộc vào",
+  topic:"Nội năng & NĐL1", level:"VDC",
+  choices:["Cả nhiệt độ và thể tích", "Chỉ phụ thuộc vào nhiệt độ", "Chỉ phụ thuộc vào thể tích", "Phụ thuộc vào áp suất"],
+  ans:1,
+  explain:"Với <b>khí lí tưởng</b>, các phân tử chỉ tương tác khi va chạm → thế năng tương tác $E_t \\approx 0$ → nội năng <b>chỉ gồm động năng nhiệt</b> → $U$ chỉ phụ thuộc vào nhiệt độ $T$. Quá trình đẳng nhiệt: $\\Delta U = 0$."},
+
+{id:31,
+  text:"Nhiệt độ là đại lượng đặc trưng cho",
+  topic:"Nhiệt độ & Thang đo", level:"NB",
+  choices:["Lượng nhiệt mà vật chứa", "Tốc độ chuyển động có hướng của các phân tử", "Cường độ chuyển động hỗn độn nhiệt của các phân tử", "Lực liên kết giữa các phân tử"],
+  ans:2,
+  explain:"Nhiệt độ là <b>số đo cường độ chuyển động hỗn độn của các phân tử</b> cấu tạo nên vật. Nhiệt độ cao ↔ phân tử chuyển động nhiệt nhanh hơn."},
+
+{id:32,
+  text:"Công thức chuyển đổi từ thang Celsius sang Kelvin là",
+  topic:"Nhiệt độ & Thang đo", level:"NB",
+  choices:["$T(K) = t(^\\circ\\text{C}) - 273$", "$T(K) = t(^\\circ\\text{C}) + 273$", "$T(K) = 1{,}8 \\cdot t(^\\circ\\text{C}) + 32$", "$T(K) = t(^\\circ\\text{C}) \\times 273$"],
+  ans:1,
+  explain:"Công thức chuyển đổi: $T(\\text{K}) = t(^\\circ\\text{C}) + 273{,}15 \\approx t(^\\circ\\text{C}) + 273$. Lưu ý: $0\\,\\text{K} = -273{,}15^\\circ\\text{C}$ (độ không tuyệt đối)."},
+
+{id:33,
+  text:"Nhiệt độ $37^\\circ\\text{C}$ (thân nhiệt người) tương đương với bao nhiêu Kelvin?",
+  topic:"Nhiệt độ & Thang đo", level:"TH",
+  choices:["$236\\,\\text{K}$", "$273\\,\\text{K}$", "$310\\,\\text{K}$", "$373\\,\\text{K}$"],
+  ans:2,
+  explain:"$T = t + 273 = 37 + 273 = 310\\,\\text{K}$."},
+
+{id:34,
+  text:"$0\\,\\text{K}$ (độ không tuyệt đối) tương đương với nhiệt độ nào trong thang Celsius?",
+  topic:"Nhiệt độ & Thang đo", level:"TH",
+  choices:["$0^\\circ\\text{C}$", "$-100^\\circ\\text{C}$", "$-173^\\circ\\text{C}$", "$-273^\\circ\\text{C}$"],
+  ans:3,
+  explain:"$0\\,\\text{K}$ tương đương với $-273{,}15^\\circ\\text{C} \\approx -273^\\circ\\text{C}$. Đây là nhiệt độ thấp nhất có thể — ở đó các phân tử có động năng chuyển động nhiệt bằng 0."},
+
+{id:35,
+  text:"Sự chênh lệch nhiệt độ $\\Delta t = 20^\\circ\\text{C}$ tương đương với",
+  topic:"Nhiệt độ & Thang đo", level:"TH",
+  choices:["$\\Delta T = 20\\,\\text{K}$", "$\\Delta T = 293\\,\\text{K}$", "$\\Delta T = 253\\,\\text{K}$", "$\\Delta T = 36\\,\\text{K}$"],
+  ans:0,
+  explain:"Sự chênh lệch nhiệt độ (hiệu nhiệt độ) là như nhau trong hai thang: $\\Delta T(\\text{K}) = \\Delta t(^\\circ\\text{C})$. Do đó $\\Delta t = 20^\\circ\\text{C} \\Leftrightarrow \\Delta T = 20\\,\\text{K}$."},
+
+{id:36,
+  text:"Nhiệt độ $68^\\circ\\text{F}$ (Fahrenheit) tương đương với bao nhiêu $^\\circ\\text{C}$? Dùng công thức $t(^\\circ\\text{F}) = 1{,}8 \\cdot t(^\\circ\\text{C}) + 32$.",
+  topic:"Nhiệt độ & Thang đo", level:"VD",
+  choices:["$20^\\circ\\text{C}$", "$36^\\circ\\text{C}$", "$40^\\circ\\text{C}$", "$100^\\circ\\text{C}$"],
+  ans:0,
+  explain:"$68 = 1{,}8 \\cdot t + 32 \\Rightarrow 1{,}8t = 36 \\Rightarrow t = 20^\\circ\\text{C}$."},
+
+{id:37,
+  text:"Hai vật ở trạng thái cân bằng nhiệt với nhau thì",
+  topic:"Nhiệt độ & Thang đo", level:"VD",
+  choices:["Hai vật có cùng nội năng", "Hai vật có cùng nhiệt độ", "Hai vật có cùng khối lượng", "Hai vật không trao đổi năng lượng mãi mãi"],
+  ans:1,
+  explain:"Hai vật đạt trạng thái <b>cân bằng nhiệt</b> khi chúng có <b>cùng nhiệt độ</b>. Khi đó quá trình trao đổi nhiệt dừng lại. Lưu ý: hai vật cùng nhiệt độ không nhất thiết có cùng nội năng."},
+
+{id:38,
+  text:"Nhiệt kế hồng ngoại đo nhiệt độ dựa trên nguyên tắc nào?",
+  topic:"Nhiệt độ & Thang đo", level:"VDC",
+  choices:["Sự giãn nở của chất lỏng", "Sự thay đổi điện trở theo nhiệt độ", "Sự phụ thuộc của bước sóng bức xạ hồng ngoại vào nhiệt độ vật", "Sự giãn nở của kim loại"],
+  ans:2,
+  explain:"Nhiệt kế hồng ngoại hoạt động dựa vào <b>sự phụ thuộc vào nhiệt độ của bước sóng bức xạ hồng ngoại</b> mà vật phát ra. Đây là loại nhiệt kế không tiếp xúc, đo nhanh và an toàn."},
+
+{id:39,
+  text:"Nhiệt dung riêng của một chất là",
+  topic:"Nhiệt dung riêng", level:"NB",
+  choices:["Nhiệt lượng cần để đun sôi $1\\,\\text{kg}$ chất đó", "Nhiệt lượng cần truyền cho $1\\,\\text{kg}$ chất đó để nhiệt độ tăng thêm $1\\,\\text{K}$", "Nhiệt lượng cần để nóng chảy $1\\,\\text{kg}$ chất đó", "Nhiệt lượng cần để hóa hơi $1\\,\\text{kg}$ chất đó"],
+  ans:1,
+  explain:"Nhiệt dung riêng $c$ là <b>nhiệt lượng cần truyền cho $1\\,\\text{kg}$ chất đó để nhiệt độ tăng thêm $1^\\circ\\text{C}$ (hoặc $1\\,\\text{K}$)</b>. Đơn vị: $\\text{J/(kg·K)}$."},
+
+{id:40,
+  text:"Công thức tính nhiệt lượng trong quá trình truyền nhiệt làm thay đổi nhiệt độ là",
+  topic:"Nhiệt dung riêng", level:"NB",
+  choices:["$Q = mc\\Delta t$", "$Q = mc^2$", "$Q = \\lambda m$", "$Q = Lm$"],
+  ans:0,
+  explain:"$Q = mc\\Delta t = mc(t_2 - t_1)$, trong đó $m$ là khối lượng (kg), $c$ là nhiệt dung riêng (J/kg·K), $\\Delta t = t_2 - t_1$ là độ tăng nhiệt độ. $Q > 0$: vật thu nhiệt; $Q < 0$: vật tỏa nhiệt."},
+
+{id:41,
+  text:"Nước có nhiệt dung riêng $c = 4180\\,\\text{J/(kg·K)}$. Để đun nóng $2\\,\\text{kg}$ nước từ $20^\\circ\\text{C}$ lên $70^\\circ\\text{C}$ cần nhiệt lượng",
+  topic:"Nhiệt dung riêng", level:"TH",
+  choices:["$41800\\,\\text{J}$", "$418000\\,\\text{J}$", "$835000\\,\\text{J}$", "$167200\\,\\text{J}$"],
+  ans:1,
+  explain:"$Q = mc\\Delta t = 2 \\times 4180 \\times (70-20) = 2 \\times 4180 \\times 50 = 418000\\,\\text{J} = 418\\,\\text{kJ}$."},
+
+{id:42,
+  text:"Tại sao các vùng ven biển thường có khí hậu điều hòa hơn vùng nội địa?",
+  topic:"Nhiệt dung riêng", level:"TH",
+  choices:["Vì ven biển có nhiều gió hơn", "Vì nước biển có nhiệt dung riêng lớn nên hấp thụ và tỏa nhiệt chậm, điều hòa nhiệt độ không khí", "Vì ven biển ít bức xạ mặt trời hơn", "Vì ven biển có nhiều cây xanh hơn"],
+  ans:1,
+  explain:"Nước biển có <b>nhiệt dung riêng lớn</b> ($c_{nước} = 4180\\,\\text{J/(kg·K)}$), nên nó hấp thụ và tỏa nhiệt chậm. Mùa hè: biển hấp thụ nhiệt làm mát không khí; mùa đông: biển tỏa nhiệt sưởi ấm — điều hòa nhiệt độ khí hậu."},
+
+{id:43,
+  text:"Điều kiện cân bằng nhiệt trong hệ cô lập là",
+  topic:"Nhiệt dung riêng", level:"TH",
+  choices:["Tổng nhiệt lượng thu bằng tổng nhiệt lượng tỏa: $\\sum Q_i = 0$", "Mỗi vật đều tỏa nhiệt", "Mỗi vật đều thu nhiệt", "Nhiệt lượng không truyền giữa các vật"],
+  ans:0,
+  explain:"Trong hệ cô lập về nhiệt: $Q_1 + Q_2 + \\cdots + Q_n = 0$. Tổng đại số các nhiệt lượng trao đổi bằng 0 — nghĩa là tổng nhiệt thu = tổng nhiệt tỏa."},
+
+{id:44,
+  text:"Hai vật có khối lượng và nhiệt độ ban đầu khác nhau được tiếp xúc nhau trong hệ cô lập. Nhiệt độ cân bằng $t$ thỏa mãn",
+  topic:"Nhiệt dung riêng", level:"TH",
+  choices:["$t = \\dfrac{t_1 + t_2}{2}$", "$m_1 c_1 (t - t_1) + m_2 c_2 (t - t_2) = 0$", "$m_1 c_1 t_1 = m_2 c_2 t_2$", "$t = \\dfrac{m_1 t_1 + m_2 t_2}{m_1 + m_2}$"],
+  ans:1,
+  explain:"Áp dụng điều kiện cân bằng nhiệt: $Q_1 + Q_2 = 0$ → $m_1 c_1(t-t_1) + m_2 c_2(t-t_2) = 0$. Từ đó: $t = \\dfrac{m_1 c_1 t_1 + m_2 c_2 t_2}{m_1 c_1 + m_2 c_2}$."},
+
+{id:45,
+  text:"Thả $0{,}2\\,\\text{kg}$ đồng ($c_{Cu} = 380\\,\\text{J/(kg·K)}$) đang ở $200^\\circ\\text{C}$ vào $0{,}5\\,\\text{kg}$ nước ($c_{nước} = 4180\\,\\text{J/(kg·K)}$) ở $20^\\circ\\text{C}$. Nhiệt độ cân bằng $t$ xấp xỉ",
+  topic:"Nhiệt dung riêng", level:"VD",
+  choices:["$25{,}4^\\circ\\text{C}$", "$30^\\circ\\text{C}$", "$110^\\circ\\text{C}$", "$50^\\circ\\text{C}$"],
+  ans:0,
+  explain:"$m_{Cu}c_{Cu}(200-t) = m_{nước}c_{nước}(t-20)$. $0{,}2 \\times 380 \\times (200-t) = 0{,}5 \\times 4180 \\times (t-20)$. $76(200-t) = 2090(t-20)$. $15200 - 76t = 2090t - 41800$. $57000 = 2166t$. $t \\approx 26{,}3^\\circ\\text{C} \\approx 25{,}4^\\circ\\text{C}$ (chọn gần nhất)."},
+
+{id:46,
+  text:"Cần cung cấp bao nhiêu nhiệt lượng để đun nóng $500\\,\\text{g}$ nhôm ($c_{Al} = 880\\,\\text{J/(kg·K)}$) từ $25^\\circ\\text{C}$ đến $125^\\circ\\text{C}$?",
+  topic:"Nhiệt dung riêng", level:"VD",
+  choices:["$22000\\,\\text{J}$", "$44000\\,\\text{J}$", "$88000\\,\\text{J}$", "$11000\\,\\text{J}$"],
+  ans:1,
+  explain:"$Q = mc\\Delta t = 0{,}5 \\times 880 \\times (125-25) = 0{,}5 \\times 880 \\times 100 = 44000\\,\\text{J} = 44\\,\\text{kJ}$."},
+
+{id:47,
+  text:"Một vật khối lượng $m = 2\\,\\text{kg}$, sau khi nhận nhiệt lượng $Q = 12000\\,\\text{J}$, nhiệt độ tăng từ $20^\\circ\\text{C}$ lên $50^\\circ\\text{C}$. Nhiệt dung riêng của vật là",
+  topic:"Nhiệt dung riêng", level:"VD",
+  choices:["$100\\,\\text{J/(kg·K)}$", "$200\\,\\text{J/(kg·K)}$", "$300\\,\\text{J/(kg·K)}$", "$600\\,\\text{J/(kg·K)}$"],
+  ans:1,
+  explain:"$c = \\dfrac{Q}{m\\Delta t} = \\dfrac{12000}{2 \\times 30} = \\dfrac{12000}{60} = 200\\,\\text{J/(kg·K)}$."},
+
+{id:48,
+  text:"Thả miếng chì ($c_{Pb} = 126\\,\\text{J/(kg·K)}$) và miếng nhôm ($c_{Al} = 880\\,\\text{J/(kg·K)}$) cùng khối lượng, cùng nhiệt độ ban đầu vào cùng một lượng nước lạnh. Sau khi cân bằng nhiệt, miếng nào làm nước nóng hơn?",
+  topic:"Nhiệt dung riêng", level:"VDC",
+  choices:["Miếng chì vì nặng hơn", "Miếng nhôm vì có nhiệt dung riêng lớn hơn nên tỏa nhiều nhiệt hơn", "Hai miếng như nhau", "Miếng chì vì tỏa nhiệt nhanh hơn"],
+  ans:1,
+  explain:"Cùng $m$ và $\\Delta t$: $Q_{Al} = mc_{Al}\\Delta t > Q_{Pb} = mc_{Pb}\\Delta t$ vì $c_{Al} = 880 > c_{Pb} = 126$. Miếng nhôm tỏa <b>nhiều nhiệt hơn</b> → làm nước nóng hơn. Nhiệt dung riêng lớn = tích trữ và tỏa nhiều nhiệt hơn."},
+
+{id:49,
+  text:"Nhiệt nóng chảy riêng $\\lambda$ của một chất là",
+  topic:"Nhiệt nóng chảy", level:"NB",
+  choices:["Nhiệt lượng cần để $1\\,\\text{kg}$ chất đó tăng lên $1^\\circ\\text{C}$", "Nhiệt lượng cần để $1\\,\\text{kg}$ chất đó chuyển hoàn toàn từ rắn sang lỏng ở nhiệt độ nóng chảy", "Nhiệt lượng cần để $1\\,\\text{kg}$ chất đó hóa hơi", "Nhiệt lượng cần để $1\\,\\text{kg}$ chất đó từ $0^\\circ\\text{C}$ đến $100^\\circ\\text{C}$"],
+  ans:1,
+  explain:"Nhiệt nóng chảy riêng $\\lambda$ là <b>nhiệt lượng cần thiết để $1\\,\\text{kg}$ chất đó chuyển hoàn toàn từ thể rắn sang thể lỏng ở nhiệt độ nóng chảy</b>. Đơn vị: J/kg. Chỉ áp dụng cho chất rắn kết tinh."},
+
+{id:50,
+  text:"Nước đá có nhiệt nóng chảy riêng $\\lambda = 3{,}34 \\times 10^5\\,\\text{J/kg}$. Để làm tan chảy hoàn toàn $500\\,\\text{g}$ nước đá ở $0^\\circ\\text{C}$ cần nhiệt lượng",
+  topic:"Nhiệt nóng chảy", level:"TH",
+  choices:["$1{,}67 \\times 10^4\\,\\text{J}$", "$1{,}67 \\times 10^5\\,\\text{J}$", "$3{,}34 \\times 10^5\\,\\text{J}$", "$6{,}68 \\times 10^5\\,\\text{J}$"],
+  ans:1,
+  explain:"$Q = \\lambda m = 3{,}34 \\times 10^5 \\times 0{,}5 = 1{,}67 \\times 10^5\\,\\text{J} = 167\\,\\text{kJ}$."},
+
+{id:51,
+  text:"Tại sao chất rắn vô định hình không có nhiệt nóng chảy riêng?",
+  topic:"Nhiệt nóng chảy", level:"TH",
+  choices:["Vì chúng không bao giờ nóng chảy", "Vì chúng không có nhiệt độ nóng chảy xác định, quá trình chuyển thể diễn ra liên tục", "Vì chúng có nhiệt dung riêng rất lớn", "Vì chúng không hấp thụ nhiệt"],
+  ans:1,
+  explain:"Chất rắn vô định hình <b>không có nhiệt độ nóng chảy xác định</b> — quá trình chuyển sang lỏng diễn ra liên tục trong một khoảng nhiệt độ. Do đó không thể xác định một giá trị $\\lambda$ cụ thể."},
+
+{id:52,
+  text:"Cần tổng nhiệt lượng bao nhiêu để đun $200\\,\\text{g}$ nước đá từ $-10^\\circ\\text{C}$ đến tan chảy hoàn toàn ở $0^\\circ\\text{C}$? Biết $c_{nước\\,đá} = 2090\\,\\text{J/(kg·K)}$, $\\lambda_{nước} = 3{,}34 \\times 10^5\\,\\text{J/kg}$.",
+  topic:"Nhiệt nóng chảy", level:"VD",
+  choices:["$41800\\,\\text{J}$", "$66800\\,\\text{J}$", "$4180\\,\\text{J}$", "$71000\\,\\text{J}$"],
+  ans:3,
+  explain:"Giai đoạn 1 (làm nóng rắn): $Q_1 = mc\\Delta t = 0{,}2 \\times 2090 \\times 10 = 4180\\,\\text{J}$. Giai đoạn 2 (nóng chảy): $Q_2 = \\lambda m = 3{,}34 \\times 10^5 \\times 0{,}2 = 66800\\,\\text{J}$. Tổng: $Q = 4180 + 66800 = 70980 \\approx 71000\\,\\text{J}$."},
+
+{id:53,
+  text:"Trong bảng số liệu, nhôm có nhiệt độ nóng chảy $660^\\circ\\text{C}$ và $\\lambda_{Al} = 3{,}98 \\times 10^5\\,\\text{J/kg}$. Để đúc $1\\,\\text{kg}$ nhôm (từ lúc vừa đạt nhiệt độ nóng chảy đến lúc nóng chảy hoàn toàn) cần nhiệt lượng",
+  topic:"Nhiệt nóng chảy", level:"VD",
+  choices:["$66000\\,\\text{J}$", "$398000\\,\\text{J}$", "$880000\\,\\text{J}$", "$1278000\\,\\text{J}$"],
+  ans:1,
+  explain:"Chỉ tính nhiệt lượng nóng chảy: $Q = \\lambda m = 3{,}98 \\times 10^5 \\times 1 = 398000\\,\\text{J} \\approx 398\\,\\text{kJ}$."},
+
+{id:54,
+  text:"Nhiệt hóa hơi riêng $L$ của một chất là",
+  topic:"Nhiệt hóa hơi", level:"NB",
+  choices:["Nhiệt lượng cần để $1\\,\\text{kg}$ chất đó tăng $1^\\circ\\text{C}$", "Nhiệt lượng cần để $1\\,\\text{kg}$ chất đó nóng chảy", "Nhiệt lượng cần để $1\\,\\text{kg}$ chất đó chuyển hoàn toàn từ lỏng sang khí ở nhiệt độ sôi", "Nhiệt lượng chất đó tỏa ra khi ngưng tụ $1\\,\\text{kg}$"],
+  ans:2,
+  explain:"Nhiệt hóa hơi riêng $L$ là <b>nhiệt lượng cần để $1\\,\\text{kg}$ chất đó chuyển hoàn toàn từ thể lỏng sang thể khí ở nhiệt độ sôi</b>. Đơn vị: J/kg. Ví dụ: $L_{nước} = 2{,}26 \\times 10^6\\,\\text{J/kg}$ ở $100^\\circ\\text{C}$."},
+
+{id:55,
+  text:"Biết $L_{nước} = 2{,}26 \\times 10^6\\,\\text{J/kg}$. Nhiệt lượng cần để $100\\,\\text{g}$ nước ở $100^\\circ\\text{C}$ hóa hơi hoàn toàn là",
+  topic:"Nhiệt hóa hơi", level:"TH",
+  choices:["$2{,}26 \\times 10^4\\,\\text{J}$", "$2{,}26 \\times 10^5\\,\\text{J}$", "$2{,}26 \\times 10^6\\,\\text{J}$", "$2{,}26 \\times 10^3\\,\\text{J}$"],
+  ans:1,
+  explain:"$Q = Lm = 2{,}26 \\times 10^6 \\times 0{,}1 = 2{,}26 \\times 10^5\\,\\text{J} = 226\\,\\text{kJ}$."},
+
+{id:56,
+  text:"Trong đồ thị quá trình chuyển thể của nước (trục $t$ theo $Q$), đoạn nằm ngang ở $0^\\circ\\text{C}$ tương ứng với giai đoạn",
+  topic:"Nhiệt hóa hơi", level:"TH",
+  choices:["Nước lỏng đang được đun nóng", "Nước đá đang hóa hơi", "Nước đá đang nóng chảy ở $0^\\circ\\text{C}$, $Q = \\lambda m$", "Nước sôi"],
+  ans:2,
+  explain:"Đoạn nằm ngang ở $0^\\circ\\text{C}$: nhiệt độ không đổi trong khi vẫn nhận nhiệt → giai đoạn <b>nóng chảy của nước đá</b> ở $0^\\circ\\text{C}$. Nhiệt lượng dùng để phá vỡ liên kết tinh thể: $Q = \\lambda m$."},
+
+{id:57,
+  text:"Trong quá trình đun nóng nước từ nước đá đến hơi nước, giai đoạn nào tiêu thụ nhiều năng lượng nhất?",
+  topic:"Nhiệt hóa hơi", level:"TH",
+  choices:["Đun nóng nước lỏng từ $0^\\circ\\text{C}$ đến $100^\\circ\\text{C}$", "Nóng chảy nước đá ở $0^\\circ\\text{C}$", "Hóa hơi nước ở $100^\\circ\\text{C}$", "Đun nóng nước đá từ $-10^\\circ\\text{C}$ đến $0^\\circ\\text{C}$"],
+  ans:2,
+  explain:"$L_{nước} = 2{,}26 \\times 10^6\\,\\text{J/kg}$ (hóa hơi) $\\gg \\lambda_{nước} = 3{,}34 \\times 10^5\\,\\text{J/kg}$ (nóng chảy) $\\gg mc\\Delta t$ (làm nóng lỏng). Giai đoạn <b>hóa hơi</b> tiêu thụ nhiều năng lượng nhất — gấp khoảng 7 lần nóng chảy."},
+
+{id:58,
+  text:"Cần cung cấp tổng nhiệt lượng bao nhiêu để $200\\,\\text{g}$ nước ở $20^\\circ\\text{C}$ hóa hơi hoàn toàn? ($c_{nước} = 4180\\,\\text{J/(kg·K)}$, $L = 2{,}26 \\times 10^6\\,\\text{J/kg}$)",
+  topic:"Nhiệt hóa hơi", level:"VD",
+  choices:["$452000\\,\\text{J}$", "$66880\\,\\text{J}$", "$518880\\,\\text{J}$", "$226000\\,\\text{J}$"],
+  ans:2,
+  explain:"$Q_1 = mc\\Delta t = 0{,}2 \\times 4180 \\times 80 = 66880\\,\\text{J}$ (đun nóng lên $100^\\circ\\text{C}$). $Q_2 = Lm = 2{,}26 \\times 10^6 \\times 0{,}2 = 452000\\,\\text{J}$ (hóa hơi). $Q_{tổng} = 66880 + 452000 = 518880\\,\\text{J}$."},
+
+{id:59,
+  text:"Máy điều hòa nhiệt độ làm mát phòng dựa trên nguyên tắc vật lí nào?",
+  topic:"Nhiệt hóa hơi", level:"VD",
+  choices:["Dẫn nhiệt của kim loại", "Đối lưu không khí", "Hiện tượng bay hơi: môi chất lạnh hóa hơi ở dàn lạnh thu nhiệt từ phòng", "Bức xạ nhiệt"],
+  ans:2,
+  explain:"Máy điều hòa sử dụng <b>hiện tượng hóa hơi</b>: môi chất lạnh (gas) hóa hơi ở dàn lạnh thu nhiệt từ không khí trong phòng, làm mát phòng. Sau đó hơi gas được nén lại, ngưng tụ ở dàn nóng tỏa nhiệt ra ngoài."},
+
+{id:60,
+  text:"So sánh nhiệt hóa hơi riêng của nước ở $100^\\circ\\text{C}$ ($L_{100} = 2{,}26 \\times 10^6\\,\\text{J/kg}$) và ở $50^\\circ\\text{C}$ ($L_{50} = 2{,}39 \\times 10^6\\,\\text{J/kg}$). Điều này có nghĩa là",
+  topic:"Nhiệt hóa hơi", level:"VDC",
+  choices:["Dễ bay hơi hơn khi nhiệt độ thấp hơn", "Nhiệt độ thấp hơn thì cần ít năng lượng hơn để hóa hơi", "Nhiệt độ thấp hơn thì cần nhiều năng lượng hơn để hóa hơi vì lực liên kết phân tử còn mạnh hơn", "Nhiệt hóa hơi không phụ thuộc nhiệt độ"],
+  ans:2,
+  explain:"$L_{50} > L_{100}$: ở nhiệt độ thấp hơn, <b>lực liên kết phân tử còn mạnh hơn</b> nên cần nhiều năng lượng hơn để tách phân tử ra khỏi chất lỏng. Thông thường nhiệt hóa hơi riêng <b>tăng khi nhiệt độ giảm</b>."}
+];
+
+var TOPICS    = ["Mô hình phân tử","Cấu trúc chất","Chuyển thể","Nội năng & NĐL1","Nhiệt độ & Thang đo","Nhiệt dung riêng","Nhiệt nóng chảy","Nhiệt hóa hơi"];
+
+var PLAN = {
+  "Mô hình phân tử": {
+    formula: "$$F_{\\text{lk}} \\approx 0 \\;(r \\gg d_{pt})$$",
+    notes: [
+      "Phân tử chuyển động không ngừng, hỗn loạn — gọi là <b>chuyển động nhiệt</b>",
+      "Nhiệt độ tăng ↔ tốc độ chuyển động nhiệt trung bình tăng",
+      "Khoảng cách $\\approx d_{pt}$: lực đẩy > lực hút · Khoảng cách lớn hơn: lực hút > lực đẩy",
+    ],
+    exercises: [
+      "Giải thích tại sao chất rắn rất khó nén nhưng chất khí dễ nén",
+      "Chuyển động Brown là gì? Chứng tỏ điều gì về cấu tạo chất?",
+    ]
+  },
+  "Cấu trúc chất": {
+    formula: "$$\\text{Rắn kết tinh: mạng tinh thể, có } t^\\circ_{nc} \\text{ xác định}$$",
+    notes: [
+      "Rắn kết tinh: có $t^\\circ$ nóng chảy xác định · Rắn vô định hình: không có",
+      "Chất lỏng: thể tích xác định, hình dạng theo bình chứa",
+      "Plasma: tồn tại dạng ion và electron tự do",
+    ],
+    exercises: [
+      "So sánh cấu trúc của chất rắn, lỏng, khí theo bảng",
+      "Tại sao than chì và kim cương đều từ carbon nhưng tính chất khác nhau?",
+    ]
+  },
+  "Chuyển thể": {
+    formula: "$$\\text{Rắn} \\xrightarrow{\\lambda m} \\text{Lỏng} \\xrightarrow{Lm} \\text{Khí}$$",
+    notes: [
+      "Nóng chảy chất rắn kết tinh: nhiệt độ <b>không đổi</b> suốt quá trình",
+      "Bay hơi: mọi nhiệt độ, trên bề mặt · Sôi: nhiệt độ sôi xác định, cả trong lòng",
+      "Áp suất tăng → nhiệt độ sôi tăng",
+    ],
+    exercises: [
+      "Giải thích vì sao nước đá nổi trên mặt nước",
+      "Tại sao thức ăn chín nhanh hơn trong nồi áp suất?",
+    ]
+  },
+  "Nội năng & NĐL1": {
+    formula: "$$\\Delta U = A + Q \\quad H = \\dfrac{Q_1-Q_2}{Q_1}\\times100\\%$$",
+    notes: [
+      "$A > 0$: nhận công · $A < 0$: sinh công · $Q > 0$: nhận nhiệt · $Q < 0$: tỏa nhiệt",
+      "Khí lí tưởng: $U$ chỉ phụ thuộc $T$ → đẳng nhiệt: $\\Delta U = 0$",
+      "Thực hiện công: chuyển hóa năng lượng · Truyền nhiệt: truyền nội năng",
+    ],
+    exercises: [
+      "Hệ nhận $Q = 600\\,\\text{J}$, bị nén với $A = 200\\,\\text{J}$. Tính $\\Delta U$",
+      "Động cơ nhận $Q_1 = 5000\\,\\text{J}$, nhả $Q_2 = 3500\\,\\text{J}$. Tính hiệu suất",
+    ]
+  },
+  "Nhiệt độ & Thang đo": {
+    formula: "$$T(K) = t(^\\circ C)+273 \\quad t(^\\circ F) = 1{,}8t(^\\circ C)+32 \\quad \\Delta T = \\Delta t$$",
+    notes: [
+      "$0\\,K = -273^\\circ\\text{C}$: độ không tuyệt đối, động năng nhiệt phân tử = 0",
+      "Sự chênh lệch: $\\Delta T(K) = \\Delta t(^\\circ C)$",
+      "Nhiệt luôn truyền từ nóng sang lạnh — không tự chiều ngược lại",
+    ],
+    exercises: [
+      "Đổi $-40^\\circ\\text{C}$ sang Kelvin và Fahrenheit",
+      "Nhiệt kế chỉ $98{,}6^\\circ\\text{F}$. Đây là bao nhiêu $^\\circ\\text{C}$?",
+    ]
+  },
+  "Nhiệt dung riêng": {
+    formula: "$$Q = mc\\Delta t \\quad \\sum Q_i = 0 \\quad t_{cb} = \\frac{\\sum m_i c_i t_i}{\\sum m_i c_i}$$",
+    notes: [
+      "$Q > 0$: thu nhiệt ($t_2 > t_1$) · $Q < 0$: tỏa nhiệt ($t_2 < t_1$)",
+      "Cân bằng nhiệt: $m_1c_1(t-t_1) + m_2c_2(t-t_2) = 0$",
+      "$c_{nước} = 4180\\,\\text{J/(kg·K)}$ — lớn nhất trong các chất thường gặp",
+    ],
+    exercises: [
+      "Đun $1\\,\\text{kg}$ nước từ $25^\\circ\\text{C}$ lên $100^\\circ\\text{C}$. Tính $Q$",
+      "Thả $200\\,\\text{g}$ sắt ($c = 460$, $t_1 = 150^\\circ\\text{C}$) vào $1\\,\\text{kg}$ nước $20^\\circ\\text{C}$. Tìm $t_{cb}$",
+    ]
+  },
+  "Nhiệt nóng chảy": {
+    formula: "$$Q = \\lambda m \\quad \\lambda_{nước\\,đá} = 3{,}34\\times10^5\\,\\text{J/kg}$$",
+    notes: [
+      "Chỉ áp dụng cho <b>chất rắn kết tinh</b> — vô định hình không có $\\lambda$",
+      "Quá trình nóng chảy: $t^\\circ$ không đổi, nhiệt lượng phá vỡ liên kết tinh thể",
+      "Đông đặc: tỏa nhiệt $Q = \\lambda m$, $t^\\circ$ đông đặc = $t^\\circ$ nóng chảy",
+    ],
+    exercises: [
+      "Cần bao nhiêu J để tan chảy $2\\,\\text{kg}$ nước đá ở $0^\\circ\\text{C}$?",
+      "Đun $100\\,\\text{g}$ nước đá từ $-20^\\circ\\text{C}$ → nóng chảy hoàn toàn. Tính tổng $Q$",
+    ]
+  },
+  "Nhiệt hóa hơi": {
+    formula: "$$Q = Lm \\quad L_{nước,100^\\circ C} = 2{,}26\\times10^6\\,\\text{J/kg}$$",
+    notes: [
+      "$L$ tăng khi nhiệt độ giảm (lực liên kết phân tử mạnh hơn ở nhiệt độ thấp)",
+      "Giai đoạn hóa hơi tốn năng lượng nhất: $L \\approx 7\\lambda$ với nước",
+      "Ứng dụng: điều hòa không khí, nồi hấp, máy sấy, làm lạnh",
+    ],
+    exercises: [
+      "Tính tổng $Q$ để $500\\,\\text{g}$ nước từ $20^\\circ\\text{C}$ → hơi hoàn toàn",
+      "Cơ thể bay hơi $0{,}5\\,\\text{kg}$ mồ hôi/ngày. Tính năng lượng tiêu thụ",
+    ]
+  },
+};
+
+/* === STATE === */
+var studentName = "", roundHistory = [], activeQS = QS.slice();
+var roundNum = 1, cumulativeCorrect = 0, TOTAL_ORIGINAL = QS.length;
+var answers = [], curQ = 0;
+
+/* === LOGIN === */
+function startTest() {
+  var nm = document.getElementById("inp-name").value.trim();
+  if (!nm) { document.getElementById("inp-name").focus(); return; }
+  studentName = nm;
+  roundHistory = []; activeQS = QS.slice(); roundNum = 1; cumulativeCorrect = 0;
+  beginRound();
+}
+
+/* === ROUND === */
+function beginRound() {
+  curQ = 0;
+  answers = new Array(activeQS.length).fill(null);
+  document.getElementById("round-label").textContent =
+    roundNum === 1 ? "Lượt 1 · " + activeQS.length + " câu"
+                   : "Lượt " + roundNum + " · Ôn " + activeQS.length + " câu sai";
+  showScreen("s-test");
+  renderQ();
+}
+
+/* === TEST === */
+function renderDots() {
+  var nav = document.getElementById("dot-nav"); nav.innerHTML = "";
+  activeQS.forEach(function(_, i) {
+    var d = document.createElement("button");
+    d.className = "dot" + (i===curQ?" current":answers[i]!==null?" answered":"");
+    d.textContent = i+1;
+    d.onclick = (function(idx){ return function(){ curQ=idx; renderQ(); }; })(i);
+    nav.appendChild(d);
+  });
+}
+
+function renderQ() {
+  var q = activeQS[curQ];
+  document.getElementById("q-counter").textContent = "Câu " + (curQ+1) + "/" + activeQS.length;
+  document.getElementById("progress").style.width = ((curQ+1)/activeQS.length*100)+"%";
+  document.getElementById("q-text").innerHTML = q.text;
+  var cd = document.getElementById("choices"); cd.innerHTML = "";
+  ["A","B","C","D"].forEach(function(l, ci) {
+    var b = document.createElement("button");
+    b.className = "choice-btn" + (answers[curQ]===ci ? " selected" : "");
+    b.innerHTML = "<b>" + l + ".</b> " + q.choices[ci];
+    b.onclick = (function(i){ return function(){ answers[curQ]=i; renderQ(); }; })(ci);
+    cd.appendChild(b);
+  });
+  var pb = document.getElementById("btn-prev");
+  pb.disabled = curQ===0; pb.style.opacity = curQ===0?"0.35":"1";
+  document.getElementById("btn-next").textContent = curQ===activeQS.length-1 ? "Nộp bài ✓" : "Tiếp →";
+  if (window.MathJax && MathJax.typesetPromise)
+    MathJax.typesetPromise([document.getElementById("q-text"), document.getElementById("choices")]).catch(function(){});
+  renderDots();
+}
+
+function prevQ() { if (curQ>0){ curQ--; renderQ(); } }
+function nextQ() {
+  if (curQ < activeQS.length-1) { curQ++; renderQ(); return; }
+  var miss = answers.filter(function(a){ return a===null; }).length;
+  if (miss>0 && !confirm("Còn " + miss + " câu chưa chọn. Nộp bài?")) return;
+  submitRound();
+}
+
+/* === SUBMIT === */
+var EXAM_NAME = "C1.vatlinhiet";
+var sheetsUrl = "https://script.google.com/macros/s/AKfycbwwIDXsY_OC6FDDJaJGrJdacv7n49YAoJn1i-xsvVLfkG2TZXEVtPCCdT1kxR3vzn-4/exec";
+
+function submitRound() {
+  var roundCorrect = answers.filter(function(a,i){ return a===activeQS[i].ans; }).length;
+  var wrongQS = activeQS.filter(function(q,i){ return answers[i]!==q.ans; });
+  roundHistory.push({ rn:roundNum, qs:activeQS.slice(), ans:answers.slice(), correct:roundCorrect });
+  cumulativeCorrect += roundCorrect;
+  if (sheetsUrl) {
+    var cls = (document.getElementById("inp-class")||{value:""}).value.trim();
+    var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+    var url = sheetsUrl + "?" + [
+      "examName=" + encodeURIComponent(EXAM_NAME),
+      "luot="     + roundNum,
+      "name="     + encodeURIComponent(studentName),
+      "className="+ encodeURIComponent(cls),
+      "score10="  + score10
+    ].join("&");
+    if (typeof fetch !== "undefined") {
+      fetch(url, {method:"GET", mode:"no-cors"}).catch(function(){});
+    } else { var img = new Image(); img.src = url; }
+  }
+  showResult(wrongQS);
+}
+
+/* === RESULT === */
+function showResult(wrongQS) {
+  var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+  document.getElementById("score-num").textContent = score10%1===0 ? score10.toFixed(1) : score10;
+  document.getElementById("result-name").textContent = studentName;
+  document.getElementById("round-badge").innerHTML =
+    '<span class="badge" style="background:#ebf2fb;color:#0c447c">Lượt ' + roundNum +
+    ' · Làm ' + activeQS.length + ' câu · Đúng ' +
+    roundHistory[roundHistory.length-1].correct + ' câu</span>';
+
+  var hc = document.getElementById("hist-card");
+  if (roundHistory.length > 1) {
+    hc.style.display = "block";
+    document.getElementById("hist-rows").innerHTML = roundHistory.map(function(r){
+      var p = Math.round(r.correct/r.qs.length*100);
+      var col = p>=70?"#1d7a4f":p>=40?"#7a4a0a":"#7a1f1f";
+      return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f4fb">' +
+        '<span style="font-size:13px">Lượt ' + r.rn + ' (' + r.qs.length + ' câu)</span>' +
+        '<span style="font-size:13px;font-weight:600;color:'+col+'">' + r.correct + '/' + r.qs.length + ' đúng (' + p + '%)</span>' +
+      '</div>';
+    }).join("");
+  } else { hc.style.display = "none"; }
+
+  var dc = document.getElementById("detail-card");
+  var letters = ["A","B","C","D"];
+  if (wrongQS.length===0) {
+    dc.innerHTML = '<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:12px">Tuyệt vời! Không có câu sai.</div>';
+  } else {
+    dc.innerHTML = '<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>' +
+      wrongQS.map(function(q) {
+        var ri = activeQS.indexOf(q);
+        var ua = answers[ri];
+        var ul = ua!==null ? letters[ua] : "–";
+        return '<div style="padding:10px 0;border-bottom:1px solid #f0f4fb">' +
+          '<div style="font-size:13px;color:#888;margin-bottom:2px">' + q.topic + '</div>' +
+          '<div style="font-size:14px;font-weight:500;margin-bottom:4px">' + q.id + '. ' + q.text + '</div>' +
+          '<div style="font-size:12px;color:#7a1f1f">Bạn chọn: <b>' + ul + '</b> · Đúng: <b>' + letters[q.ans] + '</b></div>' +
+          '<div style="font-size:12px;color:#555;margin-top:4px;background:#f5f7fa;padding:6px;border-radius:6px">' + q.explain + '</div>' +
+        '</div>';
+      }).join("");
+  }
+
+  var allCorrectIds = {};
+  roundHistory.forEach(function(r){ r.qs.forEach(function(q,i){ if(r.ans[i]===q.ans) allCorrectIds[q.id]=true; }); });
+  var weakTopics = TOPICS.filter(function(t){
+    var ok=0,tot=0;
+    QS.forEach(function(q){ if(q.topic===t){tot++;if(allCorrectIds[q.id])ok++;} });
+    return tot>0 && (ok/tot)<0.6;
+  });
+  var pr = document.getElementById("plan-rows");
+  if (weakTopics.length===0) {
+    pr.innerHTML = '<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:8px">Xuất sắc! Bạn nắm vững tất cả chủ đề.</div>';
+  } else {
+    pr.innerHTML = weakTopics.map(function(t){
+      var p = PLAN[t];
+      var wc = wrongQS.filter(function(q){ return q.topic===t; }).length;
+      return '<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #f0f4fb">' +
+        '<div style="font-weight:600;margin-bottom:6px">' + t + (wc>0?' <span style="font-size:12px;background:#fdeaea;color:#7a1f1f;padding:1px 8px;border-radius:10px">'+wc+' câu sai</span>':'') + '</div>' +
+        '<div style="background:#f0f4fb;border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:13px">' + p.formula + '</div>' +
+        p.notes.map(function(n){ return '<div style="font-size:13px;color:#333;padding:2px 0">• ' + n + '</div>'; }).join("") +
+      '</div>';
+    }).join("");
+  }
+  if (window.MathJax && MathJax.typesetPromise)
+    MathJax.typesetPromise([document.getElementById("s-result")]).catch(function(){});
+
+  var rb = document.getElementById("btn-retry");
+  if (wrongQS.length > 0) {
+    rb.style.display = "flex";
+    rb.textContent = "Lượt " + (roundNum+1) + ": Ôn lại " + wrongQS.length + " câu sai →";
+    window._nextWrongQS = wrongQS;
+  } else { rb.style.display = "none"; }
+
+  var sv = document.getElementById("btn-save");
+  if (sv) { sv.style.cssText = "display:flex!important"; }
+
+  showScreen("s-result");
+}
+
+function startRetry() {
+  roundNum++;
+  activeQS = (window._nextWrongQS||[]).slice();
+  window._nextWrongQS = null;
+  var ni=document.getElementById("inp-name"); if(ni) ni.value=studentName;
+  beginRound();
+}
+
+function restartFull() {
+  roundHistory=[]; activeQS=QS.slice(); roundNum=1; cumulativeCorrect=0;
+  document.getElementById("inp-name").value="";
+  showScreen("s-login");
+}
+
+/* === SAVE === */
+function doSave() {
+  var wrongQS = window._nextWrongQS || [];
+  var wqJ = JSON.stringify(wrongQS).replace(new RegExp("<\\/","g"),"<\\/");
+  var hiJ = JSON.stringify(roundHistory).replace(new RegExp("<\\/","g"),"<\\/");
+  var nmJ = JSON.stringify(studentName);
+  var clJ = JSON.stringify(document.getElementById("inp-class").value||"");
+  var nw  = wrongQS.length;
+  var blJ = JSON.stringify("Lượt "+(roundNum+1)+": Ôn lại "+nw+" câu sai →");
+
+  document.querySelectorAll(".screen").forEach(function(s){
+    s.setAttribute("_d",s.style.display||"");
+    s.style.display = s.id==="s-result"?"block":"none";
+  });
+  document.getElementById("btn-save").style.visibility="hidden";
+  var snap = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+  document.querySelectorAll(".screen").forEach(function(s){ s.style.display=s.getAttribute("_d")||""; });
+  document.getElementById("btn-save").style.visibility="";
+
+  snap = snap.replace("</style>",
+    "\n/* ==SAVED== */ .screen{display:none!important} #s-result{display:block!important}\n</style>"
+  );
+  snap = snap.replace(/showScreen\("s-login"\);?/g,"/* noinit */");
+
+  var L = [];
+  L.push("<scr"+"ipt>");
+  L.push("var _D={wq:"+wqJ+",rn:"+roundNum+",cc:"+cumulativeCorrect+",hi:"+hiJ+",nm:"+nmJ+",cl:"+clJ+",tt:"+TOTAL_ORIGINAL+"};");
+  L.push("function doRetryFromSaved(){");
+  L.push("  studentName=_D.nm;roundHistory=_D.hi;activeQS=_D.wq.slice();");
+  L.push("  roundNum=_D.rn+1;cumulativeCorrect=_D.cc;TOTAL_ORIGINAL=_D.tt;");
+  L.push("  window._nextWrongQS=null;");
+  L.push("  var ni=document.getElementById('inp-name');if(ni)ni.value=_D.nm;");
+  L.push("  var ci=document.getElementById('inp-class');if(ci)ci.value=_D.cl;");
+  L.push("  var ovr=document.createElement('style');ovr.textContent='.screen{display:none!important}#s-test.active,#s-result.active,#s-login.active{display:block!important}';document.head.appendChild(ovr);");
+  L.push("  beginRound();");
+  L.push("}");
+  L.push("window.addEventListener('DOMContentLoaded',function(){");
+  L.push("  var rb=document.getElementById('btn-retry');");
+  L.push("  if(rb&&_D.wq.length>0){rb.style.cssText='display:flex!important';rb.textContent="+blJ+";rb.onclick=doRetryFromSaved;}");
+  L.push("  else if(rb){rb.style.display='none';}");
+  L.push("  var sv=document.getElementById('btn-save');if(sv)sv.style.display='none';");
+  L.push("  var rs=document.getElementById('btn-restart');if(rs)rs.style.display='none';");
+  L.push("});");
+  L.push("</" + "script>");
+  var injected = L.join("\n");
+
+  snap = snap.replace(/<script>\n?var _D=[\s\S]*?<\/script>\n?/g, "");
+  var bi = snap.lastIndexOf("</body>");
+  snap = snap.slice(0,bi) + injected + "\n" + snap.slice(bi);
+
+  var name = (studentName||"hs").replace(/\s+/g,"_")+"_"+EXAM_NAME+"_luot"+roundNum+".html";
+  var blob = new Blob([snap],{type:"text/html;charset=utf-8"});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement("a"); a.href=url; a.download=name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); },3000);
+}
+
+/* === UTILS === */
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+
+if(typeof _D==="undefined"){ showScreen("s-login"); }
+</script>
+</body>
+</html>

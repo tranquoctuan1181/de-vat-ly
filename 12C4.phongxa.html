@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C4.PhongXa — Vật lý 12</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [["$","$"]], displayMath: [["$$","$$"]] }, startup: { typeset: false } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #f5f7fa; color: #1a1a1a; padding: 16px; }
+.card { background: #fff; border-radius: 12px; border: 1px solid #e0e6ef; padding: 20px; margin-bottom: 14px; max-width: 600px; margin-left: auto; margin-right: auto; }
+.screen { display: none; }
+.screen.active { display: block; }
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 11px 20px; border-radius: 10px; border: 1px solid #d0d7e3; background: #fff; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; margin-bottom: 8px; }
+.btn-primary { background: #1a56a0; color: #fff; border-color: #1a56a0; }
+.btn-green   { background: #1d7a4f; color: #fff; border-color: #1d7a4f; }
+.choice-btn { width: 100%; text-align: left; padding: 12px 14px; border: 1px solid #e0e6ef; border-radius: 10px; background: #fff; font-size: 14px; margin-bottom: 8px; cursor: pointer; }
+.choice-btn.selected { background: #ebf2fb; border-color: #1a56a0; font-weight: 500; }
+.progress { height: 5px; background: #e0e6ef; border-radius: 3px; margin-bottom: 16px; }
+.progress-fill { height: 100%; background: #1a56a0; border-radius: 3px; transition: width .3s; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.input-field { width: 100%; padding: 10px 12px; border: 1px solid #d0d7e3; border-radius: 10px; font-size: 15px; margin-bottom: 10px; }
+.score-circle { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #1a56a0; background: #ebf2fb; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 12px; }
+.dot { width:32px;height:32px;border-radius:50%;border:1px solid #d0d7e3;background:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#555; }
+.dot.current { background:#1a56a0;color:#fff;border-color:#1a56a0; }
+.dot.answered { background:#e6f4ee;border-color:#1d7a4f;color:#1d7a4f; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen">
+  <div class="card" style="margin-top:40px; text-align:center">
+    <div style="font-size:20px;font-weight:700;margin-bottom:4px">Phóng xạ — Chương 4</div>
+    <div style="font-size:13px;color:#888;margin-bottom:16px">Vật lý 12 · 50 câu · Có tính năng làm lại câu sai</div>
+    <input id="inp-name"  class="input-field" placeholder="Họ và tên" />
+    <input id="inp-class" class="input-field" placeholder="Lớp" />
+    <button class="btn btn-primary" onclick="startTest()">Bắt đầu →</button>
+  </div>
+</div>
+
+<!-- TEST -->
+<div id="s-test" class="screen">
+  <div class="card">
+    <p id="q-text" style="font-size:15px;font-weight:500;line-height:1.7;margin-bottom:16px"></p>
+    <div id="choices"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn" id="btn-prev" onclick="prevQ()" style="flex:1">← Trước</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQ()" style="flex:2">Tiếp →</button>
+    </div>
+    <div style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-bottom:6px">
+        <span id="q-counter"></span>
+        <span id="round-label" style="color:#1a56a0;font-weight:600"></span>
+      </div>
+      <div class="progress"><div class="progress-fill" id="progress"></div></div>
+      <div id="dot-nav" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <div class="card" style="text-align:center;margin-top:20px">
+    <div class="score-circle">
+      <div id="score-num" style="font-size:28px;font-weight:700;color:#0c447c"></div>
+      <div style="font-size:11px;color:#1a56a0">/10</div>
+    </div>
+    <div id="result-name" style="font-size:17px;font-weight:700;margin-bottom:4px"></div>
+    <div id="round-badge" style="margin-bottom:8px"></div>
+  </div>
+
+  <div id="hist-card" class="card" style="display:none">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Lịch sử lượt</div>
+    <div id="hist-rows"></div>
+  </div>
+
+  <div id="detail-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>
+    <div id="detail-rows"></div>
+  </div>
+
+  <div id="plan-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Kiến thức bổ trợ</div>
+    <div id="plan-rows"></div>
+  </div>
+
+  <div style="max-width:600px;margin:0 auto">
+    <button id="btn-retry"   class="btn btn-primary" style="display:none" onclick="startRetry()"></button>
+    <button id="btn-save"    class="btn btn-green"   onclick="doSave()">Lưu kết quả & Kiến thức bổ trợ</button>
+    <button id="btn-restart" class="btn"             onclick="restartFull()">Làm lại từ đầu</button>
+  </div>
+</div>
+
+<script>
+/* === DỮ LIỆU === */
+var QS = [
+  /* ── CHỦ ĐỀ 1: Định nghĩa & Bản chất phóng xạ (câu 1–10) ── */
+  {id:1,text:"Hiện tượng phóng xạ là gì?",topic:"Định nghĩa & Bản chất phóng xạ",level:"NB",
+   choices:["Hạt nhân tự phát sáng khi bị nung nóng","Hạt nhân không bền tự phân rã, phát ra tia phóng xạ và biến đổi thành hạt nhân khác","Hạt nhân hấp thụ neutron rồi vỡ ra thành hai mảnh","Hai hạt nhân nhẹ kết hợp thành hạt nhân nặng hơn"],
+   ans:1,explain:"Phóng xạ là hiện tượng <b>hạt nhân không bền tự phân rã</b>, phát ra các tia phóng xạ ($\\alpha$, $\\beta$, $\\gamma$) và biến đổi thành hạt nhân con. Đây là quá trình tự nhiên, không thể kiểm soát bằng các yếu tố bên ngoài."},
+
+  {id:2,text:"Tia $\\alpha$ là dòng hạt nào?",topic:"Định nghĩa & Bản chất phóng xạ",level:"NB",
+   choices:["Dòng electron mang điện tích $-e$","Dòng hạt nhân $^4_2He$, mang điện tích $+2e$","Dòng positron mang điện tích $+e$","Dòng photon năng lượng cao"],
+   ans:1,explain:"Tia $\\alpha$ là dòng hạt nhân heli $^4_2He$, gồm 2 proton và 2 neutron, mang điện tích $+2e$. Vận tốc $\\approx 2\\times10^7$ m/s, đâm xuyên yếu nhất nhưng ion hóa mạnh nhất trong ba loại tia."},
+
+  {id:3,text:"Tia $\\beta^-$ có bản chất là gì?",topic:"Định nghĩa & Bản chất phóng xạ",level:"NB",
+   choices:["Dòng hạt nhân heli phát ra từ lớp vỏ","Dòng electron phát ra từ hạt nhân khi $n \\to p + e^- + \\bar{\\nu}_e$","Dòng positron phát ra từ hạt nhân","Dòng photon gamma"],
+   ans:1,explain:"Tia $\\beta^-$ là dòng <b>electron</b> phát ra từ <b>trong hạt nhân</b> khi neutron biến thành proton: $n \\to p + e^- + \\bar{\\nu}_e$. Điện tích $-e$, vận tốc xấp xỉ $c$, đâm xuyên trung bình."},
+
+  {id:4,text:"Tia $\\beta^+$ (positron) xuất hiện khi nào trong hạt nhân?",topic:"Định nghĩa & Bản chất phóng xạ",level:"NB",
+   choices:["Khi neutron bị phân rã thành proton","Khi hạt nhân hấp thụ photon gamma","Khi proton biến thành neutron: $p \\to n + e^+ + \\nu_e$","Khi hạt nhân hấp thụ electron từ lớp vỏ"],
+   ans:2,explain:"Tia $\\beta^+$ (positron) phát ra khi $p \\to n + e^+ + \\nu_e$. Positron có khối lượng bằng electron nhưng mang điện tích $+e$. Hạt nhân con có $Z$ giảm 1, $A$ không đổi."},
+
+  {id:5,text:"Tia $\\gamma$ có bản chất là",topic:"Định nghĩa & Bản chất phóng xạ",level:"NB",
+   choices:["Dòng electron tốc độ cao","Dòng hạt nhân heli","Dòng neutron từ hạt nhân","Sóng điện từ bước sóng rất ngắn ($\\lambda < 10^{-11}$ m), không mang điện"],
+   ans:3,explain:"Tia $\\gamma$ là <b>sóng điện từ</b> năng lượng rất cao, bước sóng $\\lambda < 10^{-11}$ m, không có điện tích. Đây là loại bức xạ có khả năng đâm xuyên mạnh nhất trong các tia phóng xạ."},
+
+  {id:6,text:"Trong điện trường đều, tia nào KHÔNG bị lệch?",topic:"Định nghĩa & Bản chất phóng xạ",level:"NB",
+   choices:["Tia $\\gamma$","Tia $\\alpha$","Tia $\\beta^-$","Tia $\\beta^+$"],
+   ans:0,explain:"Tia $\\gamma$ là sóng điện từ, không mang điện tích → <b>không bị lệch</b> trong điện trường hay từ trường. Tia $\\alpha$ lệch về phía âm; $\\beta^-$ lệch về phía dương; $\\beta^+$ lệch về phía âm (ngược $\\alpha$)."},
+
+  {id:7,text:"Thứ tự khả năng đâm xuyên tăng dần của các tia phóng xạ là",topic:"Định nghĩa & Bản chất phóng xạ",level:"TH",
+   choices:["$\\gamma < \\beta < \\alpha$","$\\alpha < \\beta < \\gamma$","$\\beta < \\alpha < \\gamma$","$\\alpha < \\gamma < \\beta$"],
+   ans:1,explain:"Khả năng đâm xuyên: <b>$\\alpha < \\beta < \\gamma$</b>. Tia $\\alpha$ bị chặn bởi vài cm không khí hoặc tờ giấy; $\\beta$ bị chặn bởi vài mm nhôm; $\\gamma$ cần vài cm chì. Ngược lại, khả năng ion hóa: $\\alpha > \\beta > \\gamma$."},
+
+  {id:8,text:"Trong từ trường đều, tia $\\alpha$ và tia $\\beta^-$ lệch theo hướng nào so với nhau?",topic:"Định nghĩa & Bản chất phóng xạ",level:"TH",
+   choices:["Cùng chiều vì đều mang điện","Ngược chiều nhau vì mang điện tích trái dấu","Tia $\\alpha$ không bị lệch","Tia $\\beta^-$ không bị lệch"],
+   ans:1,explain:"Tia $\\alpha$ mang $+2e$, tia $\\beta^-$ mang $-e$ → lực Lorentz $\\vec{F} = q(\\vec{v}\\times\\vec{B})$ tác dụng <b>ngược chiều</b> nhau. Tia $\\gamma$ không bị lệch."},
+
+  {id:9,text:"Tia phóng xạ nào có vận tốc lớn nhất?",topic:"Định nghĩa & Bản chất phóng xạ",level:"TH",
+   choices:["Tia $\\alpha$ vì có khối lượng lớn","Tia $\\beta$ vì có khối lượng electron nhỏ, đạt xấp xỉ tốc độ ánh sáng","Tia $\\gamma$ vì là photon truyền với vận tốc ánh sáng $c$","$\\beta$ và $\\gamma$ bằng nhau"],
+   ans:2,explain:"Tia $\\gamma$ là <b>photon</b> nên truyền với vận tốc ánh sáng $c = 3\\times10^8$ m/s trong chân không — nhanh nhất. Tia $\\beta$ đạt $\\sim 0{,}99c$; tia $\\alpha$ chỉ $\\sim 2\\times10^7$ m/s."},
+
+  {id:10,text:"Phóng xạ là hiện tượng có tính chất nào sau đây?",topic:"Định nghĩa & Bản chất phóng xạ",level:"TH",
+   choices:["Phụ thuộc vào nhiệt độ và áp suất","Phụ thuộc vào trạng thái hóa học của nguyên tố","Hoàn toàn tự phát, không phụ thuộc vào điều kiện vật lý hay hóa học bên ngoài","Có thể kiểm soát bằng từ trường mạnh"],
+   ans:2,explain:"Phóng xạ là hiện tượng <b>hoàn toàn tự phát</b>, không phụ thuộc vào bất kỳ yếu tố bên ngoài nào như nhiệt độ, áp suất, trạng thái hóa học, điện từ trường. Đây là bản chất thuần túy hạt nhân."},
+
+  /* ── CHỦ ĐỀ 2: Phương trình phân rã & Định luật phóng xạ (câu 11–22) ── */
+  {id:11,text:"Chu kì bán rã $T$ được định nghĩa là",topic:"Định luật phóng xạ & Chu kì bán rã",level:"NB",
+   choices:["Thời gian để toàn bộ chất phóng xạ bị phân rã hết","Thời gian để số hạt nhân tăng gấp đôi","Thời gian để một nửa số hạt nhân ban đầu bị phân rã","Thời gian để độ phóng xạ tăng gấp đôi"],
+   ans:2,explain:"Chu kì bán rã $T$ là thời gian để <b>một nửa</b> số hạt nhân phóng xạ ban đầu bị phân rã. Sau mỗi $T$, số hạt nhân còn lại giảm còn $N_0/2$."},
+
+  {id:12,text:"Hằng số phóng xạ $\\lambda$ liên hệ với chu kì bán rã $T$ theo công thức",topic:"Định luật phóng xạ & Chu kì bán rã",level:"NB",
+   choices:["$\\lambda = T/\\ln 2$","$\\lambda = \\ln 2/T \\approx 0{,}693/T$","$\\lambda = 2/T$","$\\lambda = T \\cdot \\ln 2$"],
+   ans:1,explain:"$\\lambda = \\dfrac{\\ln 2}{T} \\approx \\dfrac{0{,}693}{T}$. $\\lambda$ lớn → $T$ nhỏ → chất phân rã nhanh. Đây là hằng số đặc trưng riêng của mỗi chất phóng xạ."},
+
+  {id:13,text:"Công thức số hạt nhân còn lại sau thời gian $t$ là",topic:"Định luật phóng xạ & Chu kì bán rã",level:"NB",
+   choices:["$N = N_0 \\cdot e^{\\lambda t}$","$N = N_0 \\cdot e^{-\\lambda t} = N_0 \\cdot 2^{-t/T}$","$N = N_0(1 - e^{-\\lambda t})$","$N = N_0/(1+\\lambda t)$"],
+   ans:1,explain:"Định luật phóng xạ: $N = N_0 e^{-\\lambda t} = N_0 \\cdot 2^{-t/T}$, với $\\lambda = \\ln2/T$. Hàm số giảm theo hàm mũ — đặc trưng của quá trình phân rã ngẫu nhiên."},
+
+  {id:14,text:"Số hạt nhân bị phân rã trong khoảng thời gian $t$ (tính từ $t=0$) là",topic:"Định luật phóng xạ & Chu kì bán rã",level:"NB",
+   choices:["$\\Delta N = N_0 e^{-\\lambda t}$","$\\Delta N = N_0 \\lambda t$","$\\Delta N = N_0 e^{\\lambda t}$","$\\Delta N = N_0(1 - e^{-\\lambda t}) = N_0(1-2^{-t/T})$"],
+   ans:3,explain:"$\\Delta N = N_0 - N = N_0 - N_0 e^{-\\lambda t} = N_0(1 - e^{-\\lambda t}) = N_0(1-2^{-t/T})$. Đây cũng là số hạt nhân con mới được tạo ra (bỏ qua phân rã của hạt nhân con)."},
+
+  {id:15,text:"Phân rã $\\alpha$: $^{226}_{88}Ra \\to ^A_Z X + ^4_2He$. Hạt nhân con $X$ là",topic:"Định luật phóng xạ & Chu kì bán rã",level:"NB",
+   choices:["$^{222}_{86}Rn$","$^{224}_{87}Fr$","$^{222}_{88}Ra$","$^{226}_{86}Rn$"],
+   ans:0,explain:"Bảo toàn $A$: $226 = A_X + 4 \\Rightarrow A_X = 222$. Bảo toàn $Z$: $88 = Z_X + 2 \\Rightarrow Z_X = 86$. X là $^{222}_{86}Rn$ (Radon)."},
+
+  {id:16,text:"Phân rã $\\beta^-$: $^{234}_{90}Th \\to X + ^0_{-1}e$. Hạt nhân $X$ là",topic:"Định luật phóng xạ & Chu kì bán rã",level:"NB",
+   choices:["$^{234}_{88}Ra$","$^{234}_{89}Ac$","$^{234}_{91}Pa$","$^{230}_{90}Th$"],
+   ans:2,explain:"Bảo toàn $A$: $234 = 234$ ✓. Bảo toàn $Z$: $90 = Z_X + (-1) \\Rightarrow Z_X = 91$. X là $^{234}_{91}Pa$ (Protactinium)."},
+
+  {id:17,text:"Mẫu phóng xạ có $T = 8$ ngày. Sau 24 ngày, tỉ số $N/N_0$ bằng",topic:"Định luật phóng xạ & Chu kì bán rã",level:"TH",
+   choices:["$1/4$","$1/8$","$1/16$","$1/6$"],
+   ans:1,explain:"$t/T = 24/8 = 3$ chu kì bán rã. $N/N_0 = 2^{-3} = \\mathbf{1/8}$."},
+
+  {id:18,text:"Sau 3 chu kì bán rã, phần trăm số hạt nhân ban đầu đã bị phân rã là",topic:"Định luật phóng xạ & Chu kì bán rã",level:"TH",
+   choices:["50%","75%","87,5%","12,5%"],
+   ans:2,explain:"Còn lại $N = N_0 \\cdot 2^{-3} = N_0/8 = 12{,}5\\%N_0$. Đã phân rã: $100\\% - 12{,}5\\% = \\mathbf{87{,}5\\%}$."},
+
+  {id:19,text:"Khối lượng chất phóng xạ còn lại sau thời gian $t$ được tính theo",topic:"Định luật phóng xạ & Chu kì bán rã",level:"TH",
+   choices:["$m = m_0(1 - e^{-\\lambda t})$","$m = m_0 e^{\\lambda t}$","$m = m_0 e^{-\\lambda t} = m_0 \\cdot 2^{-t/T}$","$m = m_0/\\lambda t$"],
+   ans:2,explain:"Vì $m$ tỉ lệ với $N$: $\\mathbf{m = m_0 e^{-\\lambda t} = m_0 \\cdot 2^{-t/T}}$."},
+
+  {id:20,text:"Biết $T = 5730$ năm ($^{14}C$). Sau bao lâu thì $1/4$ số hạt nhân ban đầu còn lại?",topic:"Định luật phóng xạ & Chu kì bán rã",level:"TH",
+   choices:["5730 năm","11460 năm","17190 năm","22920 năm"],
+   ans:1,explain:"$N/N_0 = 1/4 = 2^{-2} \\Rightarrow t/T = 2 \\Rightarrow t = 2T = 2 \\times 5730 = \\mathbf{11460}$ năm."},
+
+  {id:21,text:"Một mẫu $^{131}I$ ($T = 8$ ngày) ban đầu có $m_0 = 0{,}8$ g. Khối lượng còn lại sau 24 ngày là",topic:"Định luật phóng xạ & Chu kì bán rã",level:"VD",
+   choices:["0,4 g","0,2 g","0,1 g","0,05 g"],
+   ans:2,explain:"$t/T = 24/8 = 3$. $m = 0{,}8 \\times 2^{-3} = 0{,}8/8 = \\mathbf{0{,}1}$ g."},
+
+  {id:22,text:"Hoàn thành phản ứng phân rã $\\beta^+$: $^{22}_{11}Na \\to ^{22}_{10}Ne + ?$. Hạt phát ra gồm",topic:"Định luật phóng xạ & Chu kì bán rã",level:"VD",
+   choices:["Chỉ positron $e^+$","Positron $e^+$ và neutrino $\\nu_e$","Electron $e^-$ và phản neutrino $\\bar{\\nu}_e$","Hạt $\\alpha$"],
+   ans:1,explain:"Phân rã $\\beta^+$: $p \\to n + e^+ + \\nu_e$. Bảo toàn $Z$: $11 \\to 10$ (giảm 1) → phát ra positron $e^+$ và neutrino $\\nu_e$."},
+
+  /* ── CHỦ ĐỀ 3: Độ phóng xạ (câu 23–34) ── */
+  {id:23,text:"Độ phóng xạ $H$ được định nghĩa là",topic:"Độ phóng xạ",level:"NB",
+   choices:["Số hạt nhân còn lại tại thời điểm $t$","Số phân rã xảy ra trong một đơn vị thời gian: $H = -dN/dt$","Năng lượng phát ra trong một giây","Khối lượng chất phóng xạ còn lại"],
+   ans:1,explain:"Độ phóng xạ $H = -\\dfrac{dN}{dt}$ là <b>số phân rã trong 1 giây</b>, đặc trưng cho mức độ mạnh yếu của mẫu phóng xạ."},
+
+  {id:24,text:"Công thức tính độ phóng xạ $H$ theo $N$ là",topic:"Độ phóng xạ",level:"NB",
+   choices:["$H = N/\\lambda$","$H = \\lambda N$","$H = N^2 \\lambda$","$H = \\lambda/N$"],
+   ans:1,explain:"$H = -dN/dt = \\lambda N_0 e^{-\\lambda t} = \\lambda N$. Do đó $\\mathbf{H = \\lambda N}$."},
+
+  {id:25,text:"Đơn vị Becquerel (Bq) tương đương với",topic:"Độ phóng xạ",level:"NB",
+   choices:["$3{,}7\\times10^{10}$ phân rã/s","$10^6$ phân rã/s","1 phân rã/s","$10^{-3}$ phân rã/s"],
+   ans:2,explain:"$1\\,\\text{Bq} = \\mathbf{1}$ phân rã/giây — đây là đơn vị SI của độ phóng xạ (đặt theo tên Antoine Becquerel)."},
+
+  {id:26,text:"$1\\,\\text{Curie (Ci)}$ bằng bao nhiêu Becquerel?",topic:"Độ phóng xạ",level:"NB",
+   choices:["$3{,}7\\times10^{10}$ Bq","$3{,}7\\times10^8$ Bq","$1{,}6\\times10^{-19}$ Bq","$10^6$ Bq"],
+   ans:0,explain:"$1\\,\\text{Ci} = 3{,}7\\times10^{10}\\,\\text{Bq}$, định nghĩa theo độ phóng xạ của $1$ gam $^{226}Ra$."},
+
+  {id:27,text:"Công thức độ phóng xạ theo thời gian là",topic:"Độ phóng xạ",level:"NB",
+   choices:["$H = H_0 e^{\\lambda t}$","$H = H_0/(1+\\lambda t)$","$H = H_0 e^{-\\lambda t} = H_0 \\cdot 2^{-t/T}$","$H = H_0(1 - e^{-\\lambda t})$"],
+   ans:2,explain:"Vì $H = \\lambda N$ và $N = N_0 e^{-\\lambda t}$ → $\\mathbf{H = H_0 e^{-\\lambda t} = H_0 \\cdot 2^{-t/T}}$, với $H_0 = \\lambda N_0$."},
+
+  {id:28,text:"Số hạt nhân ban đầu $N_0$ của mẫu khối lượng $m_0$ (gam), số khối $A$ là",topic:"Độ phóng xạ",level:"NB",
+   choices:["$N_0 = A \\cdot N_A / m_0$","$N_0 = A/m_0$","$N_0 = m_0 \\cdot A$","$N_0 = (m_0/A) \\cdot N_A$"],
+   ans:3,explain:"Số mol $= m_0/A$ → $N_0 = \\dfrac{m_0}{A} \\cdot N_A$, với $N_A = 6{,}022\\times10^{23}$ mol$^{-1}$."},
+
+  {id:29,text:"Mẫu phóng xạ ban đầu có $H_0 = 10^4$ Bq, $T = 2$ giờ. Sau 6 giờ, độ phóng xạ là",topic:"Độ phóng xạ",level:"TH",
+   choices:["2500 Bq","1250 Bq","5000 Bq","625 Bq"],
+   ans:1,explain:"$t/T = 6/2 = 3$ → $H = H_0 \\cdot 2^{-3} = 10^4/8 = \\mathbf{1250}$ Bq."},
+
+  {id:30,text:"Tại thời điểm $t_1$, mẫu có $H_1 = 8000$ Bq. Tại $t_2 = t_1 + 3T$, độ phóng xạ $H_2$ bằng",topic:"Độ phóng xạ",level:"TH",
+   choices:["4000 Bq","1000 Bq","2000 Bq","500 Bq"],
+   ans:1,explain:"Sau 3 chu kì kể từ $t_1$: $H_2 = H_1 \\cdot 2^{-3} = 8000/8 = \\mathbf{1000}$ Bq."},
+
+  {id:31,text:"Mẫu $^{60}Co$ ($A = 60$, $T = 5{,}27$ năm) có $m_0 = 1$ g. Độ phóng xạ ban đầu $H_0$ xấp xỉ",topic:"Độ phóng xạ",level:"TH",
+   choices:["$1{,}1\\times10^{12}$ Bq","$4{,}2\\times10^{13}$ Bq","$3{,}7\\times10^{10}$ Bq","$2{,}5\\times10^{11}$ Bq"],
+   ans:1,explain:"$N_0 = (1/60)\\times6{,}022\\times10^{23} \\approx 1{,}004\\times10^{22}$. $\\lambda = \\ln2/(5{,}27\\times3{,}156\\times10^7) \\approx 4{,}17\\times10^{-9}$ s$^{-1}$. $H_0 = \\lambda N_0 \\approx \\mathbf{4{,}2\\times10^{13}}$ Bq."},
+
+  {id:32,text:"Khối lượng $m$ và độ phóng xạ $H$ tại cùng thời điểm $t$ liên hệ nhau theo",topic:"Độ phóng xạ",level:"TH",
+   choices:["$m/m_0 = H/H_0 = N/N_0 = 2^{-t/T}$","$m \\cdot H = m_0 \\cdot H_0$","$m = m_0 - H\\cdot t$","$H = m/\\lambda$"],
+   ans:0,explain:"Vì $m$, $N$, $H$ đều tuân theo cùng hàm $e^{-\\lambda t}$: $m/m_0 = H/H_0 = N/N_0 = e^{-\\lambda t} = 2^{-t/T}$."},
+
+  {id:33,text:"Biết $H = 3{,}7\\times10^9$ Bq và $T = 5$ ngày. Số hạt nhân còn lại $N$ là",topic:"Độ phóng xạ",level:"VD",
+   choices:["$N = H\\cdot T/\\ln2 \\approx 2{,}31\\times10^{15}$","$N = H/T \\approx 8{,}6\\times10^3$","$N = H\\cdot\\lambda \\approx 2{,}8\\times10^3$","$N = H^2/T \\approx 2{,}7\\times10^{18}$"],
+   ans:0,explain:"$N = H/\\lambda = H \\cdot T/\\ln2 = (3{,}7\\times10^9 \\times 5\\times86400)/0{,}693 \\approx \\mathbf{2{,}31\\times10^{15}}$ hạt nhân."},
+
+  {id:34,text:"Khối lượng chất phóng xạ mới sinh ra (hạt nhân con, số khối $A'$) sau thời gian $t$ là",topic:"Độ phóng xạ",level:"VD",
+   choices:["$m' = m_0 \\cdot A'/A$","$m' = \\Delta m \\cdot A$","$m' = N' \\cdot A'$","$m' = (N'/N_A) \\cdot A'$"],
+   ans:3,explain:"Số hạt nhân con $N' = N_0(1-2^{-t/T})$ → khối lượng chất mới: $\\mathbf{m' = (N'/N_A) \\cdot A'}$ (gam)."},
+
+  /* ── CHỦ ĐỀ 4: Các tia trong điện trường & từ trường (câu 35–40) ── */
+  {id:35,text:"Trong điện trường đều hướng từ bản $+$ sang bản $-$, tia $\\alpha$ lệch về phía nào?",topic:"Tia phóng xạ trong ĐT & TT",level:"TH",
+   choices:["Về phía bản âm (ngược chiều $\\vec{E}$)","Về phía bản dương (cùng chiều $\\vec{E}$)","Không bị lệch","Lệch về phía tia $\\beta^-$"],
+   ans:0,explain:"Tia $\\alpha$ mang điện $+2e$ → chịu lực $\\vec{F} = q\\vec{E}$ cùng chiều $\\vec{E}$ (từ + sang -) → lệch <b>về phía bản âm</b>."},
+
+  {id:36,text:"Trong điện trường đều, tia $\\beta^+$ và tia $\\beta^-$ lệch theo hướng như thế nào?",topic:"Tia phóng xạ trong ĐT & TT",level:"TH",
+   choices:["Cùng phía vì có cùng khối lượng","Không bị lệch vì triệt tiêu nhau","Ngược phía nhau vì mang điện tích trái dấu","$\\beta^+$ lệch nhiều hơn $\\beta^-$"],
+   ans:2,explain:"$\\beta^+$ mang $+e$ và $\\beta^-$ mang $-e$ → lực điện ngược chiều → lệch về <b>hai phía ngược nhau</b>."},
+
+  {id:37,text:"Trong từ trường đều $\\vec{B}$ hướng vào trong trang giấy, tia $\\alpha$ đi ngang sang phải sẽ lệch",topic:"Tia phóng xạ trong ĐT & TT",level:"TH",
+   choices:["Xuống dưới","Lên trên","Vào trong trang","Không lệch"],
+   ans:0,explain:"$\\alpha$ mang $+2e$, $\\vec{v}$ sang phải, $\\vec{B}$ vào trong. $\\vec{F} = q\\vec{v}\\times\\vec{B}$: dùng quy tắc bàn tay phải cho $\\vec{v}\\times\\vec{B}$ → hướng xuống → $\\alpha$ lệch <b>xuống dưới</b>."},
+
+  {id:38,text:"Trong từ trường, các tia phóng xạ chuyển động theo quỹ đạo nào?",topic:"Tia phóng xạ trong ĐT & TT",level:"TH",
+   choices:["$\\alpha$, $\\beta$ theo đường thẳng; $\\gamma$ theo parabol","Cả ba đều theo đường tròn","$\\alpha$ và $\\beta$ theo đường tròn (ngược chiều); $\\gamma$ đi thẳng","Cả ba đều đi thẳng"],
+   ans:2,explain:"$\\alpha$ và $\\beta$ mang điện → chịu lực Lorentz → chuyển động <b>tròn đều</b> trong từ trường đều (ngược chiều nhau do điện tích trái dấu). $\\gamma$ không có điện tích → đi thẳng."},
+
+  {id:39,text:"So sánh bán kính quỹ đạo trong từ trường của tia $\\alpha$ và tia $\\beta$ (cùng động năng ban đầu)",topic:"Tia phóng xạ trong ĐT & TT",level:"VD",
+   choices:["$\\alpha$ có bán kính lớn hơn $\\beta$ nhiều lần","Bằng nhau","$\\beta$ có bán kính lớn hơn","Phụ thuộc vào cường độ từ trường"],
+   ans:0,explain:"$r = mv/(qB)$. Tia $\\alpha$: $m_\\alpha \\approx 4u$, $q = 2e$; tia $\\beta$: $m_e \\approx 1/1836\\,u$, $q = e$. Cùng động năng $K = p^2/(2m)$ → $p = \\sqrt{2mK}$. $r = p/(qB)$. $r_\\alpha/r_\\beta = (p_\\alpha/2e)/(p_\\beta/e) \\gg 1$ → <b>$\\alpha$ có bán kính lớn hơn $\\beta$ rất nhiều</b>."},
+
+  {id:40,text:"Tại sao tia $\\alpha$ có khả năng ion hóa không khí mạnh nhất?",topic:"Tia phóng xạ trong ĐT & TT",level:"VD",
+   choices:["Vì $\\alpha$ có vận tốc cao nhất","Vì $\\alpha$ mang điện tích $+2e$ và có khối lượng lớn nên tương tác mạnh với nguyên tử khí trong không khí","Vì $\\alpha$ không bị lệch trong điện trường","Vì $\\alpha$ là photon"],
+   ans:1,explain:"Tia $\\alpha$ mang điện $+2e$ và có khối lượng lớn ($4u$) nên <b>tương tác điện mạnh</b> với các electron của nguyên tử khí, ion hóa dày đặc → mất năng lượng nhanh → đâm xuyên yếu nhất."},
+
+  /* ── CHỦ ĐỀ 5: Ứng dụng phóng xạ (câu 41–46) ── */
+  {id:41,text:"Phương pháp xác định tuổi bằng đồng vị $^{14}C$ dựa trên",topic:"Ứng dụng phóng xạ",level:"NB",
+   choices:["$^{14}C$ ổn định không thay đổi theo thời gian","Tỉ lệ $^{14}C/^{12}C$ trong vật thể chết giảm dần theo định luật phóng xạ, $T \\approx 5730$ năm","$^{14}C$ được sản xuất trong phòng thí nghiệm","$^{14}C$ tăng sau khi sinh vật chết"],
+   ans:1,explain:"Khi sinh vật còn sống, tỉ lệ $^{14}C/^{12}C$ không đổi (hấp thụ từ khí quyển). Khi chết, $^{14}C$ phân rã với $T \\approx 5730$ năm → đo tỉ lệ còn lại để <b>xác định tuổi mẫu vật</b> (hiệu quả đến ~50000 năm)."},
+
+  {id:42,text:"Trong y học hạt nhân, $^{131}I$ ($T = 8$ ngày) được dùng để",topic:"Ứng dụng phóng xạ",level:"NB",
+   choices:["Chẩn đoán và điều trị bệnh tuyến giáp","Đo tuổi địa tầng","Kiểm tra khuyết tật vật liệu","Tiệt trùng thực phẩm"],
+   ans:0,explain:"$^{131}I$ tập trung ở tuyến giáp → phát tia $\\beta$ và $\\gamma$: liều thấp để <b>chẩn đoán</b> (xạ hình), liều cao để <b>điều trị</b> cường giáp và ung thư tuyến giáp."},
+
+  {id:43,text:"Đồng vị nào dùng để xác định tuổi đá và địa tầng hàng triệu năm?",topic:"Ứng dụng phóng xạ",level:"TH",
+   choices:["$^{14}C$ ($T \\approx 5730$ năm)","$^{131}I$ ($T \\approx 8$ ngày)","$^{238}U$ ($T \\approx 4{,}5\\times10^9$ năm) và $^{40}K$","$^{60}Co$ ($T \\approx 5{,}3$ năm)"],
+   ans:2,explain:"Để xác định tuổi địa chất (hàng triệu – tỉ năm) dùng $^{238}U$ ($T \\approx 4{,}5$ tỉ năm) và $^{40}K$ ($T \\approx 1{,}3$ tỉ năm). $^{14}C$ chỉ dùng được đến ~50000 năm."},
+
+  {id:44,text:"Tại sao tia $\\gamma$ được dùng để kiểm tra khuyết tật bên trong vật liệu (như đường hàn)?",topic:"Ứng dụng phóng xạ",level:"TH",
+   choices:["Vì $\\gamma$ dễ bị chặn bởi vật liệu","Vì $\\gamma$ có khả năng đâm xuyên mạnh, chiếu qua vật liệu rồi ghi hình trên phim ảnh như X-quang công nghiệp","Vì $\\gamma$ mang điện tích âm","Vì $\\gamma$ có khối lượng lớn"],
+   ans:1,explain:"Tia $\\gamma$ có khả năng <b>đâm xuyên rất mạnh</b> → chiếu qua vật liệu kim loại, phát hiện vết nứt, lỗ hổng (khuyết tật) bên trong → ghi trên phim ảnh → <b>kiểm tra không phá hủy</b>."},
+
+  {id:45,text:"Trong máy PET (chụp cắt lớp positron), nguyên tắc hoạt động là",topic:"Ứng dụng phóng xạ",level:"VD",
+   choices:["Tia $\\gamma$ từ đồng vị $\\alpha$","Positron từ đồng vị $\\beta^+$ hủy cặp với electron tạo 2 photon $\\gamma$ 511 keV ngược chiều nhau","Neutron từ phân rã hạt nhân","Tia $\\alpha$ xuyên qua mô cơ thể"],
+   ans:1,explain:"PET dùng đồng vị $\\beta^+$ (như $^{18}F$). Positron gặp electron → <b>hủy cặp</b> → 2 photon $\\gamma$ 511 keV bay ngược chiều → detector đồng thời ghi nhận → tái tạo hình ảnh 3D."},
+
+  {id:46,text:"Tại sao không dùng tia $\\alpha$ để xạ trị ung thư từ bên ngoài cơ thể?",topic:"Ứng dụng phóng xạ",level:"VD",
+   choices:["Tia $\\alpha$ đâm xuyên kém, bị hấp thụ ngay ở lớp da ngoài trước khi vào tới khối u","Tia $\\alpha$ quá đắt","Tia $\\alpha$ không có năng lượng đủ lớn","Tia $\\alpha$ không tương tác với tế bào"],
+   ans:0,explain:"Tia $\\alpha$ chỉ đi vài cm trong không khí và bị chặn bởi tờ giấy → <b>không thể xuyên qua da</b> để vào khối u. Xạ trị ngoài dùng tia $\\gamma$ hoặc chùm proton. (Tuy nhiên $\\alpha$ dùng trong xạ trị nội bộ như Ra-223 điều trị di căn xương.)"},
+
+  /* ── CHỦ ĐỀ 6: Năng lượng trong phóng xạ (câu 47–50) ── */
+  {id:47,text:"Năng lượng tỏa ra trong phóng xạ $Q$ tính theo (khối lượng tính bằng $u$)",topic:"Năng lượng trong phóng xạ",level:"NB",
+   choices:["$Q = (m_{sau} - m_{trước})\\cdot 931{,}5$ MeV","$Q = m_{trước}\\cdot 931{,}5$ MeV","$Q = (m_{trước} - m_{sau})\\cdot 931{,}5$ MeV","$Q = (m_{trước} + m_{sau})\\cdot 931{,}5$ MeV"],
+   ans:2,explain:"$Q = (m_{trước} - m_{sau}) \\cdot c^2 = (m_{trước} - m_{sau}) \\times 931{,}5$ MeV (với $m$ tính bằng $u$). $Q > 0$: tỏa năng lượng."},
+
+  {id:48,text:"Phóng xạ $^{226}_{88}Ra \\to ^{222}_{86}Rn + ^4_2He$. Biết $m(Ra) = 225{,}9771\\,u$; $m(Rn) = 221{,}9703\\,u$; $m(He) = 4{,}0026\\,u$. Năng lượng tỏa ra là",topic:"Năng lượng trong phóng xạ",level:"VD",
+   choices:["5,59 MeV","3,91 MeV","8,23 MeV","1,47 MeV"],
+   ans:1,explain:"$\\Delta m = 225{,}9771 - (221{,}9703 + 4{,}0026) = 0{,}0042\\,u$. $Q = 0{,}0042 \\times 931{,}5 \\approx \\mathbf{3{,}91}$ MeV."},
+
+  {id:49,text:"Trong phóng xạ $\\alpha$, nếu hạt nhân mẹ đứng yên thì hạt $\\alpha$ và hạt nhân con mang động năng theo tỉ lệ",topic:"Năng lượng trong phóng xạ",level:"VD",
+   choices:["Bằng nhau","$K_\\alpha > K_{con}$ vì $m_\\alpha < m_{con}$ (bảo toàn động lượng)","$K_{con} > K_\\alpha$ vì hạt nhân con nặng hơn","Không xác định được"],
+   ans:1,explain:"Bảo toàn động lượng: $m_\\alpha v_\\alpha = m_{con}v_{con}$ → $K = p^2/(2m)$ → $K_\\alpha/K_{con} = m_{con}/m_\\alpha \\gg 1$. Vì $m_\\alpha = 4u \\ll m_{con}$ nên <b>hạt $\\alpha$ mang phần lớn động năng</b>."},
+
+  {id:50,text:"Năng lượng tỏa ra $Q$ trong phóng xạ cuối cùng biến thành dạng năng lượng nào?",topic:"Năng lượng trong phóng xạ",level:"VD",
+   choices:["Nhiệt năng của hạt nhân mẹ","Động năng của các hạt sinh ra và năng lượng tia $\\gamma$ (nếu có)","Năng lượng tiềm ẩn trong hạt nhân con","Năng lượng điện từ hấp thụ từ môi trường"],
+   ans:1,explain:"$Q = K_{sau} - K_{trước}$. Năng lượng tỏa ra chuyển thành <b>động năng của hạt $\\alpha$ (hoặc $\\beta$)</b>, động năng hạt nhân con, và năng lượng photon $\\gamma$."}
+];
+
+
+var TOPICS  = ["Định nghĩa & Bản chất phóng xạ","Định luật phóng xạ & Chu kì bán rã","Độ phóng xạ","Tia phóng xạ trong ĐT & TT","Ứng dụng phóng xạ","Năng lượng trong phóng xạ"];
+
+var PLAN = {
+  "Định nghĩa & Bản chất phóng xạ":{
+    formula:"$$\\alpha: ^A_ZX \\to ^{A-4}_{Z-2}Y + ^4_2He \\qquad \\beta^-: n\\to p+e^-+\\bar{\\nu}_e \\qquad \\gamma: \\text{sóng điện từ}$$",
+    notes:["Tia $\\alpha$ ($^4_2He$): điện $+2e$, đâm xuyên yếu, ion hóa mạnh, $v\\approx2\\times10^7$ m/s","Tia $\\beta^-$: electron từ hạt nhân, $v\\approx c$, đâm xuyên trung bình","Tia $\\gamma$: sóng điện từ, không điện tích, đâm xuyên mạnh nhất","Thứ tự đâm xuyên: $\\alpha < \\beta < \\gamma$; ion hóa: $\\alpha > \\beta > \\gamma$"],
+    exercises:["Xác định loại tia phóng xạ khi biết $Z$ và $A$ trước/sau phân rã","Giải thích tại sao tia $\\gamma$ không bị lệch trong điện từ trường"]
+  },
+  "Định luật phóng xạ & Chu kì bán rã":{
+    formula:"$$N = N_0 \\cdot 2^{-t/T} \\qquad \\lambda = \\frac{\\ln2}{T} \\qquad \\Delta N = N_0(1-2^{-t/T})$$",
+    notes:["$T$ là đặc trưng riêng của mỗi chất, không phụ thuộc vào điều kiện ngoài","Sau $n$ chu kì: $N = N_0/2^n$","Bảo toàn $A$ và $Z$ trong mọi phương trình phân rã","Khối lượng còn lại: $m = m_0 \\cdot 2^{-t/T}$"],
+    exercises:["Tính số hạt nhân còn lại sau 5 chu kì bán rã","Hoàn thành phương trình: $^{238}_{92}U \\to ^{234}_{90}Th + ?$"]
+  },
+  "Độ phóng xạ":{
+    formula:"$$H = \\lambda N = H_0 \\cdot 2^{-t/T} \\qquad H_0 = \\lambda N_0 = \\frac{\\ln2}{T}\\cdot\\frac{m_0}{A}N_A$$",
+    notes:["$1\\,\\text{Bq} = 1$ phân rã/s (SI); $1\\,\\text{Ci} = 3{,}7\\times10^{10}$ Bq","$H$, $N$, $m$ đều giảm theo cùng hàm $2^{-t/T}$","$N_0 = (m_0/A)\\cdot N_A$ với $N_A = 6{,}022\\times10^{23}$ mol$^{-1}$","$H = \\lambda N$ nên biết 2 trong 3 đại lượng $H$, $N$, $\\lambda$ → tìm được đại lượng thứ 3"],
+    exercises:["Tính $H_0$ của $1$ g $^{131}I$ ($T=8$ ngày)", "Tìm $T$ biết $H$ giảm từ $10^5$ Bq xuống $6250$ Bq sau $4$ giờ"]
+  },
+  "Tia phóng xạ trong ĐT & TT":{
+    formula:"$$\\vec{F}_{\\text{điện}} = q\\vec{E} \\qquad \\vec{F}_{\\text{Lorentz}} = q\\vec{v}\\times\\vec{B} \\qquad r = \\frac{mv}{|q|B}$$",
+    notes:["$\\gamma$: không lệch trong cả điện trường và từ trường","$\\alpha$ và $\\beta$ lệch ngược chiều nhau trong cùng trường","Trong từ trường: $\\alpha$ và $\\beta$ chuyển động tròn, $\\gamma$ thẳng","$r_{\\alpha} \\gg r_{\\beta}$ khi cùng động năng (do $m_\\alpha \\gg m_e$)"],
+    exercises:["Xác định chiều lệch của $\\alpha$, $\\beta^-$, $\\beta^+$ trong điện trường đều","Tính bán kính quỹ đạo của hạt $\\alpha$ trong từ trường $B$"]
+  },
+  "Ứng dụng phóng xạ":{
+    formula:"$$\\frac{N}{N_0} = 2^{-t/T} \\Rightarrow t = T\\cdot\\frac{\\ln(N_0/N)}{\\ln2}$$",
+    notes:["Xác định tuổi: $^{14}C$ (đến 50000 năm), $^{238}U$ (hàng tỉ năm)","Y học: chẩn đoán ($^{99m}Tc$, PET với $^{18}F$), điều trị ($^{131}I$, xạ trị $\\gamma$)","Công nghiệp: kiểm tra khuyết tật (tia $\\gamma$), đo độ dày","Nông nghiệp: diệt khuẩn thực phẩm, gây đột biến tạo giống mới"],
+    exercises:["Mẫu gỗ cổ có $^{14}C$ còn $1/8$ so với ban đầu. Tuổi mẫu gỗ là?","Giải thích tại sao $^{99m}Tc$ ($T=6$ giờ) thích hợp cho chẩn đoán y tế"]
+  },
+  "Năng lượng trong phóng xạ":{
+    formula:"$$Q = (m_{trước}-m_{sau})\\cdot931{,}5\\text{ MeV} = (\\Delta m_s - \\Delta m_t)\\cdot931{,}5\\text{ MeV}$$",
+    notes:["$1\\,u\\cdot c^2 = 931{,}5$ MeV; $1$ MeV $= 1{,}6\\times10^{-13}$ J","$Q > 0$: tỏa năng lượng (phóng xạ luôn tỏa)","Bảo toàn động lượng: hạt nhân mẹ đứng yên → hai hạt con bay ngược chiều","$K_\\alpha/K_{con} = m_{con}/m_\\alpha$ (bảo toàn động lượng + năng lượng)"],
+    exercises:["Tính $Q$ phân rã $\\alpha$ của $^{210}_{84}Po$; Tính $K_\\alpha$ và $K_{Pb}$"]
+  }
+};
+
+/* === STATE === */
+var studentName = "", roundHistory = [], activeQS = QS.slice();
+var roundNum = 1, cumulativeCorrect = 0, TOTAL_ORIGINAL = QS.length;
+var answers = [], curQ = 0;
+
+/* === LOGIN === */
+function startTest() {
+  var nm = document.getElementById("inp-name").value.trim();
+  if (!nm) { document.getElementById("inp-name").focus(); return; }
+  studentName = nm;
+  roundHistory = []; activeQS = QS.slice(); roundNum = 1; cumulativeCorrect = 0;
+  beginRound();
+}
+
+/* === ROUND === */
+function beginRound() {
+  curQ = 0;
+  answers = new Array(activeQS.length).fill(null);
+  document.getElementById("round-label").textContent =
+    roundNum === 1 ? "Lượt 1 · " + activeQS.length + " câu"
+                   : "Lượt " + roundNum + " · Ôn " + activeQS.length + " câu sai";
+  showScreen("s-test");
+  renderQ();
+}
+
+/* === TEST === */
+function renderDots() {
+  var nav = document.getElementById("dot-nav"); nav.innerHTML = "";
+  activeQS.forEach(function(_, i) {
+    var d = document.createElement("button");
+    d.className = "dot" + (i===curQ?" current":answers[i]!==null?" answered":"");
+    d.textContent = i+1;
+    d.onclick = (function(idx){ return function(){ curQ=idx; renderQ(); }; })(i);
+    nav.appendChild(d);
+  });
+}
+
+function renderQ() {
+  var q = activeQS[curQ];
+  document.getElementById("q-counter").textContent = "Câu " + (curQ+1) + "/" + activeQS.length;
+  document.getElementById("progress").style.width = ((curQ+1)/activeQS.length*100)+"%";
+  document.getElementById("q-text").innerHTML = q.text;
+  var cd = document.getElementById("choices"); cd.innerHTML = "";
+  ["A","B","C","D"].forEach(function(l, ci) {
+    var b = document.createElement("button");
+    b.className = "choice-btn" + (answers[curQ]===ci ? " selected" : "");
+    b.innerHTML = "<b>" + l + ".</b> " + q.choices[ci];
+    b.onclick = (function(i){ return function(){ answers[curQ]=i; renderQ(); }; })(ci);
+    cd.appendChild(b);
+  });
+  var pb = document.getElementById("btn-prev");
+  pb.disabled = curQ===0; pb.style.opacity = curQ===0?"0.35":"1";
+  document.getElementById("btn-next").textContent = curQ===activeQS.length-1 ? "Nộp bài ✓" : "Tiếp →";
+  if (window.MathJax && MathJax.typesetPromise)
+    MathJax.typesetPromise([document.getElementById("q-text"), document.getElementById("choices")]).catch(function(){});
+  renderDots();
+}
+
+function prevQ() { if (curQ>0){ curQ--; renderQ(); } }
+function nextQ() {
+  if (curQ < activeQS.length-1) { curQ++; renderQ(); return; }
+  var miss = answers.filter(function(a){ return a===null; }).length;
+  if (miss>0 && !confirm("Còn " + miss + " câu chưa chọn. Nộp bài?")) return;
+  submitRound();
+}
+
+/* === SUBMIT === */
+var EXAM_NAME = "C4.PhongXa";
+var sheetsUrl = "https://script.google.com/macros/s/AKfycbwwIDXsY_OC6FDDJaJGrJdacv7n49YAoJn1i-xsvVLfkG2TZXEVtPCCdT1kxR3vzn-4/exec";
+
+function submitRound() {
+  var roundCorrect = answers.filter(function(a,i){ return a===activeQS[i].ans; }).length;
+  var wrongQS = activeQS.filter(function(q,i){ return answers[i]!==q.ans; });
+  roundHistory.push({ rn:roundNum, qs:activeQS.slice(), ans:answers.slice(), correct:roundCorrect });
+  cumulativeCorrect += roundCorrect;
+  if (sheetsUrl) {
+    var cls = (document.getElementById("inp-class")||{value:""}).value.trim();
+    var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+    var url = sheetsUrl + "?" + [
+      "examName=" + encodeURIComponent(EXAM_NAME),
+      "luot="     + roundNum,
+      "name="     + encodeURIComponent(studentName),
+      "className="+ encodeURIComponent(cls),
+      "score10="  + score10
+    ].join("&");
+    if (typeof fetch !== "undefined") {
+      fetch(url, {method:"GET", mode:"no-cors"}).catch(function(){});
+    } else { var img = new Image(); img.src = url; }
+  }
+  showResult(wrongQS);
+}
+
+/* === RESULT === */
+function showResult(wrongQS) {
+  var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+  document.getElementById("score-num").textContent = score10%1===0 ? score10.toFixed(1) : score10;
+  document.getElementById("result-name").textContent = studentName;
+  document.getElementById("round-badge").innerHTML =
+    '<span class="badge" style="background:#ebf2fb;color:#0c447c">Lượt ' + roundNum +
+    ' · Làm ' + activeQS.length + ' câu · Đúng ' +
+    roundHistory[roundHistory.length-1].correct + ' câu</span>';
+
+  var hc = document.getElementById("hist-card");
+  if (roundHistory.length > 1) {
+    hc.style.display = "block";
+    document.getElementById("hist-rows").innerHTML = roundHistory.map(function(r){
+      var p = Math.round(r.correct/r.qs.length*100);
+      var col = p>=70?"#1d7a4f":p>=40?"#7a4a0a":"#7a1f1f";
+      return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f4fb">' +
+        '<span style="font-size:13px">Lượt ' + r.rn + ' (' + r.qs.length + ' câu)</span>' +
+        '<span style="font-size:13px;font-weight:600;color:'+col+'">' + r.correct + '/' + r.qs.length + ' đúng (' + p + '%)</span>' +
+      '</div>';
+    }).join("");
+  } else { hc.style.display = "none"; }
+
+  var dc = document.getElementById("detail-card");
+  var letters = ["A","B","C","D"];
+  if (wrongQS.length===0) {
+    dc.innerHTML = '<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:12px">Tuyệt vời! Không có câu sai.</div>';
+  } else {
+    dc.innerHTML = '<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>' +
+      wrongQS.map(function(q) {
+        var ri = activeQS.indexOf(q);
+        var ua = answers[ri];
+        var ul = ua!==null ? letters[ua] : "–";
+        return '<div style="padding:10px 0;border-bottom:1px solid #f0f4fb">' +
+          '<div style="font-size:13px;color:#888;margin-bottom:2px">' + q.topic + '</div>' +
+          '<div style="font-size:14px;font-weight:500;margin-bottom:4px">' + q.id + '. ' + q.text + '</div>' +
+          '<div style="font-size:12px;color:#7a1f1f">Bạn chọn: <b>' + ul + '</b> · Đúng: <b>' + letters[q.ans] + '</b></div>' +
+          '<div style="font-size:12px;color:#555;margin-top:4px;background:#f5f7fa;padding:6px;border-radius:6px">' + q.explain + '</div>' +
+        '</div>';
+      }).join("");
+  }
+
+  var allCorrectIds = {};
+  roundHistory.forEach(function(r){ r.qs.forEach(function(q,i){ if(r.ans[i]===q.ans) allCorrectIds[q.id]=true; }); });
+  var weakTopics = TOPICS.filter(function(t){
+    var ok=0,tot=0;
+    QS.forEach(function(q){ if(q.topic===t){tot++;if(allCorrectIds[q.id])ok++;} });
+    return tot>0 && (ok/tot)<0.6;
+  });
+  var pr = document.getElementById("plan-rows");
+  if (weakTopics.length===0) {
+    pr.innerHTML = '<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:8px">Xuất sắc! Bạn nắm vững tất cả chủ đề.</div>';
+  } else {
+    pr.innerHTML = weakTopics.map(function(t){
+      var p = PLAN[t];
+      var wc = wrongQS.filter(function(q){ return q.topic===t; }).length;
+      return '<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #f0f4fb">' +
+        '<div style="font-weight:600;margin-bottom:6px">' + t + (wc>0?' <span style="font-size:12px;background:#fdeaea;color:#7a1f1f;padding:1px 8px;border-radius:10px">'+wc+' câu sai</span>':'') + '</div>' +
+        '<div style="background:#f0f4fb;border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:13px">' + p.formula + '</div>' +
+        p.notes.map(function(n){ return '<div style="font-size:13px;color:#333;padding:2px 0">• ' + n + '</div>'; }).join("") +
+      '</div>';
+    }).join("");
+  }
+  if (window.MathJax && MathJax.typesetPromise)
+    MathJax.typesetPromise([document.getElementById("s-result")]).catch(function(){});
+
+  var rb = document.getElementById("btn-retry");
+  if (wrongQS.length > 0) {
+    rb.style.display = "flex";
+    rb.textContent = "Lượt " + (roundNum+1) + ": Ôn lại " + wrongQS.length + " câu sai →";
+    window._nextWrongQS = wrongQS;
+  } else { rb.style.display = "none"; }
+
+  var sv = document.getElementById("btn-save");
+  if (sv) { sv.style.cssText = "display:flex!important"; }
+
+  showScreen("s-result");
+}
+
+function startRetry() {
+  roundNum++;
+  activeQS = (window._nextWrongQS||[]).slice();
+  window._nextWrongQS = null;
+  var ni=document.getElementById("inp-name"); if(ni) ni.value=studentName;
+  beginRound();
+}
+
+function restartFull() {
+  roundHistory=[]; activeQS=QS.slice(); roundNum=1; cumulativeCorrect=0;
+  document.getElementById("inp-name").value="";
+  showScreen("s-login");
+}
+
+/* === SAVE === */
+function doSave() {
+  var wrongQS = window._nextWrongQS || [];
+  var wqJ = JSON.stringify(wrongQS).replace(new RegExp("<\\/","g"),"<\\/");
+  var hiJ = JSON.stringify(roundHistory).replace(new RegExp("<\\/","g"),"<\\/");
+  var nmJ = JSON.stringify(studentName);
+  var clJ = JSON.stringify(document.getElementById("inp-class").value||"");
+  var nw  = wrongQS.length;
+  var blJ = JSON.stringify("Lượt "+(roundNum+1)+": Ôn lại "+nw+" câu sai →");
+
+  document.querySelectorAll(".screen").forEach(function(s){
+    s.setAttribute("_d",s.style.display||"");
+    s.style.display = s.id==="s-result"?"block":"none";
+  });
+  document.getElementById("btn-save").style.visibility="hidden";
+  var snap = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+  document.querySelectorAll(".screen").forEach(function(s){ s.style.display=s.getAttribute("_d")||""; });
+  document.getElementById("btn-save").style.visibility="";
+
+  snap = snap.replace("</style>",
+    "\n/* ==SAVED== */ .screen{display:none!important} #s-result{display:block!important}\n</style>"
+  );
+  snap = snap.replace(/showScreen\("s-login"\);?/g,"/* noinit */");
+
+  var L = [];
+  L.push("<scr"+"ipt>");
+  L.push("var _D={wq:"+wqJ+",rn:"+roundNum+",cc:"+cumulativeCorrect+",hi:"+hiJ+",nm:"+nmJ+",cl:"+clJ+",tt:"+TOTAL_ORIGINAL+"};");
+  L.push("function doRetryFromSaved(){");
+  L.push("  studentName=_D.nm;roundHistory=_D.hi;activeQS=_D.wq.slice();");
+  L.push("  roundNum=_D.rn+1;cumulativeCorrect=_D.cc;TOTAL_ORIGINAL=_D.tt;");
+  L.push("  window._nextWrongQS=null;");
+  L.push("  var ni=document.getElementById('inp-name');if(ni)ni.value=_D.nm;");
+  L.push("  var ci=document.getElementById('inp-class');if(ci)ci.value=_D.cl;");
+  L.push("  var ovr=document.createElement('style');ovr.textContent='.screen{display:none!important}#s-test.active,#s-result.active,#s-login.active{display:block!important}';document.head.appendChild(ovr);");
+  L.push("  beginRound();");
+  L.push("}");
+  L.push("window.addEventListener('DOMContentLoaded',function(){");
+  L.push("  var rb=document.getElementById('btn-retry');");
+  L.push("  if(rb&&_D.wq.length>0){rb.style.cssText='display:flex!important';rb.textContent="+blJ+";rb.onclick=doRetryFromSaved;}");
+  L.push("  else if(rb){rb.style.display='none';}");
+  L.push("  var sv=document.getElementById('btn-save');if(sv)sv.style.display='none';");
+  L.push("  var rs=document.getElementById('btn-restart');if(rs)rs.style.display='none';");
+  L.push("});");
+  L.push("</" + "script>");
+  var injected = L.join("\n");
+
+  snap = snap.replace(/<script>\n?var _D=[\s\S]*?<\/script>\n?/g, "");
+  var bi = snap.lastIndexOf("</body>");
+  snap = snap.slice(0,bi) + injected + "\n" + snap.slice(bi);
+
+  var name = (studentName||"hs").replace(/\s+/g,"_")+"_"+EXAM_NAME+"_luot"+roundNum+".html";
+  var blob = new Blob([snap],{type:"text/html;charset=utf-8"});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement("a"); a.href=url; a.download=name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); },3000);
+}
+
+/* === UTILS === */
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+
+if(typeof _D==="undefined"){ showScreen("s-login"); }
+</script>
+</body>
+</html>

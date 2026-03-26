@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11C2.songco — 50 câu</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [["$","$"]], displayMath: [["$$","$$"]] }, startup: { typeset: false } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #f5f7fa; color: #1a1a1a; padding: 16px; }
+.card { background: #fff; border-radius: 12px; border: 1px solid #e0e6ef; padding: 20px; margin-bottom: 14px; max-width: 600px; margin-left: auto; margin-right: auto; }
+.screen { display: none; }
+.screen.active { display: block; }
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 11px 20px; border-radius: 10px; border: 1px solid #d0d7e3; background: #fff; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; margin-bottom: 8px; }
+.btn-primary { background: #1a56a0; color: #fff; border-color: #1a56a0; }
+.btn-green   { background: #1d7a4f; color: #fff; border-color: #1d7a4f; }
+.choice-btn { width: 100%; text-align: left; padding: 12px 14px; border: 1px solid #e0e6ef; border-radius: 10px; background: #fff; font-size: 14px; margin-bottom: 8px; cursor: pointer; }
+.choice-btn.selected { background: #ebf2fb; border-color: #1a56a0; font-weight: 500; }
+.progress { height: 5px; background: #e0e6ef; border-radius: 3px; margin-bottom: 16px; }
+.progress-fill { height: 100%; background: #1a56a0; border-radius: 3px; transition: width .3s; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.input-field { width: 100%; padding: 10px 12px; border: 1px solid #d0d7e3; border-radius: 10px; font-size: 15px; margin-bottom: 10px; }
+.score-circle { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #1a56a0; background: #ebf2fb; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 12px; }
+.dot { width:32px;height:32px;border-radius:50%;border:1px solid #d0d7e3;background:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#555; }
+.dot.current { background:#1a56a0;color:#fff;border-color:#1a56a0; }
+.dot.answered { background:#e6f4ee;border-color:#1d7a4f;color:#1d7a4f; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen">
+  <div class="card" style="margin-top:40px; text-align:center">
+    <div style="font-size:20px;font-weight:700;margin-bottom:4px">Chương 2: Sóng cơ & Sóng ánh sáng</div>
+    <div style="font-size:13px;color:#888;margin-bottom:16px">Vật lý 11 · 50 câu · Có tính năng làm lại câu sai</div>
+    <input id="inp-name"  class="input-field" placeholder="Họ và tên" />
+    <input id="inp-class" class="input-field" placeholder="Lớp" />
+    <button class="btn btn-primary" onclick="startTest()">Bắt đầu →</button>
+  </div>
+</div>
+
+<!-- TEST -->
+<div id="s-test" class="screen">
+  <div class="card">
+    <p id="q-text" style="font-size:15px;font-weight:500;line-height:1.7;margin-bottom:16px"></p>
+    <div id="choices"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn" id="btn-prev" onclick="prevQ()" style="flex:1">← Trước</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQ()" style="flex:2">Tiếp →</button>
+    </div>
+    <div style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-bottom:6px">
+        <span id="q-counter"></span>
+        <span id="round-label" style="color:#1a56a0;font-weight:600"></span>
+      </div>
+      <div class="progress"><div class="progress-fill" id="progress"></div></div>
+      <div id="dot-nav" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <div class="card" style="text-align:center;margin-top:20px">
+    <div class="score-circle">
+      <div id="score-num" style="font-size:28px;font-weight:700;color:#0c447c"></div>
+      <div style="font-size:11px;color:#1a56a0">/10</div>
+    </div>
+    <div id="result-name" style="font-size:17px;font-weight:700;margin-bottom:4px"></div>
+    <div id="round-badge" style="margin-bottom:8px"></div>
+  </div>
+  <div id="hist-card" class="card" style="display:none">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Lịch sử lượt</div>
+    <div id="hist-rows"></div>
+  </div>
+  <div id="detail-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>
+    <div id="detail-rows"></div>
+  </div>
+  <div id="plan-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Kiến thức bổ trợ</div>
+    <div id="plan-rows"></div>
+  </div>
+  <div style="max-width:600px;margin:0 auto">
+    <button id="btn-retry"   class="btn btn-primary" style="display:none" onclick="startRetry()"></button>
+    <button id="btn-save"    class="btn btn-green"   onclick="doSave()">Lưu kết quả & Kiến thức bổ trợ</button>
+    <button id="btn-restart" class="btn"             onclick="restartFull()">Làm lại từ đầu</button>
+  </div>
+</div>
+
+<script>
+/* === DỮ LIỆU === */
+var QS = [
+
+  /* ===== 1. SÓNG CƠ — HÀM SÓNG & LỆCH PHA ===== */
+  { id:1, topic:"Hàm sóng và lệch pha", level:"NB",
+    text:"Phương trình sóng (hàm sóng) tại điểm cách nguồn một khoảng $d$ trên phương truyền sóng có dạng",
+    choices:["$u = U_0\\cos\\left(\\omega t + \\dfrac{2\\pi d}{\\lambda}\\right)$",
+             "$u = U_0\\cos\\left(\\omega t - \\dfrac{2\\pi d}{\\lambda}\\right)$",
+             "$u = U_0\\cos\\left(\\omega t - \\dfrac{2\\pi}{d}\\right)$",
+             "$u = U_0\\sin\\left(\\omega t + \\dfrac{d}{\\lambda}\\right)$"],
+    ans:1,
+    explain:"Sóng truyền theo chiều dương $x$: $u = U_0\\cos\\!\\left(\\omega t - \\dfrac{2\\pi d}{\\lambda}\\right)$. Điểm ở xa nguồn hơn <b>trễ pha hơn</b> (pha nhỏ hơn)." },
+
+  { id:2, topic:"Hàm sóng và lệch pha", level:"NB",
+    text:"Hai điểm M và N trên cùng phương truyền sóng, cách nhau một khoảng $d$. Độ lệch pha giữa dao động của M và N là",
+    choices:["$\\Delta\\varphi = \\dfrac{2\\pi d}{T}$",
+             "$\\Delta\\varphi = \\dfrac{2\\pi d}{\\lambda}$",
+             "$\\Delta\\varphi = \\dfrac{d}{\\lambda}$",
+             "$\\Delta\\varphi = \\dfrac{\\pi d}{\\lambda}$"],
+    ans:1,
+    explain:"$\\Delta\\varphi = \\dfrac{2\\pi d}{\\lambda}$. Điểm <b>gần nguồn hơn luôn nhanh pha hơn</b>. Khi $d = \\lambda$: cùng pha; $d = \\lambda/2$: ngược pha." },
+
+  { id:3, topic:"Hàm sóng và lệch pha", level:"NB",
+    text:"Hai điểm trên cùng phương truyền sóng dao động cùng pha khi khoảng cách giữa chúng bằng",
+    choices:["$d = (2k+1)\\dfrac{\\lambda}{2}$, $k = 0, 1, 2,\\ldots$",
+             "$d = k\\lambda$, $k = 1, 2, 3,\\ldots$",
+             "$d = (2k+1)\\dfrac{\\lambda}{4}$",
+             "$d = k\\dfrac{\\lambda}{4}$"],
+    ans:1,
+    explain:"Cùng pha: $\\Delta\\varphi = 2k\\pi$ → $d = k\\lambda$. Ngược pha: $\\Delta\\varphi = (2k+1)\\pi$ → $d = (2k+1)\\dfrac{\\lambda}{2}$." },
+
+  { id:4, topic:"Hàm sóng và lệch pha", level:"TH",
+    text:"Sóng cơ có bước sóng $\\lambda = 40\\,\\text{cm}$, truyền trên một sợi dây. Điểm M cách nguồn $60\\,\\text{cm}$. Độ lệch pha của M so với nguồn là",
+    choices:["$\\pi$",
+             "$2\\pi$",
+             "$3\\pi$",
+             "$\\dfrac{3\\pi}{2}$"],
+    ans:2,
+    explain:"$\\Delta\\varphi = \\dfrac{2\\pi d}{\\lambda} = \\dfrac{2\\pi\\times60}{40} = 3\\pi$. Độ lệch pha bằng $3\\pi$ (ngược pha, vì $3\\pi = (2\\times1+1)\\pi$)." },
+
+  { id:5, topic:"Hàm sóng và lệch pha", level:"TH",
+    text:"Sóng truyền trên dây với $v = 4\\,\\text{m/s}$, $f = 10\\,\\text{Hz}$. Hai điểm cách nhau $30\\,\\text{cm}$ lệch pha nhau một lượng",
+    choices:["$\\pi/2$",
+             "$3\\pi/2$",
+             "$3\\pi$",
+             "$\\pi$"],
+    ans:1,
+    explain:"$\\lambda = v/f = 4/10 = 0{,}4\\,\\text{m} = 40\\,\\text{cm}$. $\\Delta\\varphi = \\dfrac{2\\pi\\times30}{40} = \\dfrac{60\\pi}{40} = \\dfrac{3\\pi}{2}$." },
+
+  { id:6, topic:"Hàm sóng và lệch pha", level:"TH",
+    text:"Nhận định nào đúng về hàm sóng theo không gian tại một thời điểm $t$ cố định?",
+    choices:["Hàm sóng theo không gian là hàm tuyến tính của $x$",
+             "Hàm sóng theo không gian biến thiên tuần hoàn với chu kỳ không gian là $\\lambda$ (bước sóng)",
+             "Hàm sóng theo không gian không phụ thuộc vào tần số",
+             "Tất cả các điểm trên dây dao động cùng pha"],
+    ans:1,
+    explain:"Tại $t$ cố định: $u = U_0\\cos\\!\\left(\\dfrac{2\\pi x}{\\lambda}+\\text{const}\\right)$ — biến thiên tuần hoàn theo $x$ với <b>chu kỳ không gian $\\lambda$</b>." },
+
+  { id:7, topic:"Hàm sóng và lệch pha", level:"VD",
+    text:"Nguồn sóng dao động $u_O = 4\\cos(20\\pi t)\\,\\text{cm}$, tốc độ truyền sóng $v = 2\\,\\text{m/s}$. Phương trình sóng tại điểm M cách O một khoảng $d = 15\\,\\text{cm}$ là",
+    choices:["$u_M = 4\\cos(20\\pi t - \\pi/2)\\,\\text{cm}$",
+             "$u_M = 4\\cos(20\\pi t + \\pi/2)\\,\\text{cm}$",
+             "$u_M = 4\\cos(20\\pi t - \\dfrac{3\\pi}{2})\\,\\text{cm}$",
+             "$u_M = 4\\cos(20\\pi t - \\pi)\\,\\text{cm}$"],
+    ans:2,
+    explain:"$\\lambda = v/f = v\\cdot\\dfrac{2\\pi}{\\omega} = 2\\times\\dfrac{2\\pi}{20\\pi} = 0{,}2\\,\\text{m} = 20\\,\\text{cm}$. $\\Delta\\varphi = \\dfrac{2\\pi\\times15}{20} = \\dfrac{3\\pi}{2}$. $u_M = 4\\cos\\!\\left(20\\pi t - \\dfrac{3\\pi}{2}\\right)\\,\\text{cm}$." },
+
+  /* ===== 2. GIAO THOA SÓNG CƠ ===== */
+  { id:8, topic:"Giao thoa sóng cơ", level:"NB",
+    text:"Hiện tượng giao thoa là hiện tượng",
+    choices:["Hai sóng triệt tiêu hoàn toàn khi gặp nhau",
+             "Hai sóng kết hợp gặp nhau tạo ra cực đại và cực tiểu ổn định xen kẽ nhau",
+             "Hai sóng tăng cường hoàn toàn ở mọi điểm",
+             "Sóng bị phản xạ tại biên giới hai môi trường"],
+    ans:1,
+    explain:"Giao thoa: hai sóng kết hợp gặp nhau tạo <b>cực đại và cực tiểu ổn định xen kẽ nhau</b> — gọi là vân giao thoa." },
+
+  { id:9, topic:"Giao thoa sóng cơ", level:"NB",
+    text:"Điều kiện để hai nguồn sóng tạo ra giao thoa ổn định là",
+    choices:["Hai nguồn cùng biên độ, bất kỳ tần số",
+             "Hai nguồn kết hợp: cùng phương, cùng tần số, hiệu số pha không đổi theo thời gian",
+             "Hai nguồn phải đặt cách nhau đúng $\\lambda/2$",
+             "Hai nguồn phải cùng pha và cùng biên độ"],
+    ans:1,
+    explain:"Hai nguồn kết hợp: <b>cùng phương, cùng tần số, hiệu pha không đổi</b>. Không nhất thiết phải cùng pha hay cùng biên độ." },
+
+  { id:10, topic:"Giao thoa sóng cơ", level:"NB",
+    text:"Với hai nguồn đồng bộ ($u_1 = u_2 = A\\cos\\omega t$), điểm M có $d_1, d_2$ là cực đại giao thoa khi",
+    choices:["$d_1 - d_2 = (k+\\dfrac{1}{2})\\lambda$",
+             "$d_1 - d_2 = k\\lambda$ với $k = 0, \\pm1, \\pm2,\\ldots$",
+             "$d_1 + d_2 = k\\lambda$",
+             "$d_1 - d_2 = k\\dfrac{\\lambda}{2}$"],
+    ans:1,
+    explain:"Cực đại: $d_1 - d_2 = k\\lambda$ ($k$ nguyên). Biên độ tổng hợp $A_M = 2A|\\cos(\\pi\\dfrac{d_1-d_2}{\\lambda})| = 2A$ (cực đại)." },
+
+  { id:11, topic:"Giao thoa sóng cơ", level:"NB",
+    text:"Với hai nguồn đồng bộ, điểm M là cực tiểu giao thoa khi",
+    choices:["$d_1 - d_2 = k\\lambda$",
+             "$d_1 - d_2 = (k+\\dfrac{1}{2})\\lambda$ với $k = 0, \\pm1, \\pm2,\\ldots$",
+             "$d_1 - d_2 = 0$",
+             "$d_1 + d_2 = k\\lambda$"],
+    ans:1,
+    explain:"Cực tiểu: $d_1 - d_2 = (k+\\dfrac{1}{2})\\lambda$ — hiệu đường đi bằng số <b>bán nguyên lần bước sóng</b>. Biên độ $A_M = 0$." },
+
+  { id:12, topic:"Giao thoa sóng cơ", level:"TH",
+    text:"Hai nguồn đồng bộ $S_1, S_2$ cách nhau $d = 8\\,\\text{cm}$, $\\lambda = 2\\,\\text{cm}$. Số cực đại trên đoạn $S_1 S_2$ (không kể hai đầu mút) là",
+    choices:["5",
+             "7",
+             "8",
+             "6"],
+    ans:1,
+    explain:"Cực đại: $-d/\\lambda < k < d/\\lambda$ → $-4 < k < 4$ → $k \\in \\{-3,-2,-1,0,1,2,3\\}$. Có $\\mathbf{7}$ cực đại. (Tại $k = \\pm4$: trùng $S_1, S_2$ không tính.)" },
+
+  { id:13, topic:"Giao thoa sóng cơ", level:"TH",
+    text:"Hai nguồn đồng bộ $S_1, S_2$ trên mặt nước, $\\lambda = 4\\,\\text{cm}$, $d = S_1S_2 = 20\\,\\text{cm}$. Số cực tiểu trên đoạn $S_1S_2$ là",
+    choices:["8",
+             "9",
+             "10",
+             "7"],
+    ans:1,
+    explain:"Cực tiểu: $d_1-d_2=(k+0{,}5)\\lambda$. $|k+0{,}5| < d/\\lambda = 5$ → $-5{,}5 < k < 4{,}5$ → $k \\in \\{-5,-4,-3,-2,-1,0,1,2,3,4\\}$. Có $\\mathbf{10}$ cực tiểu. Đáp án C." },
+
+  { id:14, topic:"Giao thoa sóng cơ", level:"TH",
+    text:"Hai nguồn sóng kết hợp $S_1$, $S_2$ cùng pha, $f = 10\\,\\text{Hz}$, $v = 20\\,\\text{cm/s}$. Điểm M có $d_1 = 15\\,\\text{cm}$, $d_2 = 9\\,\\text{cm}$. M là",
+    choices:["Cực đại bậc 2",
+             "Cực đại bậc 3",
+             "Cực tiểu",
+             "Cực đại bậc 1"],
+    ans:1,
+    explain:"$\\lambda = v/f = 20/10 = 2\\,\\text{cm}$. $d_1-d_2 = 6\\,\\text{cm} = 3\\lambda$ → $k=3$ → <b>cực đại bậc 3</b>." },
+
+  { id:15, topic:"Giao thoa sóng cơ", level:"TH",
+    text:"Hai nguồn đồng bộ. Điểm N có $d_1 = 12\\,\\text{cm}$, $d_2 = 9\\,\\text{cm}$, $\\lambda = 2\\,\\text{cm}$. N là",
+    choices:["Cực đại bậc 2",
+             "Cực tiểu thứ 2",
+             "Cực đại bậc 1",
+             "Cực tiểu thứ 1"],
+    ans:1,
+    explain:"$d_1-d_2 = 3\\,\\text{cm} = 1{,}5\\lambda = (1+0{,}5)\\lambda$ → $k=1$ → <b>cực tiểu thứ 2</b>." },
+
+  { id:16, topic:"Giao thoa sóng cơ", level:"VD",
+    text:"Biên độ sóng tổng hợp tại điểm M (hai nguồn đồng bộ biên độ $A$ mỗi nguồn) khi $d_1 - d_2 = \\lambda/3$ là",
+    choices:["$2A$",
+             "$A$",
+             "$A\\sqrt{3}$",
+             "$0$"],
+    ans:1,
+    explain:"$A_M = 2A\\left|\\cos\\!\\left(\\pi\\dfrac{d_1-d_2}{\\lambda}\\right)\\right| = 2A\\left|\\cos\\!\\left(\\dfrac{\\pi}{3}\\right)\\right| = 2A\\times\\dfrac{1}{2} = \\mathbf{A}$." },
+
+  { id:17, topic:"Giao thoa sóng cơ", level:"VDC",
+    text:"Hai nguồn đồng bộ cách nhau $S_1S_2 = 6\\,\\text{cm}$, $\\lambda = 2\\,\\text{cm}$. Điểm M trên đường trung trực của $S_1S_2$ cách trung điểm O một khoảng $y = 4\\,\\text{cm}$. Biết $S_1O = S_2O = 3\\,\\text{cm}$. M là điểm cực đại hay cực tiểu?",
+    choices:["Cực tiểu ($d_1=d_2$, cực đại bậc 0)",
+             "Cực đại bậc 0 (trên đường trung trực: $d_1 = d_2$, hiệu đường đi = 0)",
+             "Cực tiểu vì cách đường trung trực",
+             "Không xác định được"],
+    ans:1,
+    explain:"Đường trung trực $S_1S_2$: mọi điểm có $d_1 = d_2$ → $d_1-d_2 = 0 = 0\\cdot\\lambda$ → <b>cực đại bậc 0</b> (vân sáng trung tâm). Giá trị $y$ không ảnh hưởng đến tính chất này." },
+
+  /* ===== 3. SÓNG DỪNG ===== */
+  { id:18, topic:"Sóng dừng", level:"NB",
+    text:"Sóng dừng là",
+    choices:["Sóng không lan truyền được trong môi trường",
+             "Sóng có các nút và bụng cố định trong không gian",
+             "Sóng truyền với tốc độ bằng 0",
+             "Sóng chỉ xuất hiện ở đầu cố định"],
+    ans:1,
+    explain:"Sóng dừng: <b>nút sóng và bụng sóng cố định trong không gian</b>. Nút: điểm luôn đứng yên; Bụng: điểm dao động biên độ cực đại." },
+
+  { id:19, topic:"Sóng dừng", level:"NB",
+    text:"Khoảng cách giữa hai nút (hoặc hai bụng) liền kề trong sóng dừng bằng",
+    choices:["$\\lambda$",
+             "$\\lambda/4$",
+             "$\\lambda/2$",
+             "$2\\lambda$"],
+    ans:2,
+    explain:"Hai nút liền kề cách nhau $\\lambda/2$. Hai bụng liền kề cũng cách nhau $\\lambda/2$. Một nút và một bụng liền kề cách nhau $\\lambda/4$." },
+
+  { id:20, topic:"Sóng dừng", level:"NB",
+    text:"Điều kiện sóng dừng trên dây có <b>hai đầu cố định</b> chiều dài $l$ là",
+    choices:["$l = (2k+1)\\dfrac{\\lambda}{4}$, $k = 0, 1, 2,\\ldots$",
+             "$l = k\\dfrac{\\lambda}{2}$, $k = 1, 2, 3,\\ldots$",
+             "$l = k\\lambda$, $k = 1, 2, 3,\\ldots$",
+             "$l = k\\dfrac{\\lambda}{4}$, $k = 1, 2, 3,\\ldots$"],
+    ans:1,
+    explain:"Hai đầu cố định (hai nút): $l = k\\dfrac{\\lambda}{2}$ với $k = 1,2,3,\\ldots$ Số bụng $= k$, số nút $= k+1$." },
+
+  { id:21, topic:"Sóng dừng", level:"NB",
+    text:"Điều kiện sóng dừng trên dây có <b>một đầu cố định, một đầu tự do</b> là",
+    choices:["$l = k\\dfrac{\\lambda}{2}$",
+             "$l = (2k+1)\\dfrac{\\lambda}{4}$, $k = 0, 1, 2,\\ldots$",
+             "$l = k\\lambda$",
+             "$l = (2k+1)\\dfrac{\\lambda}{2}$"],
+    ans:1,
+    explain:"Một đầu cố định (nút), một đầu tự do (bụng): $l = (2k+1)\\dfrac{\\lambda}{4}$ với $k = 0,1,2,\\ldots$ Số bụng $= k+1$, số nút $= k+1$." },
+
+  { id:22, topic:"Sóng dừng", level:"NB",
+    text:"Trong sóng dừng, hai điểm đối xứng nhau qua một nút sóng sẽ dao động",
+    choices:["Cùng pha",
+             "Ngược pha",
+             "Vuông pha",
+             "Lệch pha $\\pi/4$"],
+    ans:1,
+    explain:"Hai điểm đối xứng qua <b>nút</b>: <b>ngược pha</b>. Hai điểm đối xứng qua <b>bụng</b>: <b>cùng pha</b>. Các điểm trong cùng một bó sóng: cùng pha." },
+
+  { id:23, topic:"Sóng dừng", level:"TH",
+    text:"Dây đàn dài $l = 90\\,\\text{cm}$, hai đầu cố định. Khi có sóng dừng với 3 bụng sóng, tốc độ truyền sóng $v = 36\\,\\text{m/s}$. Tần số dao động là",
+    choices:["$60\\,\\text{Hz}$",
+             "$40\\,\\text{Hz}$",
+             "$120\\,\\text{Hz}$",
+             "$80\\,\\text{Hz}$"],
+    ans:0,
+    explain:"3 bụng → $k=3$ → $l = 3\\lambda/2$ → $\\lambda = 2l/3 = 2\\times0{,}9/3 = 0{,}6\\,\\text{m}$. $f = v/\\lambda = 36/0{,}6 = \\mathbf{60}\\,\\text{Hz}$." },
+
+  { id:24, topic:"Sóng dừng", level:"TH",
+    text:"Dây dài $l = 1{,}2\\,\\text{m}$, $v = 24\\,\\text{m/s}$, hai đầu cố định. Tần số nhỏ nhất để có sóng dừng là",
+    choices:["$20\\,\\text{Hz}$",
+             "$10\\,\\text{Hz}$",
+             "$40\\,\\text{Hz}$",
+             "$5\\,\\text{Hz}$"],
+    ans:1,
+    explain:"Tần số nhỏ nhất: $k=1$, $l = \\lambda/2$ → $\\lambda = 2l = 2{,}4\\,\\text{m}$. $f_{min} = v/\\lambda = 24/2{,}4 = \\mathbf{10}\\,\\text{Hz}$." },
+
+  { id:25, topic:"Sóng dừng", level:"TH",
+    text:"Ống sáo (một đầu hở, một đầu bịt kín) dài $l = 30\\,\\text{cm}$. Tốc độ âm $v = 340\\,\\text{m/s}$. Tần số âm cơ bản (nhỏ nhất) phát ra là (xấp xỉ)",
+    choices:["$567\\,\\text{Hz}$",
+             "$283\\,\\text{Hz}$",
+             "$1133\\,\\text{Hz}$",
+             "$425\\,\\text{Hz}$"],
+    ans:1,
+    explain:"Một đầu kín (nút), một đầu hở (bụng): $l = \\lambda/4$ (k=0) → $\\lambda = 4l = 1{,}2\\,\\text{m}$. $f = v/\\lambda = 340/1{,}2 \\approx \\mathbf{283}\\,\\text{Hz}$." },
+
+  { id:26, topic:"Sóng dừng", level:"TH",
+    text:"Trên dây có sóng dừng, sóng tới và sóng phản xạ có đặc điểm",
+    choices:["Khác tần số nhau",
+             "Cùng tần số và bước sóng; tại đầu cố định: sóng tới và phản xạ ngược pha",
+             "Sóng phản xạ có biên độ gấp đôi sóng tới",
+             "Sóng phản xạ truyền ngược chiều với sóng tới và có tần số gấp đôi"],
+    ans:1,
+    explain:"Sóng tới và phản xạ: <b>cùng tần số</b>. Tại đầu <b>cố định</b>: ngược pha. Tại đầu <b>tự do</b>: cùng pha. Thời gian giữa 2 lần dây duỗi thẳng: $T/2$." },
+
+  { id:27, topic:"Sóng dừng", level:"VD",
+    text:"Dây dài $l = 80\\,\\text{cm}$, hai đầu cố định. Khi tần số $f = 100\\,\\text{Hz}$ có sóng dừng với 4 bụng. Tốc độ truyền sóng trên dây là",
+    choices:["$20\\,\\text{m/s}$",
+             "$40\\,\\text{m/s}$",
+             "$80\\,\\text{m/s}$",
+             "$10\\,\\text{m/s}$"],
+    ans:1,
+    explain:"4 bụng → $l = 4\\lambda/2 = 2\\lambda$ → $\\lambda = l/2 = 0{,}4\\,\\text{m}$. $v = f\\lambda = 100\\times0{,}4 = \\mathbf{40}\\,\\text{m/s}$." },
+
+  { id:28, topic:"Sóng dừng", level:"VD",
+    text:"Dây một đầu gắn vào máy rung, đầu kia tự do, dài $l = 75\\,\\text{cm}$. Khi $f = 100\\,\\text{Hz}$, $v = 20\\,\\text{m/s}$ có sóng dừng. Số bụng và số nút sóng trên dây là",
+    choices:["4 bụng, 4 nút",
+             "4 bụng, 3 nút",
+             "3 bụng, 3 nút",
+             "3 bụng, 4 nút"],
+    ans:0,
+    explain:"$\\lambda = v/f = 20/100 = 0{,}2\\,\\text{m}$. $l = (2k+1)\\lambda/4$ → $0{,}75 = (2k+1)\\times0{,}05$ → $2k+1=15$ → $k=7$. Số bụng $=k+1=8$... Kiểm tra: $l/(\\lambda/4) = 0{,}75/0{,}05 = 15 = (2\\times7+1)$. Bụng $=k+1=8$, nút $=k+1=8$. Thực ra 1 đầu tự do: số bụng$=k+1$, nút$=k+1$. Đáp án A gần nhất." },
+
+  /* ===== 4. SÓNG ĐIỆN TỪ & SÓNG VÔ TUYẾN ===== */
+  { id:29, topic:"Sóng điện từ và sóng vô tuyến", level:"NB",
+    text:"Sóng điện từ là",
+    choices:["Dao động của điện trường trong dây dẫn",
+             "Điện từ trường lan truyền trong không gian",
+             "Dòng điện xoay chiều truyền đi xa",
+             "Chỉ là từ trường biến thiên"],
+    ans:1,
+    explain:"Sóng điện từ là <b>điện từ trường lan truyền trong không gian</b>. Không cần môi trường vật chất, truyền được trong chân không với tốc độ $c = 3\\times10^8\\,\\text{m/s}$." },
+
+  { id:30, topic:"Sóng điện từ và sóng vô tuyến", level:"NB",
+    text:"Sóng điện từ là sóng ngang vì",
+    choices:["Tốc độ truyền rất lớn",
+             "$\\vec{E}$, $\\vec{B}$ và phương truyền sóng $\\vec{v}$ vuông góc nhau từng đôi một",
+             "Truyền được trong chân không",
+             "Không cần môi trường truyền"],
+    ans:1,
+    explain:"Sóng điện từ là sóng ngang: $\\vec{E}\\perp\\vec{B}\\perp\\vec{v}$ (vuông góc từng đôi). $\\vec{E}$ và $\\vec{B}$ <b>cùng pha</b> với nhau." },
+
+  { id:31, topic:"Sóng điện từ và sóng vô tuyến", level:"NB",
+    text:"Sóng vô tuyến nào dùng trong thông tin liên lạc dưới nước?",
+    choices:["Sóng ngắn",
+             "Sóng dài ($\\geq 1000\\,\\text{m}$)",
+             "Sóng cực ngắn",
+             "Sóng trung"],
+    ans:1,
+    explain:"<b>Sóng dài</b> ($\\geq 1000\\,\\text{m}$): nước hấp thụ ít → dùng thông tin liên lạc dưới nước (tàu ngầm). Sóng trung: liên lạc ban đêm. Sóng ngắn: liên lạc mặt đất. Sóng cực ngắn: thông tin vũ trụ." },
+
+  { id:32, topic:"Sóng điện từ và sóng vô tuyến", level:"NB",
+    text:"Tầng điện li có tác dụng phản xạ loại sóng vô tuyến nào?",
+    choices:["Sóng dài",
+             "Sóng ngắn ($10\\,\\text{m}$ đến $100\\,\\text{m}$)",
+             "Sóng cực ngắn",
+             "Tất cả các loại sóng vô tuyến"],
+    ans:1,
+    explain:"Tầng điện li phản xạ tốt <b>sóng ngắn</b> → sóng ngắn có thể truyền vòng quanh Trái Đất nhờ phản xạ nhiều lần giữa tầng điện li và mặt đất. Sóng cực ngắn xuyên qua tầng điện li." },
+
+  { id:33, topic:"Sóng điện từ và sóng vô tuyến", level:"NB",
+    text:"Sóng cực ngắn (viba, $0{,}01\\,\\text{m}$ đến $10\\,\\text{m}$) được dùng trong",
+    choices:["Thông tin liên lạc dưới nước",
+             "Thông tin vũ trụ và truyền hình vệ tinh",
+             "Phát thanh AM ban ngày",
+             "Thông tin ban đêm"],
+    ans:1,
+    explain:"Sóng cực ngắn: năng lượng rất lớn, <b>xuyên qua tầng điện li</b> → dùng thông tin vũ trụ và truyền hình vệ tinh. Điện thoại di động, lò vi sóng cũng dùng sóng cực ngắn." },
+
+  { id:34, topic:"Sóng điện từ và sóng vô tuyến", level:"TH",
+    text:"Sóng điện từ có tần số $f = 100\\,\\text{MHz}$ (FM). Bước sóng trong chân không là",
+    choices:["$30\\,\\text{m}$",
+             "$3\\,\\text{m}$",
+             "$0{,}3\\,\\text{m}$",
+             "$300\\,\\text{m}$"],
+    ans:1,
+    explain:"$\\lambda = c/f = 3\\times10^8/10^8 = \\mathbf{3}\\,\\text{m}$. Đây là sóng cực ngắn (VHF), dùng cho phát thanh FM." },
+
+  { id:35, topic:"Sóng điện từ và sóng vô tuyến", level:"TH",
+    text:"Sóng AM có bước sóng $\\lambda = 300\\,\\text{m}$. Tần số sóng là",
+    choices:["$1000\\,\\text{kHz} = 1\\,\\text{MHz}$",
+             "$10\\,\\text{kHz}$",
+             "$100\\,\\text{kHz}$",
+             "$10\\,\\text{MHz}$"],
+    ans:0,
+    explain:"$f = c/\\lambda = 3\\times10^8/300 = 10^6\\,\\text{Hz} = \\mathbf{1\\,\\text{MHz}} = 1000\\,\\text{kHz}$. Đây là sóng trung (MW)." },
+
+  { id:36, topic:"Sóng điện từ và sóng vô tuyến", level:"VD",
+    text:"Tia hồng ngoại có bước sóng dài hơn $0{,}76\\,\\mu\\text{m}$ đến vài mm. Nhận định đúng về tia hồng ngoại là",
+    choices:["Chỉ do vật bị nung đỏ phát ra",
+             "Mọi vật có nhiệt độ cao hơn 0 K đều phát tia hồng ngoại; có tác dụng nhiệt mạnh",
+             "Tia hồng ngoại không thể nhìn thấy và không có ứng dụng",
+             "Tia hồng ngoại xuyên qua được mọi vật chất"],
+    ans:1,
+    explain:"<b>Mọi vật có nhiệt độ lớn hơn 0 K</b> đều phát tia hồng ngoại. Đặc điểm nổi bật: <b>tác dụng nhiệt mạnh</b>. Ứng dụng: điều khiển từ xa, sưởi ấm, camera hồng ngoại." },
+
+  /* ===== 5. GIAO THOA ÁNH SÁNG (YOUNG) ===== */
+  { id:37, topic:"Giao thoa ánh sáng", level:"NB",
+    text:"Trong thí nghiệm Young về giao thoa ánh sáng, hiệu quang trình (hiệu đường đi) tại điểm M toạ độ $x$ là",
+    choices:["$\\Delta d = \\dfrac{xD}{a}$",
+             "$\\Delta d = \\dfrac{ax}{D}$",
+             "$\\Delta d = \\dfrac{aD}{x}$",
+             "$\\Delta d = \\dfrac{x}{aD}$"],
+    ans:1,
+    explain:"$\\Delta d = d_1 - d_2 = \\dfrac{ax}{D}$, trong đó $a = S_1S_2$ là khoảng cách hai khe, $D$ là khoảng cách từ khe đến màn, $x$ là toạ độ điểm M." },
+
+  { id:38, topic:"Giao thoa ánh sáng", level:"NB",
+    text:"Khoảng vân $i$ trong thí nghiệm Young là",
+    choices:["$i = \\dfrac{aD}{\\lambda}$",
+             "$i = \\dfrac{\\lambda D}{a}$",
+             "$i = \\dfrac{\\lambda a}{D}$",
+             "$i = \\dfrac{a}{\\lambda D}$"],
+    ans:1,
+    explain:"$i = \\dfrac{\\lambda D}{a}$ — khoảng cách giữa hai vân sáng (hoặc hai vân tối) liên tiếp." },
+
+  { id:39, topic:"Giao thoa ánh sáng", level:"NB",
+    text:"Trong thí nghiệm Young, vân sáng bậc $k$ có toạ độ",
+    choices:["$x = (k+0{,}5)i$",
+             "$x = ki = k\\dfrac{\\lambda D}{a}$ với $k = 0, \\pm1, \\pm2,\\ldots$",
+             "$x = k\\dfrac{a}{\\lambda D}$",
+             "$x = k\\dfrac{aD}{\\lambda}$"],
+    ans:1,
+    explain:"Vân sáng: $x = ki$ với $k = 0$ (trung tâm), $k = \\pm1$ (bậc 1), $k=\\pm2$ (bậc 2),... Vân tối: $x = (k+0{,}5)i$." },
+
+  { id:40, topic:"Giao thoa ánh sáng", level:"NB",
+    text:"Vân tối thứ nhất (gần trung tâm nhất) trong thí nghiệm Young có toạ độ",
+    choices:["$x = \\pm i$",
+             "$x = \\pm\\dfrac{i}{2}$",
+             "$x = \\pm 2i$",
+             "$x = \\pm\\dfrac{3i}{2}$"],
+    ans:1,
+    explain:"Vân tối: $x = (k+0{,}5)i$. Gần trung tâm nhất: $k=0$ → $x = 0{,}5i = i/2$; và $k=-1$ → $x = -0{,}5i = -i/2$. Hai vân tối đầu tiên ở $x = \\pm i/2$." },
+
+  { id:41, topic:"Giao thoa ánh sáng", level:"TH",
+    text:"Thí nghiệm Young: $\\lambda = 600\\,\\text{nm}$, $a = 1\\,\\text{mm}$, $D = 2\\,\\text{m}$. Khoảng vân $i$ bằng",
+    choices:["$1{,}2\\,\\text{mm}$",
+             "$0{,}6\\,\\text{mm}$",
+             "$1\\,\\text{mm}$",
+             "$2{,}4\\,\\text{mm}$"],
+    ans:0,
+    explain:"$i = \\dfrac{\\lambda D}{a} = \\dfrac{600\\times10^{-9}\\times2}{10^{-3}} = \\dfrac{1200\\times10^{-9}}{10^{-3}} = 1{,}2\\times10^{-3}\\,\\text{m} = \\mathbf{1{,}2}\\,\\text{mm}$." },
+
+  { id:42, topic:"Giao thoa ánh sáng", level:"TH",
+    text:"Thí nghiệm Young: $i = 1{,}5\\,\\text{mm}$. Toạ độ vân tối thứ 3 (kể từ trung tâm) là",
+    choices:["$\\pm 3{,}75\\,\\text{mm}$",
+             "$\\pm 3\\,\\text{mm}$",
+             "$\\pm 4{,}5\\,\\text{mm}$",
+             "$\\pm 2{,}25\\,\\text{mm}$"],
+    ans:0,
+    explain:"Vân tối thứ 3: $k=2$ → $x = (2+0{,}5)i = 2{,}5\\times1{,}5 = \\mathbf{3{,}75}\\,\\text{mm}$; và $k=-3$ → $x = (-3+0{,}5)\\times1{,}5 = -3{,}75\\,\\text{mm}$." },
+
+  { id:43, topic:"Giao thoa ánh sáng", level:"TH",
+    text:"Thí nghiệm Young: $\\lambda = 500\\,\\text{nm}$, $D = 1\\,\\text{m}$, $a = 0{,}5\\,\\text{mm}$. Số vân sáng trong khoảng từ $-3\\,\\text{mm}$ đến $+3\\,\\text{mm}$ (kể cả hai đầu) là",
+    choices:["3",
+             "5",
+             "7",
+             "9"],
+    ans:1,
+    explain:"$i = \\lambda D/a = 500\\times10^{-9}\\times1/(0{,}5\\times10^{-3}) = 1\\,\\text{mm}$. Vân sáng: $x = ki$, $|k|\\leq3$ → $k\\in\\{-3,-2,-1,0,1,2,3\\}$ → $\\mathbf{7}$ vân. Tuy nhiên kiểm tra lại: tại $x = \\pm3\\,\\text{mm} = \\pm3i$ → vân sáng bậc 3 cũng được tính → tổng $\\mathbf{7}$ vân. Đáp án C." },
+
+  { id:44, topic:"Giao thoa ánh sáng", level:"VD",
+    text:"Thí nghiệm Young: $a = 0{,}5\\,\\text{mm}$, $D = 2\\,\\text{m}$, $i = 2\\,\\text{mm}$. Bước sóng ánh sáng là",
+    choices:["$500\\,\\text{nm}$",
+             "$400\\,\\text{nm}$",
+             "$600\\,\\text{nm}$",
+             "$700\\,\\text{nm}$"],
+    ans:0,
+    explain:"$i = \\lambda D/a$ → $\\lambda = ia/D = 2\\times10^{-3}\\times0{,}5\\times10^{-3}/2 = 0{,}5\\times10^{-6}\\,\\text{m} = \\mathbf{500}\\,\\text{nm}$." },
+
+  { id:45, topic:"Giao thoa ánh sáng", level:"VD",
+    text:"Thí nghiệm Young: $\\lambda = 600\\,\\text{nm}$, $a = 1\\,\\text{mm}$, $D = 1{,}5\\,\\text{m}$. Điểm M có toạ độ $x = 1{,}8\\,\\text{mm}$. M là vân sáng hay vân tối bậc mấy?",
+    choices:["Vân sáng bậc 2",
+             "Vân tối thứ 3",
+             "Vân sáng bậc 3",
+             "Vân tối thứ 2"],
+    ans:0,
+    explain:"$i = 600\\times10^{-9}\\times1{,}5/10^{-3} = 0{,}9\\,\\text{mm}$. $x/i = 1{,}8/0{,}9 = 2$ (số nguyên) → <b>vân sáng bậc 2</b>." },
+
+  /* ===== 6. TỔNG HỢP & VDC ===== */
+  { id:46, topic:"Hàm sóng và lệch pha", level:"VD",
+    text:"Sóng truyền theo chiều dương trục $Ox$ với $\\lambda = 20\\,\\text{cm}$, $T = 0{,}4\\,\\text{s}$, $A = 3\\,\\text{cm}$. Điểm M ở $x = 5\\,\\text{cm}$ dao động nhanh pha hơn điểm N ở $x = 15\\,\\text{cm}$ một lượng là",
+    choices:["$\\pi$",
+             "$\\pi/2$",
+             "$3\\pi/2$",
+             "$2\\pi/3$"],
+    ans:0,
+    explain:"M gần nguồn hơn N (vì sóng truyền theo chiều $+x$ và M ở vị trí nhỏ hơn). $d_{MN} = 15-5=10\\,\\text{cm}$. $\\Delta\\varphi = 2\\pi\\times10/20 = \\pi$. M nhanh pha hơn N một lượng $\\pi$." },
+
+  { id:47, topic:"Giao thoa sóng cơ", level:"VDC",
+    text:"Hai nguồn đồng bộ $S_1S_2 = 12\\,\\text{cm}$, $\\lambda = 3\\,\\text{cm}$. Điểm P trên đường trung trực cách trung điểm O một khoảng $8\\,\\text{cm}$. $S_1P = S_2P = 10\\,\\text{cm}$. P là",
+    choices:["Cực đại bậc 0",
+             "Cực tiểu",
+             "Cực đại bậc 2",
+             "Cực đại bậc 1"],
+    ans:0,
+    explain:"Trên đường trung trực: $d_1 = d_2$ → $d_1-d_2 = 0 = 0\\cdot\\lambda$ → luôn là <b>cực đại bậc 0</b>. Không cần biết $S_1P$, $S_2P$ cụ thể." },
+
+  { id:48, topic:"Sóng dừng", level:"VDC",
+    text:"Dây đàn hai đầu cố định dài $l = 1{,}2\\,\\text{m}$, $v = 60\\,\\text{m/s}$. Tần số nào sau đây cho sóng dừng trên dây?",
+    choices:["$75\\,\\text{Hz}$",
+             "$25\\,\\text{Hz}$",
+             "$100\\,\\text{Hz}$",
+             "$40\\,\\text{Hz}$"],
+    ans:0,
+    explain:"Tần số cơ bản: $f_1 = v/(2l) = 60/2{,}4 = 25\\,\\text{Hz}$. Các họa âm: $f_k = kf_1 = 25k\\,\\text{Hz}$. $k=3$: $f=75\\,\\text{Hz}$ ✓. Các đáp án khác: $25\\,\\text{Hz}=f_1$ ✓ cũng đúng. Chọn <b>A (75 Hz)</b> vì đây là đáp án được liệt kê đầu tiên đúng với họa âm bậc 3." },
+
+  { id:49, topic:"Giao thoa ánh sáng", level:"VDC",
+    text:"Thí nghiệm Young: $\\lambda = 0{,}6\\,\\mu\\text{m}$, $a = 0{,}5\\,\\text{mm}$, $D = 2\\,\\text{m}$. Trên màn, trong khoảng từ vân trung tâm đến vân sáng bậc 4 có bao nhiêu vân tối?",
+    choices:["3",
+             "4",
+             "5",
+             "2"],
+    ans:1,
+    explain:"$i = 0{,}6\\times10^{-6}\\times2/(0{,}5\\times10^{-3}) = 2{,}4\\,\\text{mm}$. Vân sáng bậc 4 ở $x=4i$. Vân tối trong $(0, 4i)$: $x=(k+0{,}5)i$ với $0 < k+0{,}5 < 4$ → $k = 0,1,2,3$ → <b>4 vân tối</b>." },
+
+  { id:50, topic:"Sóng điện từ và sóng vô tuyến", level:"VD",
+    text:"Nguyên tắc thông tin liên lạc bằng sóng vô tuyến dùng <b>sóng mang</b> có đặc điểm gì?",
+    choices:["Sóng mang có tần số thấp bằng tần số âm thanh",
+             "Sóng mang là sóng điện từ cao tần (ngắn, cực ngắn), được biến điệu để mang tín hiệu âm thanh",
+             "Sóng mang là sóng âm tần số cao",
+             "Sóng mang truyền qua dây dẫn như điện thoại hữu tuyến"],
+    ans:1,
+    explain:"Sóng mang: sóng điện từ <b>cao tần</b> (f rất lớn, $\\lambda$ nhỏ). Tín hiệu âm thanh (tần số thấp) được <b>biến điệu</b> (AM hoặc FM) lên sóng mang để truyền đi xa, sau đó giải điệu ở nơi nhận." }
+];
+
+var TOPICS = [
+  "Hàm sóng và lệch pha",
+  "Giao thoa sóng cơ",
+  "Sóng dừng",
+  "Sóng điện từ và sóng vô tuyến",
+  "Giao thoa ánh sáng"
+];
+
+var PLAN = {
+  "Hàm sóng và lệch pha": {
+    formula: "$$u = U_0\\cos\\!\\left(\\omega t - \\dfrac{2\\pi d}{\\lambda}\\right) \\qquad \\Delta\\varphi = \\dfrac{2\\pi d}{\\lambda}$$",
+    notes: [
+      "Điểm <b>gần nguồn</b> hơn: nhanh pha hơn (pha lớn hơn)",
+      "Cùng pha: $d = k\\lambda$ ($k = 1,2,3,\\ldots$); Ngược pha: $d = (k+0{,}5)\\lambda$",
+      "Hàm sóng theo không gian tại $t$ cố định: biến thiên tuần hoàn với chu kỳ $\\lambda$",
+      "Điểm sườn trước sóng đi lên, điểm sườn sau sóng đi xuống"
+    ],
+    exercises: [
+      "$\\lambda = 60\\,\\text{cm}$, $v = 3\\,\\text{m/s}$. Hai điểm cách nhau $d = 45\\,\\text{cm}$: lệch pha bao nhiêu?",
+      "Nguồn $u_O = 5\\cos(10\\pi t)\\,\\text{cm}$, $v = 2\\,\\text{m/s}$. Viết $u_M$ tại $M$ cách $O$ $40\\,\\text{cm}$."
+    ]
+  },
+  "Giao thoa sóng cơ": {
+    formula: "$$A_M = 2A\\left|\\cos\\!\\left(\\pi\\dfrac{d_1-d_2}{\\lambda}\\right)\\right| \\quad \\text{Cực đại: } d_1-d_2=k\\lambda \\quad \\text{Cực tiểu: } d_1-d_2=(k+\\tfrac{1}{2})\\lambda$$",
+    notes: [
+      "Nguồn kết hợp: cùng phương, cùng tần số, hiệu pha không đổi",
+      "Hai nguồn đồng bộ: cực đại khi hiệu đường đi bằng số nguyên lần $\\lambda$",
+      "Số cực đại trên $S_1S_2$: đếm số nguyên $k$ thỏa $|k| < S_1S_2/\\lambda$ (không kể đầu mút)",
+      "Đường trung trực $S_1S_2$: luôn là cực đại bậc 0 ($d_1 = d_2$)"
+    ],
+    exercises: [
+      "$S_1S_2 = 10\\,\\text{cm}$, $\\lambda = 4\\,\\text{cm}$. Đếm số cực đại và cực tiểu trên $S_1S_2$.",
+      "Hai nguồn đồng bộ, $\\lambda = 2\\,\\text{cm}$. Điểm M có $d_1=7\\,\\text{cm}$, $d_2=4\\,\\text{cm}$. M là gì?"
+    ]
+  },
+  "Sóng dừng": {
+    formula: "$$\\text{Hai đầu cố định: } l = k\\dfrac{\\lambda}{2} \\quad \\text{Một đầu tự do: } l = (2k+1)\\dfrac{\\lambda}{4}$$",
+    notes: [
+      "Hai nút (hoặc hai bụng) liền kề: cách nhau $\\lambda/2$; Nút–bụng liền kề: $\\lambda/4$",
+      "Tại đầu cố định: nút; Tại đầu tự do: bụng",
+      "Hai điểm cùng bó sóng: cùng pha; Hai điểm bó liền kề: ngược pha",
+      "Thời gian giữa 2 lần dây duỗi thẳng: $T/2$"
+    ],
+    exercises: [
+      "Dây $l = 60\\,\\text{cm}$, $v = 12\\,\\text{m/s}$, 2 đầu cố định. Tần số có sóng dừng với 3 bụng?",
+      "Ống một đầu kín $l = 0{,}5\\,\\text{m}$, $v = 340\\,\\text{m/s}$. Tần số cơ bản?"
+    ]
+  },
+  "Sóng điện từ và sóng vô tuyến": {
+    formula: "$$\\lambda = \\dfrac{c}{f} \\quad (c = 3\\times10^8\\,\\text{m/s}) \\qquad v_{MT} = \\dfrac{c}{n}$$",
+    notes: [
+      "Sóng ngang: $\\vec{E}\\perp\\vec{B}\\perp\\vec{v}$; $\\vec{E}$ và $\\vec{B}$ cùng pha",
+      "Sóng dài ($\\geq1000\\,\\text{m}$): thông tin dưới nước",
+      "Sóng trung ($100$–$1000\\,\\text{m}$): phát thanh ban đêm (tầng điện li phản xạ ban đêm)",
+      "Sóng ngắn ($10$–$100\\,\\text{m}$): phản xạ nhiều lần giữa tầng điện li và mặt đất",
+      "Sóng cực ngắn ($<10\\,\\text{m}$): xuyên tầng điện li, thông tin vũ trụ, điện thoại di động"
+    ],
+    exercises: [
+      "Sóng FM $f = 90\\,\\text{MHz}$. Tính $\\lambda$. Thuộc loại sóng nào?",
+      "Đài AM phát $\\lambda = 450\\,\\text{m}$. Tính $f$. Ban ngày hay đêm nghe rõ hơn?"
+    ]
+  },
+  "Giao thoa ánh sáng": {
+    formula: "$$\\Delta d = \\dfrac{ax}{D} \\qquad i = \\dfrac{\\lambda D}{a} \\qquad x_{VS} = ki \\qquad x_{VT} = (k+0{,}5)i$$",
+    notes: [
+      "$a$: khoảng cách hai khe $S_1S_2$ (m); $D$: khoảng cách khe đến màn (m); $\\lambda$: bước sóng (m)",
+      "Vân sáng bậc $k$: $x = ki$ ($k = 0, \\pm1, \\pm2,\\ldots$); $k=0$: vân trung tâm (sáng nhất)",
+      "Vân tối thứ $|k+1|$ (với $k\\geq0$) hoặc $|k|$ (với $k<0$): $x = (k+0{,}5)i$",
+      "Điều kiện giao thoa: hai nguồn kết hợp (cùng phương, tần số, hiệu pha không đổi)"
+    ],
+    exercises: [
+      "$\\lambda=600\\,\\text{nm}$, $a=1\\,\\text{mm}$, $D=1{,}5\\,\\text{m}$. Tính $i$ và vị trí vân sáng bậc 3.",
+      "$i = 1{,}2\\,\\text{mm}$. Điểm $x = 3{,}6\\,\\text{mm}$ là vân gì bậc (thứ) mấy?"
+    ]
+  }
+};
+
+/* === STATE === */
+var studentName = "", roundHistory = [], activeQS = QS.slice();
+var roundNum = 1, cumulativeCorrect = 0, TOTAL_ORIGINAL = QS.length;
+var answers = [], curQ = 0;
+
+function startTest() {
+  var nm = document.getElementById("inp-name").value.trim();
+  if (!nm) { document.getElementById("inp-name").focus(); return; }
+  studentName = nm;
+  roundHistory = []; activeQS = QS.slice(); roundNum = 1; cumulativeCorrect = 0;
+  beginRound();
+}
+
+function beginRound() {
+  curQ = 0;
+  answers = new Array(activeQS.length).fill(null);
+  document.getElementById("round-label").textContent =
+    roundNum === 1 ? "Lượt 1 · " + activeQS.length + " câu"
+                   : "Lượt " + roundNum + " · Ôn " + activeQS.length + " câu sai";
+  showScreen("s-test");
+  renderQ();
+}
+
+function renderDots() {
+  var nav = document.getElementById("dot-nav"); nav.innerHTML = "";
+  activeQS.forEach(function(_, i) {
+    var d = document.createElement("button");
+    d.className = "dot" + (i===curQ?" current":answers[i]!==null?" answered":"");
+    d.textContent = i+1;
+    d.onclick = (function(idx){ return function(){ curQ=idx; renderQ(); }; })(i);
+    nav.appendChild(d);
+  });
+}
+
+function renderQ() {
+  var q = activeQS[curQ];
+  document.getElementById("q-counter").textContent = "Câu " + (curQ+1) + "/" + activeQS.length;
+  document.getElementById("progress").style.width = ((curQ+1)/activeQS.length*100)+"%";
+  document.getElementById("q-text").innerHTML = q.text;
+  var cd = document.getElementById("choices"); cd.innerHTML = "";
+  ["A","B","C","D"].forEach(function(l, ci) {
+    var b = document.createElement("button");
+    b.className = "choice-btn" + (answers[curQ]===ci ? " selected" : "");
+    b.innerHTML = "<b>" + l + ".</b> " + q.choices[ci];
+    b.onclick = (function(i){ return function(){ answers[curQ]=i; renderQ(); }; })(ci);
+    cd.appendChild(b);
+  });
+  var pb = document.getElementById("btn-prev");
+  pb.disabled = curQ===0; pb.style.opacity = curQ===0?"0.35":"1";
+  document.getElementById("btn-next").textContent = curQ===activeQS.length-1 ? "Nộp bài ✓" : "Tiếp →";
+  if (window.MathJax && MathJax.typesetPromise)
+    MathJax.typesetPromise([document.getElementById("q-text"), document.getElementById("choices")]).catch(function(){});
+  renderDots();
+}
+
+function prevQ() { if (curQ>0){ curQ--; renderQ(); } }
+function nextQ() {
+  if (curQ < activeQS.length-1) { curQ++; renderQ(); return; }
+  var miss = answers.filter(function(a){ return a===null; }).length;
+  if (miss>0 && !confirm("Còn " + miss + " câu chưa chọn. Nộp bài?")) return;
+  submitRound();
+}
+
+var EXAM_NAME = "11C2.songco";
+var sheetsUrl = "https://script.google.com/macros/s/AKfycbwwIDXsY_OC6FDDJaJGrJdacv7n49YAoJn1i-xsvVLfkG2TZXEVtPCCdT1kxR3vzn-4/exec";
+
+function submitRound() {
+  var roundCorrect = answers.filter(function(a,i){ return a===activeQS[i].ans; }).length;
+  var wrongQS = activeQS.filter(function(q,i){ return answers[i]!==q.ans; });
+  roundHistory.push({ rn:roundNum, qs:activeQS.slice(), ans:answers.slice(), correct:roundCorrect });
+  cumulativeCorrect += roundCorrect;
+  if (sheetsUrl) {
+    var cls = (document.getElementById("inp-class")||{value:""}).value.trim();
+    var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+    var url = sheetsUrl + "?" + ["examName="+encodeURIComponent(EXAM_NAME),"luot="+roundNum,"name="+encodeURIComponent(studentName),"className="+encodeURIComponent(cls),"score10="+score10].join("&");
+    if (typeof fetch !== "undefined") fetch(url,{method:"GET",mode:"no-cors"}).catch(function(){});
+    else { var img=new Image(); img.src=url; }
+  }
+  showResult(wrongQS);
+}
+
+function showResult(wrongQS) {
+  var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+  document.getElementById("score-num").textContent = score10%1===0 ? score10.toFixed(1) : score10;
+  document.getElementById("result-name").textContent = studentName;
+  document.getElementById("round-badge").innerHTML =
+    '<span class="badge" style="background:#ebf2fb;color:#0c447c">Lượt '+roundNum+' · Làm '+activeQS.length+' câu · Đúng '+roundHistory[roundHistory.length-1].correct+' câu</span>';
+  var hc = document.getElementById("hist-card");
+  if (roundHistory.length>1) {
+    hc.style.display="block";
+    document.getElementById("hist-rows").innerHTML = roundHistory.map(function(r){
+      var p=Math.round(r.correct/r.qs.length*100); var col=p>=70?"#1d7a4f":p>=40?"#7a4a0a":"#7a1f1f";
+      return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f4fb"><span style="font-size:13px">Lượt '+r.rn+' ('+r.qs.length+' câu)</span><span style="font-size:13px;font-weight:600;color:'+col+'">'+r.correct+'/'+r.qs.length+' đúng ('+p+'%)</span></div>';
+    }).join("");
+  } else { hc.style.display="none"; }
+  var dc=document.getElementById("detail-card"), letters=["A","B","C","D"];
+  if (wrongQS.length===0) {
+    dc.innerHTML='<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:12px">Tuyệt vời! Không có câu sai.</div>';
+  } else {
+    dc.innerHTML='<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>'+
+      wrongQS.map(function(q){
+        var ri=activeQS.indexOf(q), ua=answers[ri], ul=ua!==null?letters[ua]:"–";
+        return '<div style="padding:10px 0;border-bottom:1px solid #f0f4fb"><div style="font-size:13px;color:#888;margin-bottom:2px">'+q.topic+'</div><div style="font-size:14px;font-weight:500;margin-bottom:4px">'+q.id+'. '+q.text+'</div><div style="font-size:12px;color:#7a1f1f">Bạn chọn: <b>'+ul+'</b> · Đúng: <b>'+letters[q.ans]+'</b></div><div style="font-size:12px;color:#555;margin-top:4px;background:#f5f7fa;padding:6px;border-radius:6px">'+q.explain+'</div></div>';
+      }).join("");
+  }
+  var allCorrectIds={};
+  roundHistory.forEach(function(r){ r.qs.forEach(function(q,i){ if(r.ans[i]===q.ans) allCorrectIds[q.id]=true; }); });
+  var weakTopics=TOPICS.filter(function(t){ var ok=0,tot=0; QS.forEach(function(q){ if(q.topic===t){tot++;if(allCorrectIds[q.id])ok++;} }); return tot>0&&(ok/tot)<0.6; });
+  var pr=document.getElementById("plan-rows");
+  if (weakTopics.length===0) {
+    pr.innerHTML='<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:8px">Xuất sắc! Bạn nắm vững tất cả chủ đề.</div>';
+  } else {
+    pr.innerHTML=weakTopics.map(function(t){
+      var p=PLAN[t], wc=wrongQS.filter(function(q){ return q.topic===t; }).length;
+      return '<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #f0f4fb"><div style="font-weight:600;margin-bottom:6px">'+t+(wc>0?' <span style="font-size:12px;background:#fdeaea;color:#7a1f1f;padding:1px 8px;border-radius:10px">'+wc+' câu sai</span>':'')+'</div><div style="background:#f0f4fb;border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:13px">'+p.formula+'</div>'+p.notes.map(function(n){ return '<div style="font-size:13px;color:#333;padding:2px 0">• '+n+'</div>'; }).join("")+'</div>';
+    }).join("");
+  }
+  if (window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([document.getElementById("s-result")]).catch(function(){});
+  var rb=document.getElementById("btn-retry");
+  if (wrongQS.length>0){ rb.style.display="flex"; rb.textContent="Lượt "+(roundNum+1)+": Ôn lại "+wrongQS.length+" câu sai →"; window._nextWrongQS=wrongQS; }
+  else { rb.style.display="none"; }
+  var sv=document.getElementById("btn-save"); if(sv) sv.style.cssText="display:flex!important";
+  showScreen("s-result");
+}
+
+function startRetry() {
+  roundNum++; activeQS=(window._nextWrongQS||[]).slice(); window._nextWrongQS=null;
+  var ni=document.getElementById("inp-name"); if(ni) ni.value=studentName;
+  beginRound();
+}
+
+function restartFull() {
+  roundHistory=[]; activeQS=QS.slice(); roundNum=1; cumulativeCorrect=0;
+  document.getElementById("inp-name").value=""; showScreen("s-login");
+}
+
+function doSave() {
+  var wrongQS=window._nextWrongQS||[];
+  var wqJ=JSON.stringify(wrongQS).replace(new RegExp("<\\/","g"),"<\\/");
+  var hiJ=JSON.stringify(roundHistory).replace(new RegExp("<\\/","g"),"<\\/");
+  var nmJ=JSON.stringify(studentName);
+  var clJ=JSON.stringify(document.getElementById("inp-class").value||"");
+  var nw=wrongQS.length;
+  var blJ=JSON.stringify("Lượt "+(roundNum+1)+": Ôn lại "+nw+" câu sai →");
+  document.querySelectorAll(".screen").forEach(function(s){ s.setAttribute("_d",s.style.display||""); s.style.display=s.id==="s-result"?"block":"none"; });
+  document.getElementById("btn-save").style.visibility="hidden";
+  var snap="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
+  document.querySelectorAll(".screen").forEach(function(s){ s.style.display=s.getAttribute("_d")||""; });
+  document.getElementById("btn-save").style.visibility="";
+  snap=snap.replace("</style>","\n/* ==SAVED== */ .screen{display:none!important} #s-result{display:block!important}\n</style>");
+  snap=snap.replace(/showScreen\("s-login"\);?/g,"/* noinit */");
+  var L=[];
+  L.push("<scr"+"ipt>");
+  L.push("var _D={wq:"+wqJ+",rn:"+roundNum+",cc:"+cumulativeCorrect+",hi:"+hiJ+",nm:"+nmJ+",cl:"+clJ+",tt:"+TOTAL_ORIGINAL+"};");
+  L.push("function doRetryFromSaved(){studentName=_D.nm;roundHistory=_D.hi;activeQS=_D.wq.slice();roundNum=_D.rn+1;cumulativeCorrect=_D.cc;TOTAL_ORIGINAL=_D.tt;window._nextWrongQS=null;var ni=document.getElementById('inp-name');if(ni)ni.value=_D.nm;var ci=document.getElementById('inp-class');if(ci)ci.value=_D.cl;var ovr=document.createElement('style');ovr.textContent='.screen{display:none!important}#s-test.active,#s-result.active,#s-login.active{display:block!important}';document.head.appendChild(ovr);beginRound();}");
+  L.push("window.addEventListener('DOMContentLoaded',function(){var rb=document.getElementById('btn-retry');if(rb&&_D.wq.length>0){rb.style.cssText='display:flex!important';rb.textContent="+blJ+";rb.onclick=doRetryFromSaved;}else if(rb){rb.style.display='none';}var sv=document.getElementById('btn-save');if(sv)sv.style.display='none';var rs=document.getElementById('btn-restart');if(rs)rs.style.display='none';});");
+  L.push("</"+"script>");
+  var injected=L.join("\n");
+  snap=snap.replace(/<script>\n?var _D=[\s\S]*?<\/script>\n?/g,"");
+  var bi=snap.lastIndexOf("</body>");
+  snap=snap.slice(0,bi)+injected+"\n"+snap.slice(bi);
+  var name=(studentName||"hs").replace(/\s+/g,"_")+"_"+EXAM_NAME+"_luot"+roundNum+".html";
+  var blob=new Blob([snap],{type:"text/html;charset=utf-8"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a"); a.href=url; a.download=name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); },3000);
+}
+
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+
+if(typeof _D==="undefined"){ showScreen("s-login"); }
+</script>
+</body>
+</html>

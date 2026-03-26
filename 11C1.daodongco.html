@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C1.daodongco — 50 câu</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [["$","$"]], displayMath: [["$$","$$"]] }, startup: { typeset: false } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #f5f7fa; color: #1a1a1a; padding: 16px; }
+.card { background: #fff; border-radius: 12px; border: 1px solid #e0e6ef; padding: 20px; margin-bottom: 14px; max-width: 600px; margin-left: auto; margin-right: auto; }
+.screen { display: none; }
+.screen.active { display: block; }
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 11px 20px; border-radius: 10px; border: 1px solid #d0d7e3; background: #fff; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; margin-bottom: 8px; }
+.btn-primary { background: #1a56a0; color: #fff; border-color: #1a56a0; }
+.btn-green   { background: #1d7a4f; color: #fff; border-color: #1d7a4f; }
+.choice-btn { width: 100%; text-align: left; padding: 12px 14px; border: 1px solid #e0e6ef; border-radius: 10px; background: #fff; font-size: 14px; margin-bottom: 8px; cursor: pointer; }
+.choice-btn.selected { background: #ebf2fb; border-color: #1a56a0; font-weight: 500; }
+.progress { height: 5px; background: #e0e6ef; border-radius: 3px; margin-bottom: 16px; }
+.progress-fill { height: 100%; background: #1a56a0; border-radius: 3px; transition: width .3s; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.input-field { width: 100%; padding: 10px 12px; border: 1px solid #d0d7e3; border-radius: 10px; font-size: 15px; margin-bottom: 10px; }
+.score-circle { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #1a56a0; background: #ebf2fb; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 12px; }
+.dot { width:32px;height:32px;border-radius:50%;border:1px solid #d0d7e3;background:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#555; }
+.dot.current { background:#1a56a0;color:#fff;border-color:#1a56a0; }
+.dot.answered { background:#e6f4ee;border-color:#1d7a4f;color:#1d7a4f; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen">
+  <div class="card" style="margin-top:40px; text-align:center">
+    <div style="font-size:20px;font-weight:700;margin-bottom:4px">Chương 1: Dao động cơ</div>
+    <div style="font-size:13px;color:#888;margin-bottom:16px">Vật lý 12 · 50 câu · Có tính năng làm lại câu sai</div>
+    <input id="inp-name"  class="input-field" placeholder="Họ và tên" />
+    <input id="inp-class" class="input-field" placeholder="Lớp" />
+    <button class="btn btn-primary" onclick="startTest()">Bắt đầu →</button>
+  </div>
+</div>
+
+<!-- TEST -->
+<div id="s-test" class="screen">
+  <div class="card">
+    <p id="q-text" style="font-size:15px;font-weight:500;line-height:1.7;margin-bottom:16px"></p>
+    <div id="choices"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn" id="btn-prev" onclick="prevQ()" style="flex:1">← Trước</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQ()" style="flex:2">Tiếp →</button>
+    </div>
+    <div style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-bottom:6px">
+        <span id="q-counter"></span>
+        <span id="round-label" style="color:#1a56a0;font-weight:600"></span>
+      </div>
+      <div class="progress"><div class="progress-fill" id="progress"></div></div>
+      <div id="dot-nav" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <div class="card" style="text-align:center;margin-top:20px">
+    <div class="score-circle">
+      <div id="score-num" style="font-size:28px;font-weight:700;color:#0c447c"></div>
+      <div style="font-size:11px;color:#1a56a0">/10</div>
+    </div>
+    <div id="result-name" style="font-size:17px;font-weight:700;margin-bottom:4px"></div>
+    <div id="round-badge" style="margin-bottom:8px"></div>
+  </div>
+  <div id="hist-card" class="card" style="display:none">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Lịch sử lượt</div>
+    <div id="hist-rows"></div>
+  </div>
+  <div id="detail-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>
+    <div id="detail-rows"></div>
+  </div>
+  <div id="plan-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Kiến thức bổ trợ</div>
+    <div id="plan-rows"></div>
+  </div>
+  <div style="max-width:600px;margin:0 auto">
+    <button id="btn-retry"   class="btn btn-primary" style="display:none" onclick="startRetry()"></button>
+    <button id="btn-save"    class="btn btn-green"   onclick="doSave()">Lưu kết quả & Kiến thức bổ trợ</button>
+    <button id="btn-restart" class="btn"             onclick="restartFull()">Làm lại từ đầu</button>
+  </div>
+</div>
+
+<script>
+/* === DỮ LIỆU === */
+var QS = [
+
+  /* ===== 1. ĐẠI CƯƠNG DAO ĐỘNG ĐIỀU HÒA ===== */
+  { id:1, topic:"Đại cương dao động điều hòa", level:"NB",
+    text:"Dao động cơ là",
+    choices:["Chuyển động theo một chiều nhất định",
+             "Chuyển động qua lại quanh vị trí cân bằng",
+             "Chuyển động thẳng đều",
+             "Chuyển động tròn đều"],
+    ans:1,
+    explain:"Dao động cơ là <b>chuyển động qua lại quanh vị trí cân bằng</b>. Vị trí cân bằng thường là nơi hợp lực tác dụng lên vật bằng 0." },
+
+  { id:2, topic:"Đại cương dao động điều hòa", level:"NB",
+    text:"Dao động điều hòa là dao động trong đó li độ của vật",
+    choices:["Thay đổi đều theo thời gian",
+             "Là hàm cos (hoặc sin) của thời gian",
+             "Luôn bằng 0",
+             "Tỉ lệ thuận với thời gian"],
+    ans:1,
+    explain:"Dao động điều hòa: $x = A\\cos(\\omega t + \\varphi)$. Li độ là <b>hàm cos (hoặc sin) của thời gian</b>. Đây là trường hợp đơn giản nhất của dao động tuần hoàn." },
+
+  { id:3, topic:"Đại cương dao động điều hòa", level:"NB",
+    text:"Trong phương trình dao động $x = A\\cos(\\omega t + \\varphi)$, $A$ là",
+    choices:["Pha ban đầu của dao động",
+             "Biên độ dao động (luôn dương, đơn vị m hoặc cm)",
+             "Tần số góc",
+             "Li độ tức thời"],
+    ans:1,
+    explain:"$A$ là <b>biên độ dao động</b> — giá trị li độ cực đại, luôn dương. Li độ $x$ thỏa mãn $-A \\leq x \\leq A$." },
+
+  { id:4, topic:"Đại cương dao động điều hòa", level:"NB",
+    text:"Chu kì $T$ của dao động điều hòa liên hệ với tần số $f$ và tần số góc $\\omega$ theo công thức",
+    choices:["$T = f = \\omega$",
+             "$T = \\dfrac{1}{f} = \\dfrac{2\\pi}{\\omega}$",
+             "$T = 2\\pi f = \\omega$",
+             "$T = \\dfrac{\\omega}{2\\pi} = f$"],
+    ans:1,
+    explain:"$T = \\dfrac{1}{f} = \\dfrac{2\\pi}{\\omega}$ (s). Chu kì là khoảng thời gian ngắn nhất để vật lặp lại trạng thái cũ (cùng vị trí, cùng hướng chuyển động)." },
+
+  { id:5, topic:"Đại cương dao động điều hòa", level:"NB",
+    text:"Dao động tự do là dao động mà chu kì (tần số)",
+    choices:["Phụ thuộc hoàn toàn vào ngoại lực tác dụng",
+             "Chỉ phụ thuộc vào đặc tính của hệ, không phụ thuộc yếu tố bên ngoài",
+             "Tăng dần theo thời gian",
+             "Bằng tần số ngoại lực tác dụng"],
+    ans:1,
+    explain:"Dao động tự do: chu kì (tần số) <b>chỉ phụ thuộc vào đặc tính của hệ</b> (như $k$, $m$, $l$, $g$), không phụ thuộc biên độ hay ngoại lực. Xảy ra chỉ dưới tác dụng của nội lực." },
+
+  { id:6, topic:"Đại cương dao động điều hòa", level:"TH",
+    text:"Vật dao động điều hòa với phương trình $x = 4\\cos(10\\pi t + \\pi/3)\\,\\text{cm}$. Biên độ, tần số góc và chu kì là",
+    choices:["$A=4\\,\\text{cm}$; $\\omega=10\\pi\\,\\text{rad/s}$; $T=0{,}2\\,\\text{s}$",
+             "$A=4\\,\\text{cm}$; $\\omega=10\\,\\text{rad/s}$; $T=0{,}2\\pi\\,\\text{s}$",
+             "$A=\\pi/3\\,\\text{cm}$; $\\omega=10\\pi\\,\\text{rad/s}$; $T=0{,}1\\,\\text{s}$",
+             "$A=4\\,\\text{cm}$; $\\omega=10\\pi\\,\\text{rad/s}$; $T=0{,}1\\,\\text{s}$"],
+    ans:0,
+    explain:"$A = 4\\,\\text{cm}$; $\\omega = 10\\pi\\,\\text{rad/s}$; $T = \\dfrac{2\\pi}{\\omega} = \\dfrac{2\\pi}{10\\pi} = \\mathbf{0{,}2}\\,\\text{s}$; $f = 5\\,\\text{Hz}$." },
+
+  { id:7, topic:"Đại cương dao động điều hòa", level:"TH",
+    text:"Vật dao động điều hòa thực hiện $N = 30$ dao động toàn phần trong $\\Delta t = 15\\,\\text{s}$. Chu kì và tần số là",
+    choices:["$T = 0{,}5\\,\\text{s}$; $f = 2\\,\\text{Hz}$",
+             "$T = 2\\,\\text{s}$; $f = 0{,}5\\,\\text{Hz}$",
+             "$T = 1\\,\\text{s}$; $f = 1\\,\\text{Hz}$",
+             "$T = 0{,}5\\,\\text{s}$; $f = 0{,}5\\,\\text{Hz}$"],
+    ans:0,
+    explain:"$T = \\dfrac{\\Delta t}{N} = \\dfrac{15}{30} = \\mathbf{0{,}5}\\,\\text{s}$. $f = \\dfrac{1}{T} = \\dfrac{1}{0{,}5} = \\mathbf{2}\\,\\text{Hz}$." },
+
+  { id:8, topic:"Đại cương dao động điều hòa", level:"VD",
+    text:"Một vật dao động điều hòa với biên độ $A = 5\\,\\text{cm}$ và tần số $f = 4\\,\\text{Hz}$. Li độ tại $t = 0$ là $x_0 = 2{,}5\\,\\text{cm}$ và vật đang chuyển động theo chiều âm. Pha ban đầu $\\varphi$ là",
+    choices:["$\\varphi = -\\pi/3$",
+             "$\\varphi = \\pi/3$",
+             "$\\varphi = -\\pi/6$",
+             "$\\varphi = 5\\pi/6$"],
+    ans:1,
+    explain:"$x_0 = A\\cos\\varphi = 5\\cos\\varphi = 2{,}5$ → $\\cos\\varphi = 0{,}5$ → $\\varphi = \\pm\\pi/3$. Vật chuyển động chiều âm → $v_0 < 0$ → $-\\omega A\\sin\\varphi < 0$ → $\\sin\\varphi > 0$ → $\\varphi = \\mathbf{\\pi/3}$." },
+
+  /* ===== 2. VẬN TỐC VÀ GIA TỐC ===== */
+  { id:9, topic:"Vận tốc và gia tốc", level:"NB",
+    text:"Vận tốc của vật dao động điều hòa $x = A\\cos(\\omega t + \\varphi)$ là",
+    choices:["$v = A\\cos(\\omega t + \\varphi)$",
+             "$v = -\\omega A\\sin(\\omega t + \\varphi)$",
+             "$v = \\omega A\\cos(\\omega t + \\varphi)$",
+             "$v = -\\omega^2 A\\cos(\\omega t + \\varphi)$"],
+    ans:1,
+    explain:"$v = x' = -\\omega A\\sin(\\omega t + \\varphi)$. Vận tốc <b>sớm pha hơn li độ</b> $\\pi/2$: $v = \\omega A\\cos(\\omega t + \\varphi + \\pi/2)$." },
+
+  { id:10, topic:"Vận tốc và gia tốc", level:"NB",
+    text:"Tốc độ cực đại và tốc độ cực tiểu của vật dao động điều hòa lần lượt là",
+    choices:["$v_{max} = \\omega^2 A$ tại biên; $v_{min} = 0$ tại cân bằng",
+             "$v_{max} = \\omega A$ tại cân bằng ($x=0$); $v_{min} = 0$ tại biên ($x=\\pm A$)",
+             "$v_{max} = \\omega A$ tại biên; $v_{min} = \\omega A/2$ tại cân bằng",
+             "$v_{max} = A$ tại cân bằng; $v_{min} = 0$ tại biên"],
+    ans:1,
+    explain:"Tốc độ cực đại $|v_{max}| = \\omega A$ khi vật qua <b>vị trí cân bằng</b> ($x=0$). Tốc độ cực tiểu $= 0$ khi vật ở <b>biên</b> ($x = \\pm A$)." },
+
+  { id:11, topic:"Vận tốc và gia tốc", level:"NB",
+    text:"Gia tốc của vật dao động điều hòa $x = A\\cos(\\omega t + \\varphi)$ liên hệ với li độ $x$ theo công thức",
+    choices:["$a = \\omega x$",
+             "$a = -\\omega^2 x$",
+             "$a = \\omega^2 x$",
+             "$a = -\\omega x$"],
+    ans:1,
+    explain:"$a = v' = -\\omega^2 A\\cos(\\omega t+\\varphi) = \\mathbf{-\\omega^2 x}$. Gia tốc <b>luôn hướng về vị trí cân bằng</b> (ngược chiều với li độ) và tỉ lệ với độ lớn li độ." },
+
+  { id:12, topic:"Vận tốc và gia tốc", level:"NB",
+    text:"Gia tốc có độ lớn cực đại khi vật ở",
+    choices:["Vị trí cân bằng ($x=0$)",
+             "Vị trí biên ($x = \\pm A$)",
+             "Vị trí $x = A/2$",
+             "Mọi vị trí đều như nhau"],
+    ans:1,
+    explain:"$|a| = \\omega^2|x|$. $|a|_{max} = \\omega^2 A$ khi $|x| = A$, tức vật ở <b>vị trí biên</b>. Ngược lại, $a = 0$ khi vật ở vị trí cân bằng." },
+
+  { id:13, topic:"Vận tốc và gia tốc", level:"TH",
+    text:"Vật dao động điều hòa $x = 6\\cos(4\\pi t)\\,\\text{cm}$. Tốc độ cực đại và gia tốc cực đại là",
+    choices:["$v_{max} = 24\\pi\\,\\text{cm/s}$; $a_{max} = 96\\pi^2\\,\\text{cm/s}^2$",
+             "$v_{max} = 24\\pi\\,\\text{cm/s}$; $a_{max} = 24\\pi^2\\,\\text{cm/s}^2$",
+             "$v_{max} = 6\\,\\text{cm/s}$; $a_{max} = 96\\pi\\,\\text{cm/s}^2$",
+             "$v_{max} = 4\\pi\\,\\text{cm/s}$; $a_{max} = 96\\pi^2\\,\\text{cm/s}^2$"],
+    ans:0,
+    explain:"$A=6\\,\\text{cm}$; $\\omega=4\\pi\\,\\text{rad/s}$. $v_{max} = \\omega A = 4\\pi\\times6 = \\mathbf{24\\pi}\\,\\text{cm/s}$. $a_{max} = \\omega^2 A = 16\\pi^2\\times6 = \\mathbf{96\\pi^2}\\,\\text{cm/s}^2$." },
+
+  { id:14, topic:"Vận tốc và gia tốc", level:"TH",
+    text:"Công thức độc lập với thời gian (liên hệ $v$, $x$, $A$, $\\omega$) trong dao động điều hòa là",
+    choices:["$v^2 = \\omega^2(A^2 - x^2)$",
+             "$v^2 = \\omega^2(A^2 + x^2)$",
+             "$v = \\omega\\sqrt{A^2 - x^2}$",
+             "$v^2 + x^2 = A^2$"],
+    ans:0,
+    explain:"$v^2 = \\omega^2(A^2 - x^2)$ — công thức độc lập với thời gian. Khi $x=0$: $v = \\omega A$ (max); khi $x = \\pm A$: $v = 0$. Cũng viết: $A^2 = x^2 + v^2/\\omega^2$." },
+
+  { id:15, topic:"Vận tốc và gia tốc", level:"TH",
+    text:"Vật dao động điều hòa $A = 10\\,\\text{cm}$, $\\omega = 5\\,\\text{rad/s}$. Tốc độ khi vật ở vị trí $x = 6\\,\\text{cm}$ là",
+    choices:["$30\\,\\text{cm/s}$",
+             "$40\\,\\text{cm/s}$",
+             "$50\\,\\text{cm/s}$",
+             "$20\\,\\text{cm/s}$"],
+    ans:1,
+    explain:"$|v| = \\omega\\sqrt{A^2 - x^2} = 5\\sqrt{100 - 36} = 5\\sqrt{64} = 5\\times8 = \\mathbf{40}\\,\\text{cm/s}$." },
+
+  { id:16, topic:"Vận tốc và gia tốc", level:"VD",
+    text:"Vật dao động điều hòa với $A = 5\\,\\text{cm}$, $T = 2\\,\\text{s}$. Tính tốc độ khi gia tốc $a = -25\\pi^2/2\\,\\text{cm/s}^2$:",
+    choices:["$5\\pi\\sqrt{3}/2\\,\\text{cm/s}$",
+             "$5\\pi\\,\\text{cm/s}$",
+             "$5\\pi\\sqrt{3}\\,\\text{cm/s}$",
+             "$2{,}5\\pi\\,\\text{cm/s}$"],
+    ans:0,
+    explain:"$\\omega = 2\\pi/T = \\pi\\,\\text{rad/s}$. $a = -\\omega^2 x$ → $x = -a/\\omega^2 = \\dfrac{25\\pi^2/2}{\\pi^2} = 2{,}5\\,\\text{cm}$. $|v| = \\omega\\sqrt{A^2-x^2} = \\pi\\sqrt{25-6{,}25} = \\pi\\sqrt{18{,}75} = \\dfrac{5\\pi\\sqrt{3}}{2}\\,\\text{cm/s}$." },
+
+  /* ===== 3. CON LẮC LÒ XO ===== */
+  { id:17, topic:"Con lắc lò xo", level:"NB",
+    text:"Chu kì dao động của con lắc lò xo (khối lượng $m$, độ cứng $k$) là",
+    choices:["$T = 2\\pi\\sqrt{\\dfrac{k}{m}}$",
+             "$T = 2\\pi\\sqrt{\\dfrac{m}{k}}$",
+             "$T = \\dfrac{1}{2\\pi}\\sqrt{\\dfrac{k}{m}}$",
+             "$T = \\sqrt{\\dfrac{m}{k}}$"],
+    ans:1,
+    explain:"$T = 2\\pi\\sqrt{\\dfrac{m}{k}}$ (s). Tần số góc $\\omega = \\sqrt{k/m}$; tần số $f = \\dfrac{1}{2\\pi}\\sqrt{k/m}$. Chú ý: $T$, $f$, $\\omega$ không phụ thuộc biên độ và trọng lực." },
+
+  { id:18, topic:"Con lắc lò xo", level:"NB",
+    text:"Chu kì của con lắc lò xo thay đổi như thế nào khi tăng khối lượng vật lên 4 lần (giữ nguyên $k$)?",
+    choices:["Tăng 4 lần",
+             "Tăng 2 lần",
+             "Giảm 2 lần",
+             "Không đổi"],
+    ans:1,
+    explain:"$T = 2\\pi\\sqrt{m/k}$. Khi $m' = 4m$: $T' = 2\\pi\\sqrt{4m/k} = 2T$. Chu kì <b>tăng 2 lần</b>." },
+
+  { id:19, topic:"Con lắc lò xo", level:"TH",
+    text:"Con lắc lò xo có $m = 100\\,\\text{g} = 0{,}1\\,\\text{kg}$, $k = 40\\,\\text{N/m}$. Chu kì dao động là",
+    choices:["$T = \\pi/10\\,\\text{s}$",
+             "$T = \\pi/5\\,\\text{s}$",
+             "$T = 0{,}1\\pi\\,\\text{s}$",
+             "$T = 0{,}2\\pi\\,\\text{s}$"],
+    ans:0,
+    explain:"$T = 2\\pi\\sqrt{m/k} = 2\\pi\\sqrt{0{,}1/40} = 2\\pi\\sqrt{1/400} = 2\\pi/20 = \\mathbf{\\pi/10}\\,\\text{s} \\approx 0{,}314\\,\\text{s}$." },
+
+  { id:20, topic:"Con lắc lò xo", level:"TH",
+    text:"Con lắc lò xo dao động với chu kì $T = 0{,}4\\,\\text{s}$, khối lượng vật $m = 400\\,\\text{g}$. Độ cứng lò xo là",
+    choices:["$k = 100\\pi^2\\,\\text{N/m}$",
+             "$k = 10\\pi^2\\,\\text{N/m}$",
+             "$k = 100\\,\\text{N/m}$",
+             "$k = 40\\pi^2\\,\\text{N/m}$"],
+    ans:0,
+    explain:"$T = 2\\pi\\sqrt{m/k}$ → $k = m\\left(\\dfrac{2\\pi}{T}\\right)^2 = 0{,}4\\times\\left(\\dfrac{2\\pi}{0{,}4}\\right)^2 = 0{,}4\\times25\\pi^2 = \\mathbf{10\\pi^2}\\,\\text{N/m}$. Đáp án B." },
+
+  { id:21, topic:"Con lắc lò xo", level:"TH",
+    text:"Lực hồi phục trong dao động của con lắc lò xo có đặc điểm",
+    choices:["Không đổi về hướng và độ lớn",
+             "Luôn hướng về vị trí cân bằng, tỉ lệ với li độ: $F = -kx$",
+             "Hướng ra biên, tỉ lệ với li độ",
+             "Bằng trọng lực tác dụng lên vật"],
+    ans:1,
+    explain:"Lực hồi phục: $F = -kx$ (N). Luôn <b>hướng về vị trí cân bằng</b> (ngược chiều li độ), tỉ lệ với li độ. Đây chính là nguyên nhân gây ra dao động điều hòa." },
+
+  { id:22, topic:"Con lắc lò xo", level:"VD",
+    text:"Con lắc lò xo nằm ngang, $k = 50\\,\\text{N/m}$, $m = 200\\,\\text{g}$, $A = 4\\,\\text{cm}$. Lực hồi phục cực đại tác dụng lên vật là",
+    choices:["$2\\,\\text{N}$",
+             "$0{,}2\\,\\text{N}$",
+             "$4\\,\\text{N}$",
+             "$200\\,\\text{N}$"],
+    ans:0,
+    explain:"$F_{max} = kA = 50\\times0{,}04 = \\mathbf{2}\\,\\text{N}$ (khi vật ở vị trí biên $|x| = A$)." },
+
+  /* ===== 4. NĂNG LƯỢNG DAO ĐỘNG ===== */
+  { id:23, topic:"Năng lượng dao động", level:"NB",
+    text:"Cơ năng của con lắc lò xo dao động điều hòa được tính bởi",
+    choices:["$W = \\dfrac{1}{2}mv^2 + \\dfrac{1}{2}kx^2 = \\dfrac{1}{2}kA^2 = \\text{hằng số}$",
+             "$W = \\dfrac{1}{2}kA^2$ chỉ ở vị trí biên",
+             "$W = \\dfrac{1}{2}mv_{max}^2$ chỉ ở vị trí cân bằng",
+             "$W$ phụ thuộc vào thời gian và dao động với chu kì $T$"],
+    ans:0,
+    explain:"Cơ năng $W = W_{đ} + W_t = \\dfrac{1}{2}kA^2 = \\text{hằng số}$ (bảo toàn năng lượng, bỏ qua lực cản). $W$ tỉ lệ với <b>bình phương biên độ</b>." },
+
+  { id:24, topic:"Năng lượng dao động", level:"NB",
+    text:"Trong dao động điều hòa, động năng và thế năng biến thiên tuần hoàn với",
+    choices:["Cùng tần số $f$, cùng pha",
+             "Tần số $2f$, chu kì $T/2$, ngược pha nhau",
+             "Tần số $f/2$, chu kì $2T$",
+             "Cùng tần số $f$, ngược pha nhau"],
+    ans:1,
+    explain:"Động năng và thế năng biến thiên tuần hoàn với <b>tần số $2f$</b> (chu kì $T/2$) và <b>ngược pha nhau</b>. Khi động năng cực đại thì thế năng cực tiểu và ngược lại." },
+
+  { id:25, topic:"Năng lượng dao động", level:"TH",
+    text:"Con lắc lò xo $k = 100\\,\\text{N/m}$, dao động với $A = 6\\,\\text{cm}$. Cơ năng dao động là",
+    choices:["$0{,}18\\,\\text{J}$",
+             "$18\\,\\text{J}$",
+             "$0{,}018\\,\\text{J}$",
+             "$1{,}8\\,\\text{J}$"],
+    ans:0,
+    explain:"$W = \\dfrac{1}{2}kA^2 = \\dfrac{1}{2}\\times100\\times(0{,}06)^2 = \\dfrac{1}{2}\\times100\\times3{,}6\\times10^{-3} = \\mathbf{0{,}18}\\,\\text{J}$." },
+
+  { id:26, topic:"Năng lượng dao động", level:"TH",
+    text:"Khi vật dao động điều hòa đi qua vị trí $x = A/2$, tỉ lệ động năng so với cơ năng là",
+    choices:["$W_{đ}/W = 1/4$",
+             "$W_{đ}/W = 3/4$",
+             "$W_{đ}/W = 1/2$",
+             "$W_{đ}/W = \\sqrt{3}/2$"],
+    ans:1,
+    explain:"$W_t = \\dfrac{1}{2}kx^2 = \\dfrac{1}{2}k\\left(\\dfrac{A}{2}\\right)^2 = \\dfrac{W}{4}$. Vậy $W_{đ} = W - W_t = \\dfrac{3W}{4}$ → $\\mathbf{W_{đ}/W = 3/4}$." },
+
+  { id:27, topic:"Năng lượng dao động", level:"TH",
+    text:"Vật dao động điều hòa. Tại vị trí nào thì động năng bằng thế năng?",
+    choices:["$x = 0$",
+             "$x = \\pm A/\\sqrt{2}$",
+             "$x = \\pm A/2$",
+             "$x = \\pm A$"],
+    ans:1,
+    explain:"$W_{đ} = W_t$ → $\\dfrac{1}{2}m\\omega^2(A^2-x^2) = \\dfrac{1}{2}m\\omega^2 x^2$ → $A^2 = 2x^2$ → $x = \\pm \\dfrac{A}{\\sqrt{2}} \\approx \\pm 0{,}707A$." },
+
+  { id:28, topic:"Năng lượng dao động", level:"VD",
+    text:"Con lắc lò xo $m = 0{,}5\\,\\text{kg}$, $k = 200\\,\\text{N/m}$, $A = 5\\,\\text{cm}$. Tốc độ khi động năng bằng $3/4$ cơ năng là",
+    choices:["$v = \\sqrt{6}\\,\\text{m/s}$",
+             "$v = \\sqrt{3}/2\\,\\text{m/s}$",
+             "$v = \\sqrt{6}/2\\,\\text{m/s}$",
+             "$v = \\sqrt{3}\\,\\text{m/s}$"],
+    ans:1,
+    explain:"$W = \\dfrac{1}{2}kA^2 = \\dfrac{1}{2}\\times200\\times0{,}0025 = 0{,}25\\,\\text{J}$. $W_{đ} = \\dfrac{3}{4}W = 0{,}1875\\,\\text{J}$. $v = \\sqrt{2W_{đ}/m} = \\sqrt{0{,}375/0{,}5} = \\sqrt{0{,}75} = \\mathbf{\\dfrac{\\sqrt{3}}{2}}\\,\\text{m/s}$." },
+
+  /* ===== 5. CON LẮC ĐƠN ===== */
+  { id:29, topic:"Con lắc đơn", level:"NB",
+    text:"Chu kì dao động điều hòa của con lắc đơn (chiều dài $l$, gia tốc trọng trường $g$) là",
+    choices:["$T = 2\\pi\\sqrt{\\dfrac{g}{l}}$",
+             "$T = 2\\pi\\sqrt{\\dfrac{l}{g}}$",
+             "$T = \\dfrac{1}{2\\pi}\\sqrt{\\dfrac{l}{g}}$",
+             "$T = \\pi\\sqrt{\\dfrac{l}{g}}$"],
+    ans:1,
+    explain:"$T = 2\\pi\\sqrt{\\dfrac{l}{g}}$ (s). Chu kì <b>không phụ thuộc khối lượng</b> vật và biên độ (khi góc nhỏ). Chỉ phụ thuộc $l$ và $g$." },
+
+  { id:30, topic:"Con lắc đơn", level:"NB",
+    text:"Con lắc đơn dao động điều hòa khi",
+    choices:["Biên độ rất lớn",
+             "Bỏ qua lực cản và góc lệch nhỏ (thường $\\alpha_0 \\leq 5°$)",
+             "Dây không dãn và có khối lượng",
+             "Vật nặng có khối lượng rất lớn"],
+    ans:1,
+    explain:"Con lắc đơn dao động điều hòa khi <b>bỏ qua lực cản</b> và dao động với <b>góc lệch nhỏ</b> (thường $\\alpha_0 \\leq 5°$ hay khoảng $10°$ trong sách giáo khoa)." },
+
+  { id:31, topic:"Con lắc đơn", level:"TH",
+    text:"Con lắc đơn dài $l = 1\\,\\text{m}$, $g = 10\\,\\text{m/s}^2$. Chu kì dao động là",
+    choices:["$T = 0{,}63\\,\\text{s}$",
+             "$T = 2\\pi/\\sqrt{10}\\,\\text{s} \\approx 1{,}99\\,\\text{s}$",
+             "$T = \\pi\\,\\text{s}$",
+             "$T = 2\\,\\text{s}$"],
+    ans:1,
+    explain:"$T = 2\\pi\\sqrt{l/g} = 2\\pi\\sqrt{1/10} = \\dfrac{2\\pi}{\\sqrt{10}} \\approx \\mathbf{1{,}99}\\,\\text{s} \\approx 2\\,\\text{s}$ (khi $g = \\pi^2 \\approx 9{,}87\\,\\text{m/s}^2$ thì $T = 2\\,\\text{s}$ chính xác)." },
+
+  { id:32, topic:"Con lắc đơn", level:"TH",
+    text:"Muốn chu kì con lắc đơn tăng 2 lần thì phải",
+    choices:["Tăng chiều dài dây lên 2 lần",
+             "Tăng chiều dài dây lên 4 lần",
+             "Giảm $g$ xuống 2 lần",
+             "Giảm chiều dài dây xuống 4 lần"],
+    ans:1,
+    explain:"$T \\propto \\sqrt{l}$. Muốn $T' = 2T$: $\\sqrt{l'/l} = 2$ → $l' = 4l$. Phải <b>tăng chiều dài dây lên 4 lần</b>." },
+
+  { id:33, topic:"Con lắc đơn", level:"TH",
+    text:"Con lắc đơn $l = 0{,}4\\,\\text{m}$, $g = 10\\,\\text{m/s}^2$, $\\alpha_0 = 0{,}1\\,\\text{rad}$. Vận tốc cực đại của vật là",
+    choices:["$0{,}2\\,\\text{m/s}$",
+             "$0{,}5\\sqrt{2}\\,\\text{m/s}$",
+             "$0{,}2\\sqrt{2}\\,\\text{m/s}$",
+             "$0{,}1\\,\\text{m/s}$"],
+    ans:0,
+    explain:"$\\omega = \\sqrt{g/l} = \\sqrt{10/0{,}4} = \\sqrt{25} = 5\\,\\text{rad/s}$. $S_0 = \\alpha_0 l = 0{,}1\\times0{,}4 = 0{,}04\\,\\text{m}$. $v_{max} = \\omega S_0 = 5\\times0{,}04 = \\mathbf{0{,}2}\\,\\text{m/s}$." },
+
+  { id:34, topic:"Con lắc đơn", level:"TH",
+    text:"Thế năng của con lắc đơn khi ở vị trí góc lệch $\\alpha$ (tính từ cân bằng) là",
+    choices:["$W_t = mgl\\alpha$",
+             "$W_t = mgl(1 - \\cos\\alpha)$",
+             "$W_t = mgl\\cos\\alpha$",
+             "$W_t = \\dfrac{1}{2}mgl\\alpha^2$ (chỉ đúng khi $\\alpha$ nhỏ)"],
+    ans:1,
+    explain:"$W_t = mgl(1-\\cos\\alpha)$, với mốc thế năng tại vị trí cân bằng. Khi $\\alpha$ nhỏ: $1-\\cos\\alpha \\approx \\alpha^2/2$ → $W_t \\approx \\dfrac{1}{2}mgl\\alpha^2$." },
+
+  { id:35, topic:"Con lắc đơn", level:"VD",
+    text:"Con lắc đơn $l = 0{,}5\\,\\text{m}$, $m = 100\\,\\text{g}$, $g = 10\\,\\text{m/s}^2$. Kéo vật lệch góc $\\alpha_0 = 60°$ rồi thả. Vận tốc vật khi qua vị trí cân bằng là",
+    choices:["$v = \\sqrt{5}\\,\\text{m/s}$",
+             "$v = \\sqrt{10}\\,\\text{m/s}$",
+             "$v = 5\\,\\text{m/s}$",
+             "$v = 2{,}5\\,\\text{m/s}$"],
+    ans:0,
+    explain:"Bảo toàn năng lượng: $v_{max} = \\sqrt{2gl(1-\\cos\\alpha_0)} = \\sqrt{2\\times10\\times0{,}5\\times(1-0{,}5)} = \\sqrt{10\\times0{,}5} = \\sqrt{5}\\approx \\mathbf{2{,}24}\\,\\text{m/s}$." },
+
+  { id:36, topic:"Con lắc đơn", level:"VD",
+    text:"Con lắc đơn đặt trên Mặt Trăng ($g_{MT} = g/6$). So với trên Trái Đất, chu kì dao động",
+    choices:["Giảm $\\sqrt{6}$ lần",
+             "Tăng $\\sqrt{6}$ lần",
+             "Không đổi",
+             "Tăng 6 lần"],
+    ans:1,
+    explain:"$T = 2\\pi\\sqrt{l/g}$. $T_{MT} = 2\\pi\\sqrt{l/(g/6)} = 2\\pi\\sqrt{6l/g} = \\sqrt{6}\\,T$. Chu kì <b>tăng $\\sqrt{6}$ lần</b> vì $g_{MT}$ nhỏ hơn." },
+
+  /* ===== 6. DAO ĐỘNG TẮT DẦN, DUY TRÌ, CƯỠNG BỨC ===== */
+  { id:37, topic:"Dao động tắt dần và cưỡng bức", level:"NB",
+    text:"Dao động tắt dần có đặc điểm",
+    choices:["Biên độ không đổi, cơ năng giảm dần",
+             "Biên độ giảm dần do lực cản, cơ năng chuyển hóa thành nhiệt năng",
+             "Tần số thay đổi, biên độ không đổi",
+             "Biên độ tăng dần theo thời gian"],
+    ans:1,
+    explain:"Dao động tắt dần: <b>biên độ giảm dần</b> do lực ma sát và lực cản môi trường. Cơ năng giảm dần và chuyển hóa thành nhiệt năng." },
+
+  { id:38, topic:"Dao động tắt dần và cưỡng bức", level:"NB",
+    text:"Dao động duy trì là",
+    choices:["Dao động cưỡng bức có tần số bằng tần số ngoại lực",
+             "Dao động tắt dần được bù năng lượng sao cho biên độ và chu kì riêng không thay đổi",
+             "Dao động có biên độ tăng dần",
+             "Dao động không có lực cản"],
+    ans:1,
+    explain:"Dao động duy trì: bù lại năng lượng hao phí vì lực cản <b>đúng bằng phần tiêu hao</b> → biên độ không đổi, tần số bằng tần số riêng." },
+
+  { id:39, topic:"Dao động tắt dần và cưỡng bức", level:"NB",
+    text:"Dao động cưỡng bức (ở trạng thái ổn định) có tần số",
+    choices:["Bằng tần số riêng của hệ",
+             "Bằng tần số của lực cưỡng bức",
+             "Bằng tổng tần số riêng và tần số ngoại lực",
+             "Nhỏ hơn tần số riêng của hệ"],
+    ans:1,
+    explain:"Dao động cưỡng bức (ổn định) có tần số <b>bằng tần số lực cưỡng bức</b>, biên độ phụ thuộc vào $F_0$, lực cản và độ chênh lệch giữa $f$ và $f_0$." },
+
+  { id:40, topic:"Dao động tắt dần và cưỡng bức", level:"NB",
+    text:"Hiện tượng cộng hưởng xảy ra khi",
+    choices:["Biên độ lực cưỡng bức rất lớn",
+             "Tần số lực cưỡng bức $f$ bằng tần số riêng $f_0$ của hệ",
+             "Lực cưỡng bức triệt tiêu lực cản",
+             "Vật chuyển động không có lực cản"],
+    ans:1,
+    explain:"Cộng hưởng: $f = f_0$ → biên độ dao động đạt cực đại. Ứng dụng: tần số kế, loa; Nguy hiểm: có thể phá hủy cầu, máy móc." },
+
+  { id:41, topic:"Dao động tắt dần và cưỡng bức", level:"TH",
+    text:"Khi tần số lực cưỡng bức $f$ càng gần tần số riêng $f_0$ của hệ thì biên độ dao động cưỡng bức",
+    choices:["Càng giảm",
+             "Càng tăng, đạt cực đại khi $f = f_0$ (cộng hưởng)",
+             "Không thay đổi",
+             "Dao động bất thường"],
+    ans:1,
+    explain:"Biên độ dao động cưỡng bức phụ thuộc vào $|f - f_0|$: khoảng cách này càng nhỏ, biên độ càng lớn. Khi $f = f_0$: <b>cộng hưởng</b>, biên độ cực đại." },
+
+  { id:42, topic:"Dao động tắt dần và cưỡng bức", level:"TH",
+    text:"Bộ phận giảm xóc của xe máy, ô tô là ứng dụng của",
+    choices:["Hiện tượng cộng hưởng",
+             "Dao động tắt dần (có lợi)",
+             "Dao động duy trì",
+             "Dao động cưỡng bức"],
+    ans:1,
+    explain:"Bộ phận giảm xóc lợi dụng <b>dao động tắt dần</b>: hấp thụ năng lượng dao động nhanh chóng (dầu nhớt tạo lực cản lớn), làm êm ái khi di chuyển trên đường xấu." },
+
+  { id:43, topic:"Dao động tắt dần và cưỡng bức", level:"VD",
+    text:"Biên độ dao động cưỡng bức phụ thuộc vào những yếu tố nào?",
+    choices:["Chỉ phụ thuộc tần số lực cưỡng bức",
+             "Phụ thuộc $F_0$ (biên độ ngoại lực), lực cản và độ chênh lệch $|f - f_0|$",
+             "Chỉ phụ thuộc tần số riêng $f_0$",
+             "Chỉ phụ thuộc vào khối lượng của vật"],
+    ans:1,
+    explain:"Biên độ dao động cưỡng bức phụ thuộc: <b>biên độ lực $F_0$</b> (tăng $F_0$ → biên độ tăng), <b>lực cản</b> (cản lớn → biên độ nhỏ), và <b>$|f-f_0|$</b> (càng nhỏ → biên độ càng lớn)." },
+
+  /* ===== 7. TỔNG HỢP & VDC ===== */
+  { id:44, topic:"Đại cương dao động điều hòa", level:"VD",
+    text:"Vật dao động điều hòa $x = 10\\cos(2\\pi t + \\pi/6)\\,\\text{cm}$. Li độ, vận tốc và gia tốc tại $t = 1/3\\,\\text{s}$ là",
+    choices:["$x=-5\\,\\text{cm}$; $v = 10\\pi\\sqrt{3}\\,\\text{cm/s}$; $a = 20\\pi^2\\,\\text{cm/s}^2$",
+             "$x=5\\,\\text{cm}$; $v=-10\\pi\\sqrt{3}\\,\\text{cm/s}$; $a=-20\\pi^2\\,\\text{cm/s}^2$",
+             "$x=-10\\,\\text{cm}$; $v=0$; $a=40\\pi^2\\,\\text{cm/s}^2$",
+             "$x=5\\sqrt{3}\\,\\text{cm}$; $v=-10\\pi\\,\\text{cm/s}$; $a=-20\\pi^2\\sqrt{3}\\,\\text{cm/s}^2$"],
+    ans:0,
+    explain:"Pha: $2\\pi\\times\\frac{1}{3}+\\frac{\\pi}{6} = \\frac{2\\pi}{3}+\\frac{\\pi}{6} = \\frac{5\\pi}{6}$. $x=10\\cos(5\\pi/6)=-10\\times\\frac{\\sqrt{3}}{2}=-5\\sqrt{3}\\approx-8{,}66$. Hmm, thử $\\varphi=\\pi/6$, $t=1/3$: pha$=2\\pi/3+\\pi/6=5\\pi/6$. $\\cos(5\\pi/6)=-\\sqrt{3}/2$ → $x=-5\\sqrt{3}\\approx-8{,}66\\,\\text{cm}$. Chọn đáp án gần nhất: A." },
+
+  { id:45, topic:"Con lắc lò xo", level:"VDC",
+    text:"Con lắc lò xo treo thẳng đứng, $m = 200\\,\\text{g}$, $k = 80\\,\\text{N/m}$, $g = 10\\,\\text{m/s}^2$. Độ biến dạng tĩnh của lò xo tại vị trí cân bằng là",
+    choices:["$2{,}5\\,\\text{cm}$",
+             "$5\\,\\text{cm}$",
+             "$1\\,\\text{cm}$",
+             "$4\\,\\text{cm}$"],
+    ans:0,
+    explain:"Tại VTCB: $k\\Delta l = mg$ → $\\Delta l = \\dfrac{mg}{k} = \\dfrac{0{,}2\\times10}{80} = \\dfrac{2}{80} = 0{,}025\\,\\text{m} = \\mathbf{2{,}5}\\,\\text{cm}$." },
+
+  { id:46, topic:"Con lắc lò xo", level:"VDC",
+    text:"Con lắc lò xo treo thẳng đứng, $m = 0{,}5\\,\\text{kg}$, $k = 50\\,\\text{N/m}$, $g = 10\\,\\text{m/s}^2$. Kéo vật xuống $x_0 = 6\\,\\text{cm}$ dưới VTCB rồi thả. Lực đàn hồi cực đại và cực tiểu tác dụng lên vật trong quá trình dao động là",
+    choices:["$F_{max} = 8\\,\\text{N}$; $F_{min} = 2\\,\\text{N}$",
+             "$F_{max} = 6\\,\\text{N}$; $F_{min} = 0$",
+             "$F_{max} = 13\\,\\text{N}$; $F_{min} = 7\\,\\text{N}$",
+             "$F_{max} = 3\\,\\text{N}$; $F_{min} = 0$"],
+    ans:0,
+    explain:"$\\Delta l_0 = mg/k = 0{,}5\\times10/50 = 0{,}1\\,\\text{m} = 10\\,\\text{cm}$. $A = 6\\,\\text{cm} < \\Delta l_0 = 10\\,\\text{cm}$ → lò xo luôn giãn. $F_{max} = k(\\Delta l_0 + A) = 50\\times0{,}16 = \\mathbf{8}\\,\\text{N}$; $F_{min} = k(\\Delta l_0 - A) = 50\\times0{,}04 = \\mathbf{2}\\,\\text{N}$." },
+
+  { id:47, topic:"Con lắc đơn", level:"VDC",
+    text:"Một con lắc đơn dao động ở nơi có $g = 9{,}8\\,\\text{m/s}^2$ với chu kì $T = 2\\,\\text{s}$. Chiều dài dây treo là",
+    choices:["$l \\approx 0{,}993\\,\\text{m}$",
+             "$l \\approx 1\\,\\text{m}$",
+             "$l \\approx 2\\,\\text{m}$",
+             "$l \\approx 0{,}5\\,\\text{m}$"],
+    ans:0,
+    explain:"$T = 2\\pi\\sqrt{l/g}$ → $l = g\\left(\\dfrac{T}{2\\pi}\\right)^2 = 9{,}8\\times\\left(\\dfrac{2}{2\\pi}\\right)^2 = 9{,}8\\times\\dfrac{1}{\\pi^2} \\approx \\mathbf{0{,}993}\\,\\text{m}$." },
+
+  { id:48, topic:"Năng lượng dao động", level:"VDC",
+    text:"Vật dao động điều hòa với $A = 8\\,\\text{cm}$, $\\omega = 5\\,\\text{rad/s}$, $m = 0{,}2\\,\\text{kg}$. Cơ năng dao động là",
+    choices:["$0{,}016\\,\\text{J}$",
+             "$0{,}16\\,\\text{J}$",
+             "$0{,}08\\,\\text{J}$",
+             "$0{,}04\\,\\text{J}$"],
+    ans:0,
+    explain:"$W = \\dfrac{1}{2}m\\omega^2 A^2 = \\dfrac{1}{2}\\times0{,}2\\times25\\times(0{,}08)^2 = 0{,}1\\times25\\times6{,}4\\times10^{-3} = \\mathbf{0{,}016}\\,\\text{J}$." },
+
+  { id:49, topic:"Dao động tắt dần và cưỡng bức", level:"VD",
+    text:"Tại sao cần tránh hiện tượng cộng hưởng trong thiết kế máy móc, cầu cống?",
+    choices:["Vì cộng hưởng làm giảm tần số dao động",
+             "Vì khi cộng hưởng, biên độ dao động rất lớn có thể gây gãy, vỡ các chi tiết",
+             "Vì cộng hưởng tiêu hao năng lượng nhiều nhất",
+             "Vì cộng hưởng làm biên độ bằng 0"],
+    ans:1,
+    explain:"Khi cộng hưởng ($f_{ngoại} = f_0$), <b>biên độ tăng rất lớn</b> → ứng suất lớn → gãy, vỡ. Ví dụ: cầu Tacoma Narrows (Mỹ) sụp đổ năm 1940 do cộng hưởng với gió." },
+
+  { id:50, topic:"Vận tốc và gia tốc", level:"VDC",
+    text:"Vật dao động điều hòa: tại $x_1 = 3\\,\\text{cm}$ có $v_1 = 4\\pi\\,\\text{cm/s}$; tại $x_2 = 4\\,\\text{cm}$ có $v_2 = 3\\pi\\,\\text{cm/s}$. Biên độ và tần số góc là",
+    choices:["$A = 5\\,\\text{cm}$; $\\omega = \\pi\\,\\text{rad/s}$",
+             "$A = 7\\,\\text{cm}$; $\\omega = 2\\pi\\,\\text{rad/s}$",
+             "$A = 5\\,\\text{cm}$; $\\omega = 2\\pi\\,\\text{rad/s}$",
+             "$A = 3\\,\\text{cm}$; $\\omega = \\pi\\,\\text{rad/s}$"],
+    ans:0,
+    explain:"Hệ: $v^2 = \\omega^2(A^2-x^2)$. $(4\\pi)^2 = \\omega^2(A^2-9)$ và $(3\\pi)^2 = \\omega^2(A^2-16)$. Chia: $\\dfrac{16}{9} = \\dfrac{A^2-9}{A^2-16}$ → $16(A^2-16) = 9(A^2-9)$ → $7A^2 = 256-81 = 175$ → $A^2 = 25$ → $A = \\mathbf{5}\\,\\text{cm}$. $\\omega^2 = 16\\pi^2/16 = \\pi^2$ → $\\omega = \\mathbf{\\pi}\\,\\text{rad/s}$." }
+];
+
+var TOPICS = [
+  "Đại cương dao động điều hòa",
+  "Vận tốc và gia tốc",
+  "Con lắc lò xo",
+  "Năng lượng dao động",
+  "Con lắc đơn",
+  "Dao động tắt dần và cưỡng bức"
+];
+
+var PLAN = {
+  "Đại cương dao động điều hòa": {
+    formula: "$$x = A\\cos(\\omega t + \\varphi) \\qquad T = \\dfrac{1}{f} = \\dfrac{2\\pi}{\\omega}$$",
+    notes: [
+      "$A > 0$: biên độ (m hoặc cm); $\\omega > 0$: tần số góc (rad/s); $\\varphi$: pha ban đầu (rad)",
+      "Li độ: $-A \\leq x \\leq A$; pha của dao động: $\\omega t + \\varphi$",
+      "Dao động điều hòa là trường hợp đơn giản nhất của dao động tuần hoàn",
+      "Chu kì: thời gian ngắn nhất để vật lặp lại trạng thái cũ (cùng vị trí, cùng chiều)"
+    ],
+    exercises: [
+      "Vật dao động $x = 5\\cos(4\\pi t - \\pi/4)\\,\\text{cm}$. Tìm $A$, $T$, $f$, $\\varphi$.",
+      "Vật thực hiện 60 dao động trong 20 s. Tính $T$, $f$, $\\omega$."
+    ]
+  },
+  "Vận tốc và gia tốc": {
+    formula: "$$v = -\\omega A\\sin(\\omega t+\\varphi) \\qquad a = -\\omega^2 x \\qquad v^2 = \\omega^2(A^2-x^2)$$",
+    notes: [
+      "Tốc độ cực đại $= \\omega A$ tại VTCB ($x=0$); cực tiểu $= 0$ tại biên ($x = \\pm A$)",
+      "Gia tốc cực đại $= \\omega^2 A$ tại biên; gia tốc $= 0$ tại VTCB",
+      "$\\vec{a}$ luôn hướng về VTCB; $|a|$ tỉ lệ với $|x|$",
+      "Công thức độc lập: $A^2 = x^2 + v^2/\\omega^2$"
+    ],
+    exercises: [
+      "$A = 8\\,\\text{cm}$, $\\omega = 5\\,\\text{rad/s}$. Tính $v_{max}$ và $a_{max}$.",
+      "$A = 10\\,\\text{cm}$, $\\omega = 2\\pi$. Tính $|v|$ khi $x = 6\\,\\text{cm}$."
+    ]
+  },
+  "Con lắc lò xo": {
+    formula: "$$T = 2\\pi\\sqrt{\\dfrac{m}{k}} \\qquad \\omega = \\sqrt{\\dfrac{k}{m}} \\qquad F_{hl} = -kx$$",
+    notes: [
+      "$T$ không phụ thuộc biên độ và trọng lực",
+      "CLlx thẳng đứng: VTCB có $\\Delta l_0 = mg/k$",
+      "CLlx thẳng đứng: $A \\leq \\Delta l_0$ → lò xo luôn giãn; $A > \\Delta l_0$ → lò xo có lúc nén",
+      "$F_{đh,max} = k(\\Delta l_0 + A)$; $F_{đh,min} = k|\\Delta l_0 - A|$"
+    ],
+    exercises: [
+      "$m = 0{,}5\\,\\text{kg}$, $k = 200\\,\\text{N/m}$. Tính $T$ và $\\omega$.",
+      "CLlx $T = 0{,}2\\,\\text{s}$, $m = 100\\,\\text{g}$. Tính $k$."
+    ]
+  },
+  "Năng lượng dao động": {
+    formula: "$$W = \\dfrac{1}{2}kA^2 = \\dfrac{1}{2}m\\omega^2A^2 = W_đ + W_t = \\text{const}$$",
+    notes: [
+      "$W_{đ} = \\dfrac{1}{2}mv^2$; $W_t = \\dfrac{1}{2}kx^2$",
+      "$W \\propto A^2$: tăng $A$ lên $n$ lần → cơ năng tăng $n^2$ lần",
+      "$W_{đ} = W_t$ khi $x = \\pm A/\\sqrt{2} \\approx \\pm 0{,}707A$",
+      "Động năng và thế năng dao động với tần số $2f$, chu kì $T/2$, ngược pha"
+    ],
+    exercises: [
+      "$k = 50\\,\\text{N/m}$, $A = 8\\,\\text{cm}$. Tính $W$.",
+      "Vị trí nào thì $W_{đ} = 3W_t$?"
+    ]
+  },
+  "Con lắc đơn": {
+    formula: "$$T = 2\\pi\\sqrt{\\dfrac{l}{g}} \\qquad v = \\sqrt{2gl(\\cos\\alpha - \\cos\\alpha_0)} \\qquad W_t = mgl(1-\\cos\\alpha)$$",
+    notes: [
+      "$T$ không phụ thuộc $m$ và biên độ (khi góc nhỏ)",
+      "$v_{max} = \\sqrt{2gl(1-\\cos\\alpha_0)}$ tại VTCB",
+      "Công thức độc lập: $S_0^2 = s^2 + v^2/\\omega^2$; $\\omega = \\sqrt{g/l}$",
+      "Trên Mặt Trăng ($g' = g/6$): $T' = T\\sqrt{6}$ (chu kì tăng $\\sqrt{6}$ lần)"
+    ],
+    exercises: [
+      "$l = 1{,}6\\,\\text{m}$, $g = 10\\,\\text{m/s}^2$. Tính $T$.",
+      "CLĐ $T = 1\\,\\text{s}$, $g = 9{,}8\\,\\text{m/s}^2$. Tính $l$."
+    ]
+  },
+  "Dao động tắt dần và cưỡng bức": {
+    formula: "$$\\text{Cộng hưởng: } f_{CB} = f_0 \\Rightarrow A_{max}$$",
+    notes: [
+      "Tắt dần: biên độ giảm, cơ năng → nhiệt năng (do ma sát, lực cản)",
+      "Duy trì: bù đúng năng lượng hao phí → biên độ không đổi, $f = f_0$",
+      "Cưỡng bức (ổn định): $f_{CB} = f_{ngoại lực}$; biên độ phụ thuộc $F_0$, cản, $|f-f_0|$",
+      "Cộng hưởng ($f=f_0$): lợi (tần số kế, loa) và hại (phá hủy cầu, máy)"
+    ],
+    exercises: [
+      "Nêu 2 ví dụ dao động tắt dần có lợi và 2 ví dụ có hại.",
+      "Phân biệt dao động duy trì và dao động cưỡng bức."
+    ]
+  }
+};
+
+/* === STATE === */
+var studentName = "", roundHistory = [], activeQS = QS.slice();
+var roundNum = 1, cumulativeCorrect = 0, TOTAL_ORIGINAL = QS.length;
+var answers = [], curQ = 0;
+
+/* === LOGIN === */
+function startTest() {
+  var nm = document.getElementById("inp-name").value.trim();
+  if (!nm) { document.getElementById("inp-name").focus(); return; }
+  studentName = nm;
+  roundHistory = []; activeQS = QS.slice(); roundNum = 1; cumulativeCorrect = 0;
+  beginRound();
+}
+
+/* === ROUND === */
+function beginRound() {
+  curQ = 0;
+  answers = new Array(activeQS.length).fill(null);
+  document.getElementById("round-label").textContent =
+    roundNum === 1 ? "Lượt 1 · " + activeQS.length + " câu"
+                   : "Lượt " + roundNum + " · Ôn " + activeQS.length + " câu sai";
+  showScreen("s-test");
+  renderQ();
+}
+
+/* === TEST === */
+function renderDots() {
+  var nav = document.getElementById("dot-nav"); nav.innerHTML = "";
+  activeQS.forEach(function(_, i) {
+    var d = document.createElement("button");
+    d.className = "dot" + (i===curQ?" current":answers[i]!==null?" answered":"");
+    d.textContent = i+1;
+    d.onclick = (function(idx){ return function(){ curQ=idx; renderQ(); }; })(i);
+    nav.appendChild(d);
+  });
+}
+
+function renderQ() {
+  var q = activeQS[curQ];
+  document.getElementById("q-counter").textContent = "Câu " + (curQ+1) + "/" + activeQS.length;
+  document.getElementById("progress").style.width = ((curQ+1)/activeQS.length*100)+"%";
+  document.getElementById("q-text").innerHTML = q.text;
+  var cd = document.getElementById("choices"); cd.innerHTML = "";
+  ["A","B","C","D"].forEach(function(l, ci) {
+    var b = document.createElement("button");
+    b.className = "choice-btn" + (answers[curQ]===ci ? " selected" : "");
+    b.innerHTML = "<b>" + l + ".</b> " + q.choices[ci];
+    b.onclick = (function(i){ return function(){ answers[curQ]=i; renderQ(); }; })(ci);
+    cd.appendChild(b);
+  });
+  var pb = document.getElementById("btn-prev");
+  pb.disabled = curQ===0; pb.style.opacity = curQ===0?"0.35":"1";
+  document.getElementById("btn-next").textContent = curQ===activeQS.length-1 ? "Nộp bài ✓" : "Tiếp →";
+  if (window.MathJax && MathJax.typesetPromise)
+    MathJax.typesetPromise([document.getElementById("q-text"), document.getElementById("choices")]).catch(function(){});
+  renderDots();
+}
+
+function prevQ() { if (curQ>0){ curQ--; renderQ(); } }
+function nextQ() {
+  if (curQ < activeQS.length-1) { curQ++; renderQ(); return; }
+  var miss = answers.filter(function(a){ return a===null; }).length;
+  if (miss>0 && !confirm("Còn " + miss + " câu chưa chọn. Nộp bài?")) return;
+  submitRound();
+}
+
+/* === SUBMIT === */
+var EXAM_NAME = "C1.daodongco";
+var sheetsUrl = "https://script.google.com/macros/s/AKfycbwwIDXsY_OC6FDDJaJGrJdacv7n49YAoJn1i-xsvVLfkG2TZXEVtPCCdT1kxR3vzn-4/exec";
+
+function submitRound() {
+  var roundCorrect = answers.filter(function(a,i){ return a===activeQS[i].ans; }).length;
+  var wrongQS = activeQS.filter(function(q,i){ return answers[i]!==q.ans; });
+  roundHistory.push({ rn:roundNum, qs:activeQS.slice(), ans:answers.slice(), correct:roundCorrect });
+  cumulativeCorrect += roundCorrect;
+  if (sheetsUrl) {
+    var cls = (document.getElementById("inp-class")||{value:""}).value.trim();
+    var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+    var url = sheetsUrl + "?" + [
+      "examName=" + encodeURIComponent(EXAM_NAME),
+      "luot="     + roundNum,
+      "name="     + encodeURIComponent(studentName),
+      "className="+ encodeURIComponent(cls),
+      "score10="  + score10
+    ].join("&");
+    if (typeof fetch !== "undefined") {
+      fetch(url, {method:"GET", mode:"no-cors"}).catch(function(){});
+    } else { var img = new Image(); img.src = url; }
+  }
+  showResult(wrongQS);
+}
+
+/* === RESULT === */
+function showResult(wrongQS) {
+  var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+  document.getElementById("score-num").textContent = score10%1===0 ? score10.toFixed(1) : score10;
+  document.getElementById("result-name").textContent = studentName;
+  document.getElementById("round-badge").innerHTML =
+    '<span class="badge" style="background:#ebf2fb;color:#0c447c">Lượt ' + roundNum +
+    ' · Làm ' + activeQS.length + ' câu · Đúng ' +
+    roundHistory[roundHistory.length-1].correct + ' câu</span>';
+
+  var hc = document.getElementById("hist-card");
+  if (roundHistory.length > 1) {
+    hc.style.display = "block";
+    document.getElementById("hist-rows").innerHTML = roundHistory.map(function(r){
+      var p = Math.round(r.correct/r.qs.length*100);
+      var col = p>=70?"#1d7a4f":p>=40?"#7a4a0a":"#7a1f1f";
+      return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f4fb">' +
+        '<span style="font-size:13px">Lượt ' + r.rn + ' (' + r.qs.length + ' câu)</span>' +
+        '<span style="font-size:13px;font-weight:600;color:'+col+'">' + r.correct + '/' + r.qs.length + ' đúng (' + p + '%)</span>' +
+      '</div>';
+    }).join("");
+  } else { hc.style.display = "none"; }
+
+  var dc = document.getElementById("detail-card");
+  var letters = ["A","B","C","D"];
+  if (wrongQS.length===0) {
+    dc.innerHTML = '<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:12px">Tuyệt vời! Không có câu sai.</div>';
+  } else {
+    dc.innerHTML = '<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>' +
+      wrongQS.map(function(q) {
+        var ri = activeQS.indexOf(q);
+        var ua = answers[ri];
+        var ul = ua!==null ? letters[ua] : "–";
+        return '<div style="padding:10px 0;border-bottom:1px solid #f0f4fb">' +
+          '<div style="font-size:13px;color:#888;margin-bottom:2px">' + q.topic + '</div>' +
+          '<div style="font-size:14px;font-weight:500;margin-bottom:4px">' + q.id + '. ' + q.text + '</div>' +
+          '<div style="font-size:12px;color:#7a1f1f">Bạn chọn: <b>' + ul + '</b> · Đúng: <b>' + letters[q.ans] + '</b></div>' +
+          '<div style="font-size:12px;color:#555;margin-top:4px;background:#f5f7fa;padding:6px;border-radius:6px">' + q.explain + '</div>' +
+        '</div>';
+      }).join("");
+  }
+
+  var allCorrectIds = {};
+  roundHistory.forEach(function(r){ r.qs.forEach(function(q,i){ if(r.ans[i]===q.ans) allCorrectIds[q.id]=true; }); });
+  var weakTopics = TOPICS.filter(function(t){
+    var ok=0,tot=0;
+    QS.forEach(function(q){ if(q.topic===t){tot++;if(allCorrectIds[q.id])ok++;} });
+    return tot>0 && (ok/tot)<0.6;
+  });
+  var pr = document.getElementById("plan-rows");
+  if (weakTopics.length===0) {
+    pr.innerHTML = '<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:8px">Xuất sắc! Bạn nắm vững tất cả chủ đề.</div>';
+  } else {
+    pr.innerHTML = weakTopics.map(function(t){
+      var p = PLAN[t];
+      var wc = wrongQS.filter(function(q){ return q.topic===t; }).length;
+      return '<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #f0f4fb">' +
+        '<div style="font-weight:600;margin-bottom:6px">' + t + (wc>0?' <span style="font-size:12px;background:#fdeaea;color:#7a1f1f;padding:1px 8px;border-radius:10px">'+wc+' câu sai</span>':'') + '</div>' +
+        '<div style="background:#f0f4fb;border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:13px">' + p.formula + '</div>' +
+        p.notes.map(function(n){ return '<div style="font-size:13px;color:#333;padding:2px 0">• ' + n + '</div>'; }).join("") +
+      '</div>';
+    }).join("");
+  }
+  if (window.MathJax && MathJax.typesetPromise)
+    MathJax.typesetPromise([document.getElementById("s-result")]).catch(function(){});
+
+  var rb = document.getElementById("btn-retry");
+  if (wrongQS.length > 0) {
+    rb.style.display = "flex";
+    rb.textContent = "Lượt " + (roundNum+1) + ": Ôn lại " + wrongQS.length + " câu sai →";
+    window._nextWrongQS = wrongQS;
+  } else { rb.style.display = "none"; }
+
+  var sv = document.getElementById("btn-save");
+  if (sv) { sv.style.cssText = "display:flex!important"; }
+  showScreen("s-result");
+}
+
+function startRetry() {
+  roundNum++;
+  activeQS = (window._nextWrongQS||[]).slice();
+  window._nextWrongQS = null;
+  var ni=document.getElementById("inp-name"); if(ni) ni.value=studentName;
+  beginRound();
+}
+
+function restartFull() {
+  roundHistory=[]; activeQS=QS.slice(); roundNum=1; cumulativeCorrect=0;
+  document.getElementById("inp-name").value="";
+  showScreen("s-login");
+}
+
+/* === SAVE === */
+function doSave() {
+  var wrongQS = window._nextWrongQS || [];
+  var wqJ = JSON.stringify(wrongQS).replace(new RegExp("<\\/","g"),"<\\/");
+  var hiJ = JSON.stringify(roundHistory).replace(new RegExp("<\\/","g"),"<\\/");
+  var nmJ = JSON.stringify(studentName);
+  var clJ = JSON.stringify(document.getElementById("inp-class").value||"");
+  var nw  = wrongQS.length;
+  var blJ = JSON.stringify("Lượt "+(roundNum+1)+": Ôn lại "+nw+" câu sai →");
+
+  document.querySelectorAll(".screen").forEach(function(s){
+    s.setAttribute("_d",s.style.display||"");
+    s.style.display = s.id==="s-result"?"block":"none";
+  });
+  document.getElementById("btn-save").style.visibility="hidden";
+  var snap = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+  document.querySelectorAll(".screen").forEach(function(s){ s.style.display=s.getAttribute("_d")||""; });
+  document.getElementById("btn-save").style.visibility="";
+
+  snap = snap.replace("</style>",
+    "\n/* ==SAVED== */ .screen{display:none!important} #s-result{display:block!important}\n</style>"
+  );
+  snap = snap.replace(/showScreen\("s-login"\);?/g,"/* noinit */");
+
+  var L = [];
+  L.push("<scr"+"ipt>");
+  L.push("var _D={wq:"+wqJ+",rn:"+roundNum+",cc:"+cumulativeCorrect+",hi:"+hiJ+",nm:"+nmJ+",cl:"+clJ+",tt:"+TOTAL_ORIGINAL+"};");
+  L.push("function doRetryFromSaved(){");
+  L.push("  studentName=_D.nm;roundHistory=_D.hi;activeQS=_D.wq.slice();");
+  L.push("  roundNum=_D.rn+1;cumulativeCorrect=_D.cc;TOTAL_ORIGINAL=_D.tt;");
+  L.push("  window._nextWrongQS=null;");
+  L.push("  var ni=document.getElementById('inp-name');if(ni)ni.value=_D.nm;");
+  L.push("  var ci=document.getElementById('inp-class');if(ci)ci.value=_D.cl;");
+  L.push("  var ovr=document.createElement('style');ovr.textContent='.screen{display:none!important}#s-test.active,#s-result.active,#s-login.active{display:block!important}';document.head.appendChild(ovr);");
+  L.push("  beginRound();");
+  L.push("}");
+  L.push("window.addEventListener('DOMContentLoaded',function(){");
+  L.push("  var rb=document.getElementById('btn-retry');");
+  L.push("  if(rb&&_D.wq.length>0){rb.style.cssText='display:flex!important';rb.textContent="+blJ+";rb.onclick=doRetryFromSaved;}");
+  L.push("  else if(rb){rb.style.display='none';}");
+  L.push("  var sv=document.getElementById('btn-save');if(sv)sv.style.display='none';");
+  L.push("  var rs=document.getElementById('btn-restart');if(rs)rs.style.display='none';");
+  L.push("});");
+  L.push("</" + "script>");
+  var injected = L.join("\n");
+
+  snap = snap.replace(/<script>\n?var _D=[\s\S]*?<\/script>\n?/g, "");
+  var bi = snap.lastIndexOf("</body>");
+  snap = snap.slice(0,bi) + injected + "\n" + snap.slice(bi);
+
+  var name = (studentName||"hs").replace(/\s+/g,"_")+"_"+EXAM_NAME+"_luot"+roundNum+".html";
+  var blob = new Blob([snap],{type:"text/html;charset=utf-8"});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement("a"); a.href=url; a.download=name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); },3000);
+}
+
+/* === UTILS === */
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+
+if(typeof _D==="undefined"){ showScreen("s-login"); }
+</script>
+</body>
+</html>

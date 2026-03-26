@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11CC3.dientruong — 50 câu</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [["$","$"]], displayMath: [["$$","$$"]] }, startup: { typeset: false } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #f5f7fa; color: #1a1a1a; padding: 16px; }
+.card { background: #fff; border-radius: 12px; border: 1px solid #e0e6ef; padding: 20px; margin-bottom: 14px; max-width: 600px; margin-left: auto; margin-right: auto; }
+.screen { display: none; }
+.screen.active { display: block; }
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 11px 20px; border-radius: 10px; border: 1px solid #d0d7e3; background: #fff; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; margin-bottom: 8px; }
+.btn-primary { background: #1a56a0; color: #fff; border-color: #1a56a0; }
+.btn-green   { background: #1d7a4f; color: #fff; border-color: #1d7a4f; }
+.choice-btn { width: 100%; text-align: left; padding: 12px 14px; border: 1px solid #e0e6ef; border-radius: 10px; background: #fff; font-size: 14px; margin-bottom: 8px; cursor: pointer; }
+.choice-btn.selected { background: #ebf2fb; border-color: #1a56a0; font-weight: 500; }
+.progress { height: 5px; background: #e0e6ef; border-radius: 3px; margin-bottom: 16px; }
+.progress-fill { height: 100%; background: #1a56a0; border-radius: 3px; transition: width .3s; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.input-field { width: 100%; padding: 10px 12px; border: 1px solid #d0d7e3; border-radius: 10px; font-size: 15px; margin-bottom: 10px; }
+.score-circle { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #1a56a0; background: #ebf2fb; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 12px; }
+.dot { width:32px;height:32px;border-radius:50%;border:1px solid #d0d7e3;background:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#555; }
+.dot.current { background:#1a56a0;color:#fff;border-color:#1a56a0; }
+.dot.answered { background:#e6f4ee;border-color:#1d7a4f;color:#1d7a4f; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen">
+  <div class="card" style="margin-top:40px; text-align:center">
+    <div style="font-size:20px;font-weight:700;margin-bottom:4px">Chương 3: Điện trường</div>
+    <div style="font-size:13px;color:#888;margin-bottom:16px">Vật lý 11 · 50 câu · Có tính năng làm lại câu sai</div>
+    <input id="inp-name"  class="input-field" placeholder="Họ và tên" />
+    <input id="inp-class" class="input-field" placeholder="Lớp" />
+    <button class="btn btn-primary" onclick="startTest()">Bắt đầu →</button>
+  </div>
+</div>
+
+<!-- TEST -->
+<div id="s-test" class="screen">
+  <div class="card">
+    <p id="q-text" style="font-size:15px;font-weight:500;line-height:1.7;margin-bottom:16px"></p>
+    <div id="choices"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn" id="btn-prev" onclick="prevQ()" style="flex:1">← Trước</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQ()" style="flex:2">Tiếp →</button>
+    </div>
+    <div style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-bottom:6px">
+        <span id="q-counter"></span>
+        <span id="round-label" style="color:#1a56a0;font-weight:600"></span>
+      </div>
+      <div class="progress"><div class="progress-fill" id="progress"></div></div>
+      <div id="dot-nav" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <div class="card" style="text-align:center;margin-top:20px">
+    <div class="score-circle">
+      <div id="score-num" style="font-size:28px;font-weight:700;color:#0c447c"></div>
+      <div style="font-size:11px;color:#1a56a0">/10</div>
+    </div>
+    <div id="result-name" style="font-size:17px;font-weight:700;margin-bottom:4px"></div>
+    <div id="round-badge" style="margin-bottom:8px"></div>
+  </div>
+  <div id="hist-card" class="card" style="display:none">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Lịch sử lượt</div>
+    <div id="hist-rows"></div>
+  </div>
+  <div id="detail-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>
+    <div id="detail-rows"></div>
+  </div>
+  <div id="plan-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Kiến thức bổ trợ</div>
+    <div id="plan-rows"></div>
+  </div>
+  <div style="max-width:600px;margin:0 auto">
+    <button id="btn-retry"   class="btn btn-primary" style="display:none" onclick="startRetry()"></button>
+    <button id="btn-save"    class="btn btn-green"   onclick="doSave()">Lưu kết quả & Kiến thức bổ trợ</button>
+    <button id="btn-restart" class="btn"             onclick="restartFull()">Làm lại từ đầu</button>
+  </div>
+</div>
+
+<script>
+/* === DỮ LIỆU === */
+var QS = [
+  {id:1, topic:"Điện tích", level:"NB",
+    text:"Electron có điện tích bằng bao nhiêu?",
+    choices:["$+1{,}6\\times10^{-19}\\,\\text{C}$","$-1{,}6\\times10^{-19}\\,\\text{C}$","$9{,}1\\times10^{-31}\\,\\text{C}$","$1{,}67\\times10^{-27}\\,\\text{C}$"],
+    ans:1,
+    explain:"Electron mang điện tích âm $q_e = -e = -1{,}6\\times10^{-19}\\,\\text{C}$. Đây là điện tích nguyên tố có giá trị nhỏ nhất trong tự nhiên."},
+
+  {id:2, topic:"Điện tích", level:"NB",
+    text:"Vật nào sau đây là vật <b>dẫn điện</b>?",
+    choices:["Cao su","Thủy tinh","Nhựa","Kim loại"],
+    ans:3,
+    explain:"Kim loại là vật dẫn điện vì có nhiều electron tự do. Cao su, thủy tinh, nhựa là điện môi (cách điện)."},
+
+  {id:3, topic:"Điện tích", level:"NB",
+    text:"Hiện tượng nhiễm điện do <b>hưởng ứng</b> có đặc điểm nào sau đây?",
+    choices:["Hai vật phải tiếp xúc nhau","Electron di chuyển từ vật này sang vật khác","Hai vật nhiễm điện cùng dấu","Hai đầu của vật A nhiễm điện trái dấu khi đặt gần vật B tích điện"],
+    ans:3,
+    explain:"Hưởng ứng: vật B nhiễm điện đặt gần A (không tiếp xúc). Điện tích trong A phân bố lại: đầu gần B nhiễm điện trái dấu với B, đầu xa B nhiễm điện cùng dấu với B."},
+
+  {id:4, topic:"Điện tích", level:"TH",
+    text:"Vật tích điện $Q = +3{,}2\\times10^{-18}\\,\\text{C}$ bị thiếu bao nhiêu electron so với trạng thái trung hòa?",
+    choices:["10","15","20","25"],
+    ans:2,
+    explain:"$N = \\dfrac{|Q|}{e} = \\dfrac{3{,}2\\times10^{-18}}{1{,}6\\times10^{-19}} = 20$ electron."},
+
+  {id:5, topic:"Điện tích", level:"TH",
+    text:"Ba quả cầu kim loại giống nhau tích điện $q_1 = 6\\,\\mu\\text{C}$, $q_2 = -2\\,\\mu\\text{C}$, $q_3 = 4\\,\\mu\\text{C}$ lần lượt tiếp xúc nhau. Điện tích mỗi quả sau khi tách là",
+    choices:["$2{,}5\\,\\mu\\text{C}$","$2{,}67\\,\\mu\\text{C}$","$3\\,\\mu\\text{C}$","$4\\,\\mu\\text{C}$"],
+    ans:1,
+    explain:"$q' = \\dfrac{q_1+q_2+q_3}{3} = \\dfrac{6-2+4}{3} = \\dfrac{8}{3} \\approx 2{,}67\\,\\mu\\text{C}$."},
+
+  {id:6, topic:"Điện tích", level:"VD",
+    text:"Điện tích $q_1 = 4\\,\\mu\\text{C}$ và $q_2 = -1\\,\\mu\\text{C}$ tiếp xúc nhau rồi tách ra. Sau đó đặt cách nhau $r = 10\\,\\text{cm}$ trong chân không. Lực tương tác giữa chúng là lực",
+    choices:["Hút, $F = 2{,}025\\,\\text{N}$","Đẩy, $F = 2{,}025\\,\\text{N}$","Hút, $F = 1{,}35\\,\\text{N}$","Đẩy, $F = 4{,}05\\,\\text{N}$"],
+    ans:1,
+    explain:"Sau tiếp xúc: $q' = \\dfrac{q_1+q_2}{2} = \\dfrac{4+(-1)}{2} = 1{,}5\\,\\mu\\text{C}$. Hai quả đều dương → <b>đẩy nhau</b>. $F = 9\\times10^9\\cdot\\dfrac{(1{,}5\\times10^{-6})^2}{(0{,}1)^2} = 2{,}025\\,\\text{N}$."},
+
+  {id:7, topic:"Coulomb", level:"NB",
+    text:"Định luật Coulomb áp dụng cho trường hợp nào sau đây?",
+    choices:["Hai vật dẫn bất kỳ","Hai điện tích phân bố đều","Hai điện tích điểm","Hai điện tích chuyển động"],
+    ans:2,
+    explain:"Định luật Coulomb chỉ áp dụng chính xác cho <b>điện tích điểm</b> (kích thước nhỏ so với khoảng cách)."},
+
+  {id:8, topic:"Coulomb", level:"NB",
+    text:"Khi tăng khoảng cách giữa hai điện tích lên 4 lần thì lực Coulomb",
+    choices:["Giảm 4 lần","Tăng 4 lần","Tăng 16 lần","Giảm 16 lần"],
+    ans:3,
+    explain:"$F \\propto \\dfrac{1}{r^2}$. Khi $r' = 4r$: $F' = \\dfrac{F}{16}$. Lực giảm 16 lần."},
+
+  {id:9, topic:"Coulomb", level:"TH",
+    text:"Hai điện tích $q_1 = 3\\times10^{-8}\\,\\text{C}$ và $q_2 = -3\\times10^{-8}\\,\\text{C}$ đặt cách nhau $3\\,\\text{cm}$ trong chân không. Độ lớn lực Coulomb là",
+    choices:["$3\\times10^{-3}\\,\\text{N}$","$9\\times10^{-3}\\,\\text{N}$","$3\\times10^{-2}\\,\\text{N}$","$9\\times10^{-2}\\,\\text{N}$"],
+    ans:1,
+    explain:"$F = 9\\times10^9\\cdot\\dfrac{(3\\times10^{-8})^2}{(0{,}03)^2} = 9\\times10^9\\cdot\\dfrac{9\\times10^{-16}}{9\\times10^{-4}} = 9\\times10^{-3}\\,\\text{N}$."},
+
+  {id:10, topic:"Coulomb", level:"TH",
+    text:"Đặt hai điện tích trong dầu có $\\varepsilon = 2$ thì lực Coulomb so với trong chân không",
+    choices:["Tăng gấp đôi","Tăng 4 lần","Giảm còn $\\tfrac{1}{4}$","Giảm còn $\\tfrac{1}{2}$"],
+    ans:3,
+    explain:"$F = k\\dfrac{|q_1 q_2|}{\\varepsilon r^2}$. Khi $\\varepsilon = 2$: lực giảm 2 lần. Đây là tác dụng của điện môi."},
+
+  {id:11, topic:"Coulomb", level:"TH",
+    text:"Hai điện tích bằng nhau $q$ đặt cách nhau $r$ hút nhau với lực $F$. Để lực hút tăng lên $4F$ mà không thay đổi dấu điện tích thì khoảng cách mới là",
+    choices:["$r/2$","$2r$","$r/4$","$4r$"],
+    ans:0,
+    explain:"$F' = 4F \\Rightarrow \\dfrac{1}{r'^2} = \\dfrac{4}{r^2} \\Rightarrow r' = \\dfrac{r}{2}$. Giảm khoảng cách còn một nửa."},
+
+  {id:12, topic:"Coulomb", level:"VD",
+    text:"Hai điện tích $q_1 = 2\\,\\mu\\text{C}$ và $q_2 = 8\\,\\mu\\text{C}$ đặt cách nhau $r = 6\\,\\text{cm}$ trong chân không. Lực Coulomb là",
+    choices:["$20\\,\\text{N}$","$40\\,\\text{N}$","$4\\,\\text{N}$","$400\\,\\text{N}$"],
+    ans:1,
+    explain:"$F = 9\\times10^9\\cdot\\dfrac{2\\times10^{-6}\\times 8\\times10^{-6}}{(0{,}06)^2} = 9\\times10^9\\cdot\\dfrac{16\\times10^{-12}}{36\\times10^{-4}} = 40\\,\\text{N}$."},
+
+  {id:13, topic:"Coulomb", level:"VDC",
+    text:"Hai điện tích điểm $q_1$ và $q_2$ đặt cách nhau $r$ trong môi trường điện môi $\\varepsilon$. Nếu giữ nguyên các điện tích nhưng tăng $\\varepsilon$ lên 3 lần và giảm $r$ còn $\\dfrac{r}{\\sqrt{3}}$ thì lực Coulomb",
+    choices:["Không đổi","Tăng gấp đôi","Giảm còn một nửa","Tăng 3 lần"],
+    ans:0,
+    explain:"$F' = k\\dfrac{|q_1 q_2|}{3\\varepsilon\\cdot(r/\\sqrt{3})^2} = k\\dfrac{|q_1 q_2|}{3\\varepsilon\\cdot r^2/3} = k\\dfrac{|q_1 q_2|}{\\varepsilon r^2} = F$. Lực <b>không đổi</b>."},
+
+  {id:14, topic:"Điện trường", level:"NB",
+    text:"Đơn vị của cường độ điện trường là",
+    choices:["Coulomb (C)","Vôn (V)","Vôn/mét (V/m)","Newton (N)"],
+    ans:2,
+    explain:"Cường độ điện trường $E = F/q$, đơn vị $\\text{N/C} = \\text{V/m}$."},
+
+  {id:15, topic:"Điện trường", level:"NB",
+    text:"Điện trường gây ra bởi điện tích $Q < 0$ tại điểm M có vectơ $\\vec{E}$",
+    choices:["Hướng ra xa Q","Hướng về phía Q","Vuông góc với QM","Phụ thuộc dấu điện tích thử"],
+    ans:1,
+    explain:"$Q < 0$: $\\vec{E}$ hướng <b>về phía</b> điện tích âm Q (đường sức đi vào điện tích âm)."},
+
+  {id:16, topic:"Điện trường", level:"TH",
+    text:"Điện tích thử $q = -2\\times10^{-6}\\,\\text{C}$ đặt tại M chịu lực $F = 0{,}04\\,\\text{N}$. Cường độ điện trường tại M là",
+    choices:["$8\\times10^{-8}\\,\\text{V/m}$","$2\\times10^4\\,\\text{V/m}$","$4\\times10^{-8}\\,\\text{V/m}$","$2\\times10^{-4}\\,\\text{V/m}$"],
+    ans:1,
+    explain:"$E = \\dfrac{F}{|q|} = \\dfrac{0{,}04}{2\\times10^{-6}} = 2\\times10^4\\,\\text{V/m}$."},
+
+  {id:17, topic:"Điện trường", level:"TH",
+    text:"Điện tích điểm $Q = 5\\times10^{-9}\\,\\text{C}$ trong chân không. Cường độ điện trường tại điểm cách Q một đoạn $r = 15\\,\\text{cm}$ là",
+    choices:["$100\\,\\text{V/m}$","$500\\,\\text{V/m}$","$1000\\,\\text{V/m}$","$2000\\,\\text{V/m}$"],
+    ans:3,
+    explain:"$E = k\\dfrac{|Q|}{r^2} = 9\\times10^9\\cdot\\dfrac{5\\times10^{-9}}{(0{,}15)^2} = 9\\times10^9\\cdot\\dfrac{5\\times10^{-9}}{0{,}0225} = 2000\\,\\text{V/m}$."},
+
+  {id:18, topic:"Điện trường", level:"TH",
+    text:"Điện tích $q = 3\\times10^{-8}\\,\\text{C}$ đặt tại điểm có cường độ điện trường $E = 4\\times10^4\\,\\text{V/m}$. Lực điện tác dụng lên $q$ là",
+    choices:["$7{,}5\\times10^{-5}\\,\\text{N}$","$1{,}2\\times10^{-3}\\,\\text{N}$","$1{,}2\\times10^{-4}\\,\\text{N}$","$7{,}5\\times10^{-4}\\,\\text{N}$"],
+    ans:1,
+    explain:"$F = |q|E = 3\\times10^{-8}\\times4\\times10^4 = 1{,}2\\times10^{-3}\\,\\text{N}$."},
+
+  {id:19, topic:"Điện trường", level:"VD",
+    text:"Hai điện tích $q_1 = +4\\,\\mu\\text{C}$ và $q_2 = +9\\,\\mu\\text{C}$ đặt tại A và B cách nhau $30\\,\\text{cm}$. Điểm trên AB có $E = 0$ cách A bao nhiêu cm?",
+    choices:["$10\\,\\text{cm}$","$12\\,\\text{cm}$","$15\\,\\text{cm}$","$20\\,\\text{cm}$"],
+    ans:1,
+    explain:"Hai điện tích cùng dấu: M nằm giữa AB. $\\dfrac{|q_1|}{r_1^2}=\\dfrac{|q_2|}{r_2^2}$, $r_1+r_2=30$. $\\dfrac{4}{r_1^2}=\\dfrac{9}{r_2^2}\\Rightarrow \\dfrac{r_2}{r_1}=\\dfrac{3}{2}\\Rightarrow r_1=12\\,\\text{cm}$."},
+
+  {id:20, topic:"Điện trường", level:"VD",
+    text:"Cường độ điện trường đều giữa hai bản tụ phẳng cách nhau $d = 5\\,\\text{mm}$, hiệu điện thế $U = 100\\,\\text{V}$. Lực điện tác dụng lên điện tích $q = 2\\times10^{-8}\\,\\text{C}$ là",
+    choices:["$2\\times10^{-3}\\,\\text{N}$","$4\\times10^{-4}\\,\\text{N}$","$4\\times10^{-3}\\,\\text{N}$","$2\\times10^{-4}\\,\\text{N}$"],
+    ans:1,
+    explain:"$E = U/d = 100/0{,}005 = 2\\times10^4\\,\\text{V/m}$. $F = qE = 2\\times10^{-8}\\times2\\times10^4 = 4\\times10^{-4}\\,\\text{N}$."},
+
+  {id:21, topic:"Đường sức", level:"NB",
+    text:"Đường sức điện của điện tích dương cô lập có đặc điểm là",
+    choices:["Hướng vào điện tích","Là các đường cong khép kín","Hướng ra xa điện tích theo mọi hướng","Song song với nhau"],
+    ans:2,
+    explain:"Điện tích dương: đường sức hướng ra xa từ điện tích, phân bố đều theo mọi hướng."},
+
+  {id:22, topic:"Đường sức", level:"NB",
+    text:"Điện phổ là",
+    choices:["Sơ đồ mạch điện","Hình ảnh biểu diễn đường sức điện quan sát được","Đồ thị điện thế theo khoảng cách","Biểu đồ cường độ điện trường"],
+    ans:1,
+    explain:"Điện phổ là hình ảnh trực quan của đường sức điện, được tạo ra bằng cách dùng bột mịn cách điện trong dầu."},
+
+  {id:23, topic:"Đường sức", level:"NB",
+    text:"Tính chất nào sau đây KHÔNG phải của đường sức điện?",
+    choices:["Tiếp tuyến tại mỗi điểm trùng phương $\\vec{E}$","Số đường sức qua đơn vị diện tích đặc trưng độ mạnh","Không cắt nhau","Là đường cong khép kín"],
+    ans:3,
+    explain:"Đường sức điện <b>không khép kín</b> (khác với đường sức từ). Đường sức điện bắt đầu từ điện tích dương và kết thúc ở điện tích âm (hoặc ra vô cùng)."},
+
+  {id:24, topic:"Đường sức", level:"TH",
+    text:"Mặt đẳng thế và đường sức điện có mối quan hệ",
+    choices:["Song song nhau","Trùng nhau","Vuông góc nhau tại mọi điểm","Hợp nhau một góc $45°$"],
+    ans:2,
+    explain:"Mặt đẳng thế luôn <b>vuông góc</b> với đường sức điện tại mọi điểm giao nhau."},
+
+  {id:25, topic:"Đường sức", level:"TH",
+    text:"Di chuyển điện tích dọc theo mặt đẳng thế thì công của lực điện",
+    choices:["Dương","Âm","Bằng không","Phụ thuộc chiều di chuyển"],
+    ans:2,
+    explain:"Trên mặt đẳng thế: $V_M = V_N \\Rightarrow U_{MN} = 0 \\Rightarrow A = qU_{MN} = 0$."},
+
+  {id:26, topic:"Công - Điện thế", level:"NB",
+    text:"Công của lực điện có tính chất gì?",
+    choices:["Phụ thuộc hình dạng đường đi","Luôn dương","Không phụ thuộc hình dạng đường đi (chỉ phụ thuộc điểm đầu, cuối)","Luôn bằng 0"],
+    ans:2,
+    explain:"Lực điện là lực thế: $A_{MN} = q(V_M - V_N)$ chỉ phụ thuộc điểm đầu M và điểm cuối N."},
+
+  {id:27, topic:"Công - Điện thế", level:"NB",
+    text:"Đơn vị của điện thế là",
+    choices:["Coulomb/Vôn","Joule/Coulomb = Vôn","Newton/Coulomb","Coulomb/Newton"],
+    ans:1,
+    explain:"Điện thế $V = W/q$, đơn vị là $\\text{J/C} = \\text{V}$ (Vôn)."},
+
+  {id:28, topic:"Công - Điện thế", level:"TH",
+    text:"Điện tích $q = 4\\times10^{-6}\\,\\text{C}$ di chuyển từ M đến N. Công lực điện $A_{MN} = 8\\times10^{-4}\\,\\text{J}$. Hiệu điện thế $U_{MN}$ là",
+    choices:["$50\\,\\text{V}$","$100\\,\\text{V}$","$200\\,\\text{V}$","$400\\,\\text{V}$"],
+    ans:2,
+    explain:"$U_{MN} = \\dfrac{A_{MN}}{q} = \\dfrac{8\\times10^{-4}}{4\\times10^{-6}} = 200\\,\\text{V}$."},
+
+  {id:29, topic:"Công - Điện thế", level:"TH",
+    text:"Hiệu điện thế $U_{MN} = 100\\,\\text{V}$, điện tích $q = -5\\times10^{-6}\\,\\text{C}$. Công của lực điện khi $q$ dịch chuyển từ M đến N là",
+    choices:["$5\\times10^{-4}\\,\\text{J}$","$-5\\times10^{-4}\\,\\text{J}$","$2\\times10^{-8}\\,\\text{J}$","$-2\\times10^{-8}\\,\\text{J}$"],
+    ans:1,
+    explain:"$A_{MN} = qU_{MN} = (-5\\times10^{-6})\\times100 = -5\\times10^{-4}\\,\\text{J}$."},
+
+  {id:30, topic:"Công - Điện thế", level:"TH",
+    text:"Trong điện trường đều giữa hai bản tụ $U = 300\\,\\text{V}$, $d = 6\\,\\text{cm}$. Điện tích $q = 3\\times10^{-9}\\,\\text{C}$ di chuyển dọc theo đường sức từ bản dương đến bản âm. Công của lực điện là",
+    choices:["$9\\times10^{-7}\\,\\text{J}$","$-9\\times10^{-7}\\,\\text{J}$","$1{,}5\\times10^{-8}\\,\\text{J}$","$-1{,}5\\times10^{-8}\\,\\text{J}$"],
+    ans:0,
+    explain:"Di chuyển xuôi chiều $\\vec{E}$: $d = +0{,}06\\,\\text{m}$. $E = U/d = 300/0{,}06 = 5000\\,\\text{V/m}$. $A = qEd = 3\\times10^{-9}\\times5000\\times0{,}06 = 9\\times10^{-7}\\,\\text{J}$."},
+
+  {id:31, topic:"Công - Điện thế", level:"VD",
+    text:"Điện tích $q = -2\\,\\mu\\text{C}$ di chuyển từ điểm M có $V_M = 200\\,\\text{V}$ đến N có $V_N = -100\\,\\text{V}$. Công của lực điện là",
+    choices:["$6\\times10^{-4}\\,\\text{J}$","$-6\\times10^{-4}\\,\\text{J}$","$2\\times10^{-4}\\,\\text{J}$","$-2\\times10^{-4}\\,\\text{J}$"],
+    ans:1,
+    explain:"$A_{MN} = q(V_M-V_N) = (-2\\times10^{-6})(200-(-100)) = (-2\\times10^{-6})\\times300 = -6\\times10^{-4}\\,\\text{J}$."},
+
+  {id:32, topic:"Công - Điện thế", level:"VD",
+    text:"Một electron tăng tốc từ nghỉ qua hiệu điện thế $U = 500\\,\\text{V}$. Vận tốc electron khi đến điện cực là ($m_e = 9{,}1\\times10^{-31}\\,\\text{kg}$, $e = 1{,}6\\times10^{-19}\\,\\text{C}$)",
+    choices:["$\\approx 1{,}3\\times10^7\\,\\text{m/s}$","$\\approx 2{,}6\\times10^7\\,\\text{m/s}$","$\\approx 1{,}3\\times10^6\\,\\text{m/s}$","$\\approx 1{,}3\\times10^8\\,\\text{m/s}$"],
+    ans:0,
+    explain:"$eU = \\dfrac{1}{2}m_e v^2 \\Rightarrow v = \\sqrt{\\dfrac{2eU}{m_e}} = \\sqrt{\\dfrac{2\\times1{,}6\\times10^{-19}\\times500}{9{,}1\\times10^{-31}}} \\approx 1{,}33\\times10^7\\,\\text{m/s}$."},
+
+  {id:33, topic:"Công - Điện thế", level:"VDC",
+    text:"Giữa hai bản tụ phẳng $U = 1200\\,\\text{V}$, $d = 4\\,\\text{cm}$. Điện tích $q = 5\\times10^{-9}\\,\\text{C}$ di chuyển từ bản âm đến bản dương theo phương hợp $60°$ với đường sức. Công của lực điện là",
+    choices:["$-3\\times10^{-6}\\,\\text{J}$","$3\\times10^{-6}\\,\\text{J}$","$-3\\times10^{-7}\\,\\text{J}$","$3\\times10^{-7}\\,\\text{J}$"],
+    ans:0,
+    explain:"$E = U/d = 3\\times10^4\\,\\text{V/m}$. Từ bản âm đến dương: ngược chiều $\\vec{E}$. $d_{MN} = -d\\cos60° = -0{,}04\\times0{,}5 = -0{,}02\\,\\text{m}$. $A = qEd_{MN} = 5\\times10^{-9}\\times3\\times10^4\\times(-0{,}02) = -3\\times10^{-6}\\,\\text{J}$."},
+
+  {id:34, topic:"Tụ điện", level:"NB",
+    text:"Đơn vị nào sau đây bằng $1\\,\\text{F}$?",
+    choices:["$1\\,\\text{C·V}$","$1\\,\\text{C/V}$","$1\\,\\text{V/C}$","$1\\,\\text{J/C}$"],
+    ans:1,
+    explain:"$C = Q/U \\Rightarrow 1\\,\\text{F} = 1\\,\\text{C/V}$."},
+
+  {id:35, topic:"Tụ điện", level:"NB",
+    text:"Trên vỏ một tụ ghi $20\\,\\mu\\text{F} - 200\\,\\text{V}$. Thông số $200\\,\\text{V}$ có nghĩa là",
+    choices:["Hiệu điện thế tối thiểu cần nạp","Hiệu điện thế tối đa cho phép","Điện thế của mỗi bản tụ","Điện áp nguồn cần dùng để nạp tụ"],
+    ans:1,
+    explain:"$200\\,\\text{V}$ là <b>hiệu điện thế tối đa</b> được phép đặt vào tụ. Nếu vượt quá, điện môi sẽ bị đánh thủng."},
+
+  {id:36, topic:"Tụ điện", level:"TH",
+    text:"Tụ phẳng $\\varepsilon = 2$, $S = 150\\,\\text{cm}^2$, $d = 3\\,\\text{mm}$. Điện dung của tụ là ($k = 9\\times10^9\\,\\text{N·m}^2/\\text{C}^2$)",
+    choices:["$\\approx 88{,}5\\,\\text{pF}$","$\\approx 177\\,\\text{pF}$","$\\approx 354\\,\\text{pF}$","$\\approx 44{,}3\\,\\text{pF}$"],
+    ans:0,
+    explain:"$C = \\dfrac{\\varepsilon S}{4\\pi kd} = \\dfrac{2\\times150\\times10^{-4}}{4\\pi\\times9\\times10^9\\times3\\times10^{-3}} \\approx 8{,}85\\times10^{-11}\\,\\text{F} \\approx 88{,}5\\,\\text{pF}$."},
+
+  {id:37, topic:"Tụ điện", level:"TH",
+    text:"Tụ điện $C = 30\\,\\mu\\text{F}$ tích điện đến $U = 60\\,\\text{V}$. Điện tích trên tụ là",
+    choices:["$0{,}5\\,\\text{mC}$","$1{,}8\\,\\text{mC}$","$18\\,\\text{mC}$","$0{,}18\\,\\text{mC}$"],
+    ans:1,
+    explain:"$Q = CU = 30\\times10^{-6}\\times60 = 1{,}8\\times10^{-3}\\,\\text{C} = 1{,}8\\,\\text{mC}$."},
+
+  {id:38, topic:"Tụ điện", level:"TH",
+    text:"Tụ điện $C = 50\\,\\mu\\text{F}$ tích điện đến $Q = 5\\times10^{-3}\\,\\text{C}$. Cường độ điện trường giữa hai bản cách nhau $d = 5\\,\\text{mm}$ là",
+    choices:["$5000\\,\\text{V/m}$","$10000\\,\\text{V/m}$","$20000\\,\\text{V/m}$","$2000\\,\\text{V/m}$"],
+    ans:2,
+    explain:"$U = Q/C = 5\\times10^{-3}/(50\\times10^{-6}) = 100\\,\\text{V}$. $E = U/d = 100/0{,}005 = 20000\\,\\text{V/m}$."},
+
+  {id:39, topic:"Tụ điện", level:"VD",
+    text:"Tụ phẳng: diện tích bản tụ tăng gấp 3 lần, khoảng cách giảm còn $\\dfrac{1}{2}$, giữ nguyên $\\varepsilon$. Điện dung thay đổi như thế nào?",
+    choices:["Tăng $1{,}5$ lần","Tăng $3$ lần","Tăng $6$ lần","Không đổi"],
+    ans:2,
+    explain:"$C' = \\dfrac{\\varepsilon\\cdot3S}{4\\pi k\\cdot(d/2)} = \\dfrac{3\\times2\\times\\varepsilon S}{4\\pi kd} = 6C$. Điện dung <b>tăng 6 lần</b>."},
+
+  {id:40, topic:"Tụ điện", level:"VD",
+    text:"Tụ điện $C = 10\\,\\mu\\text{F}$ tích điện đến $U = 40\\,\\text{V}$. Sau đó ngắt khỏi nguồn và nhúng vào điện môi lỏng $\\varepsilon = 4$. Hiệu điện thế mới giữa hai bản là",
+    choices:["$160\\,\\text{V}$","$40\\,\\text{V}$","$20\\,\\text{V}$","$10\\,\\text{V}$"],
+    ans:3,
+    explain:"Ngắt nguồn → $Q = \\text{const} = CU = 4\\times10^{-4}\\,\\text{C}$. $C' = \\varepsilon C = 40\\,\\mu\\text{F}$. $U' = Q/C' = 4\\times10^{-4}/(40\\times10^{-6}) = 10\\,\\text{V}$."},
+
+  {id:41, topic:"Tụ điện", level:"VDC",
+    text:"Tụ điện phẳng nối với nguồn $U = \\text{const}$, sau đó tăng điện môi từ $\\varepsilon$ lên $2\\varepsilon$. Năng lượng tụ điện",
+    choices:["Không đổi","Tăng gấp đôi","Giảm còn một nửa","Tăng 4 lần"],
+    ans:1,
+    explain:"Giữ $U$ không đổi: $W = \\dfrac{1}{2}CU^2$. Khi $\\varepsilon' = 2\\varepsilon$: $C' = 2C \\Rightarrow W' = \\dfrac{1}{2}(2C)U^2 = 2W$. <b>Năng lượng tăng gấp đôi</b>."},
+
+  {id:42, topic:"Ghép tụ", level:"NB",
+    text:"Công thức nào sau đây dùng để tính điện dung tương đương của bộ tụ ghép <b>song song</b>?",
+    choices:["$\\dfrac{1}{C_b} = \\dfrac{1}{C_1}+\\dfrac{1}{C_2}$","$C_b = C_1+C_2$","$C_b = \\dfrac{C_1 C_2}{C_1+C_2}$","$C_b = \\dfrac{C_1+C_2}{2}$"],
+    ans:1,
+    explain:"Song song: $C_b = C_1 + C_2 + \\cdots$. Nối tiếp: $\\dfrac{1}{C_b} = \\dfrac{1}{C_1}+\\dfrac{1}{C_2}+\\cdots$."},
+
+  {id:43, topic:"Ghép tụ", level:"TH",
+    text:"Ba tụ $C_1 = C_2 = C_3 = 6\\,\\mu\\text{F}$ mắc nối tiếp. Điện dung tương đương là",
+    choices:["$18\\,\\mu\\text{F}$","$6\\,\\mu\\text{F}$","$3\\,\\mu\\text{F}$","$2\\,\\mu\\text{F}$"],
+    ans:3,
+    explain:"$\\dfrac{1}{C_b} = \\dfrac{1}{6}+\\dfrac{1}{6}+\\dfrac{1}{6} = \\dfrac{3}{6} = \\dfrac{1}{2} \\Rightarrow C_b = 2\\,\\mu\\text{F}$."},
+
+  {id:44, topic:"Ghép tụ", level:"TH",
+    text:"Bộ tụ gồm $C_1 = 3\\,\\mu\\text{F}$ và $C_2 = 6\\,\\mu\\text{F}$ mắc song song, đặt hiệu điện thế $U = 30\\,\\text{V}$. Điện tích trên $C_2$ là",
+    choices:["$90\\,\\mu\\text{C}$","$60\\,\\mu\\text{C}$","$180\\,\\mu\\text{C}$","$270\\,\\mu\\text{C}$"],
+    ans:2,
+    explain:"Song song: $U_2 = U = 30\\,\\text{V}$. $Q_2 = C_2 U = 6\\times10^{-6}\\times30 = 180\\,\\mu\\text{C}$."},
+
+  {id:45, topic:"Ghép tụ", level:"VD",
+    text:"Bộ tụ nối tiếp $C_1 = 4\\,\\mu\\text{F}$, $C_2 = 8\\,\\mu\\text{F}$, $U = 36\\,\\text{V}$. Hiệu điện thế trên $C_1$ là",
+    choices:["$12\\,\\text{V}$","$18\\,\\text{V}$","$24\\,\\text{V}$","$36\\,\\text{V}$"],
+    ans:2,
+    explain:"$C_b = \\dfrac{4\\times8}{4+8} = \\dfrac{8}{3}\\,\\mu\\text{F}$. $Q_b = C_b U = \\dfrac{8}{3}\\times36 = 96\\,\\mu\\text{C}$. $U_1 = Q_b/C_1 = 96/4 = 24\\,\\text{V}$."},
+
+  {id:46, topic:"Năng lượng tụ", level:"NB",
+    text:"Biểu thức nào sau đây KHÔNG dùng để tính năng lượng tụ điện?",
+    choices:["$W = \\dfrac{1}{2}CU^2$","$W = \\dfrac{Q^2}{2C}$","$W = \\dfrac{QU}{2}$","$W = QU$"],
+    ans:3,
+    explain:"$W = \\dfrac{1}{2}CU^2 = \\dfrac{Q^2}{2C} = \\dfrac{QU}{2}$. Biểu thức $W = QU$ sai (thiếu hệ số $\\dfrac{1}{2}$)."},
+
+  {id:47, topic:"Năng lượng tụ", level:"TH",
+    text:"Tụ điện $C = 40\\,\\mu\\text{F}$ tích điện đến $U = 50\\,\\text{V}$. Năng lượng tích trữ trong tụ là",
+    choices:["$0{,}05\\,\\text{J}$","$0{,}1\\,\\text{J}$","$0{,}5\\,\\text{J}$","$1\\,\\text{J}$"],
+    ans:0,
+    explain:"$W = \\dfrac{1}{2}CU^2 = \\dfrac{1}{2}\\times40\\times10^{-6}\\times50^2 = \\dfrac{1}{2}\\times40\\times10^{-6}\\times2500 = 0{,}05\\,\\text{J}$."},
+
+  {id:48, topic:"Năng lượng tụ", level:"TH",
+    text:"Tụ điện $C = 8\\,\\mu\\text{F}$ mang điện tích $Q = 4\\times10^{-4}\\,\\text{C}$. Năng lượng tụ điện là",
+    choices:["$5\\times10^{-3}\\,\\text{J}$","$10^{-2}\\,\\text{J}$","$2\\times10^{-2}\\,\\text{J}$","$10^{-3}\\,\\text{J}$"],
+    ans:1,
+    explain:"$W = \\dfrac{Q^2}{2C} = \\dfrac{(4\\times10^{-4})^2}{2\\times8\\times10^{-6}} = \\dfrac{16\\times10^{-8}}{16\\times10^{-6}} = 10^{-2}\\,\\text{J}$."},
+
+  {id:49, topic:"Năng lượng tụ", level:"VD",
+    text:"Tụ điện $C = 20\\,\\mu\\text{F}$ nối với nguồn $U = 100\\,\\text{V}$. Sau đó ngắt nguồn và tăng khoảng cách hai bản lên gấp đôi. Năng lượng tụ thay đổi như thế nào?",
+    choices:["Giảm còn $\\dfrac{1}{2}$","Không đổi","Tăng gấp đôi","Tăng 4 lần"],
+    ans:2,
+    explain:"Ngắt nguồn → $Q = \\text{const}$. Tăng $d$ gấp đôi → $C' = C/2$. $W' = \\dfrac{Q^2}{2C'} = \\dfrac{Q^2}{2(C/2)} = 2W$. <b>Năng lượng tăng gấp đôi</b>."},
+
+  {id:50, topic:"Năng lượng tụ", level:"VDC",
+    text:"Máy khử rung tim dùng tụ $C = 30\\,\\mu\\text{F}$ tích điện đến $U = 5000\\,\\text{V}$. Năng lượng phóng ra trong $t = 10\\,\\text{ms}$. Công suất trung bình của xung điện là",
+    choices:["$37{,}5\\,\\text{W}$","$375\\,\\text{W}$","$3750\\,\\text{W}$","$37500\\,\\text{W}$"],
+    ans:3,
+    explain:"$W = \\dfrac{1}{2}CU^2 = \\dfrac{1}{2}\\times30\\times10^{-6}\\times(5000)^2 = \\dfrac{1}{2}\\times30\\times10^{-6}\\times25\\times10^6 = 375\\,\\text{J}$. $P = W/t = 375/(10\\times10^{-3}) = 37500\\,\\text{W}$."}
+];
+
+var TOPICS = ["Điện tích","Coulomb","Điện trường","Đường sức","Công - Điện thế","Tụ điện","Ghép tụ","Năng lượng tụ"];
+
+var PLAN = {
+  "Điện tích": {
+    formula: "$$|Q| = ne, \\quad e = 1{,}6\\times10^{-19}\\,\\text{C}$$",
+    notes: [
+      "Vật nhiễm điện dương: <b>thiếu</b> electron · Vật nhiễm điện âm: <b>thừa</b> electron",
+      "Hai vật giống nhau tiếp xúc: $q' = \\dfrac{q_1+q_2}{2}$",
+      "Hưởng ứng: hai đầu vật nhiễm điện trái dấu nhau, tổng điện tích không đổi",
+      "Nhiễm điện do tiếp xúc: vật tiếp xúc nhiễm cùng dấu với vật gốc"
+    ],
+    exercises: [
+      "Vật tích điện $Q = -4{,}8\\times10^{-17}\\,\\text{C}$. Tính số electron thừa.",
+      "Hai quả cầu $q_1 = 5\\,\\mu\\text{C}$, $q_2 = -1\\,\\mu\\text{C}$ tiếp xúc. Tính $q'$ và lực sau khi tách $r = 5\\,\\text{cm}$."
+    ]
+  },
+  "Coulomb": {
+    formula: "$$F = k\\frac{|q_1 q_2|}{\\varepsilon r^2}, \\quad k = 9\\times10^9\\,\\text{N·m}^2/\\text{C}^2$$",
+    notes: [
+      "Đổi đơn vị trước khi tính: $\\text{cm}\\to\\text{m}$, $\\mu\\text{C}\\to\\text{C}$",
+      "Điện môi $\\varepsilon > 1$: lực giảm $\\varepsilon$ lần so với chân không",
+      "Cùng dấu → đẩy · Trái dấu → hút"
+    ],
+    exercises: [
+      "Tính $F$ khi $q_1 = 3\\,\\mu\\text{C}$, $q_2 = 3\\,\\mu\\text{C}$, $r = 3\\,\\text{cm}$, $\\varepsilon = 1$.",
+      "Tìm $r$ để $F = 9\\times10^{-3}\\,\\text{N}$ với $q_1 = q_2 = 3\\times10^{-8}\\,\\text{C}$."
+    ]
+  },
+  "Điện trường": {
+    formula: "$$E = \\frac{F}{|q|} = k\\frac{|Q|}{\\varepsilon r^2}, \\quad \\vec{F} = q\\vec{E}$$",
+    notes: [
+      "$Q > 0$: $\\vec{E}$ hướng ra xa · $Q < 0$: $\\vec{E}$ hướng vào gần",
+      "Chồng chất vectơ: $\\vec{E} = \\vec{E}_1 + \\vec{E}_2$ (cộng vectơ, không phải đại số)",
+      "Điểm $E = 0$: cùng dấu → nằm giữa; trái dấu → nằm ngoài về phía điện tích nhỏ hơn"
+    ],
+    exercises: [
+      "Tính $E$ tại M cách $Q = -5\\times10^{-9}\\,\\text{C}$ một đoạn $r = 15\\,\\text{cm}$.",
+      "Hai điện tích $q_1 = +Q$, $q_2 = +4Q$ cách nhau $d = 30\\,\\text{cm}$. Tìm điểm có $E_{\\text{tổng}} = 0$."
+    ]
+  },
+  "Đường sức": {
+    formula: "$$\\vec{E} \\perp \\text{mặt đẳng thế}, \\quad A_{\\text{mặt đẳng thế}} = 0$$",
+    notes: [
+      "Đường sức: bắt đầu từ $(+)$, kết thúc ở $(-)$, không cắt nhau, không khép kín",
+      "Mặt đẳng thế vuông góc với đường sức điện tại mọi điểm",
+      "Đường sức dày → điện trường mạnh; đường sức thưa → điện trường yếu"
+    ],
+    exercises: [
+      "Di chuyển điện tích $q = 2\\,\\mu\\text{C}$ trên mặt đẳng thế $V = 100\\,\\text{V}$ một đoạn $5\\,\\text{cm}$. Tính công lực điện.",
+      "Trong điện trường đều $E = 3000\\,\\text{V/m}$, tính $U$ giữa hai mặt đẳng thế cách nhau $2\\,\\text{cm}$ theo phương $\\vec{E}$."
+    ]
+  },
+  "Công - Điện thế": {
+    formula: "$$A_{MN} = q(V_M - V_N) = qU_{MN}, \\quad E = \\frac{U}{d}$$",
+    notes: [
+      "Điện tích dương đi xuôi chiều $\\vec{E}$: $A > 0$ · Ngược chiều $\\vec{E}$: $A < 0$",
+      "$d_{MN}$: hình chiếu lên phương $\\vec{E}$, dương nếu xuôi chiều $\\vec{E}$",
+      "Electron tăng tốc: $eU = \\dfrac{1}{2}m_e v^2$"
+    ],
+    exercises: [
+      "Tính công khi $q = -3\\,\\mu\\text{C}$ di chuyển từ $V_M = 150\\,\\text{V}$ đến $V_N = -50\\,\\text{V}$.",
+      "Điện trường đều $E = 5000\\,\\text{V/m}$, $d = 4\\,\\text{cm}$. Tính $U$ và công dịch chuyển $q = 2\\,\\mu\\text{C}$ từ bản $(+)$ đến $(-)$."
+    ]
+  },
+  "Tụ điện": {
+    formula: "$$C = \\frac{Q}{U} = \\frac{\\varepsilon S}{4\\pi k d}, \\quad Q = CU$$",
+    notes: [
+      "$C$ chỉ phụ thuộc cấu tạo ($\\varepsilon$, $S$, $d$) — <b>không</b> phụ thuộc $U$ hay $Q$",
+      "Ngắt nguồn rồi thay đổi tụ: $Q = \\text{const}$ → $U' = Q/C'$",
+      "Giữ nguyên nối với nguồn rồi thay đổi tụ: $U = \\text{const}$ → $Q' = C'U$"
+    ],
+    exercises: [
+      "Tính $C$ khi $S = 100\\,\\text{cm}^2$, $d = 2\\,\\text{mm}$, $\\varepsilon = 2$.",
+      "Tụ $C = 20\\,\\mu\\text{F}$, $U = 80\\,\\text{V}$. Ngắt nguồn, nhúng vào điện môi $\\varepsilon = 2$. Tính $U'$."
+    ]
+  },
+  "Ghép tụ": {
+    formula: "$$\\text{Nối tiếp: }\\frac{1}{C_b}=\\sum\\frac{1}{C_i},\\;Q_b=Q_i \\qquad \\text{Song song: }C_b=\\sum C_i,\\;U_b=U_i$$",
+    notes: [
+      "Nối tiếp: $Q$ bằng nhau, $U$ phân bố ngược $C$ (tụ nhỏ hơn → $U$ lớn hơn)",
+      "Song song: $U$ bằng nhau, $Q$ phân bố thuận $C$ (tụ lớn hơn → $Q$ lớn hơn)",
+      "Giới hạn NT: $(Q_b)_{gh} = \\min(Q_{ghi})$ · SS: $(U_b)_{gh} = \\min(U_{ghi})$"
+    ],
+    exercises: [
+      "$C_1 = 3\\,\\mu\\text{F}$, $C_2 = 6\\,\\mu\\text{F}$ nối tiếp, $U = 90\\,\\text{V}$. Tính $C_b$, $Q_b$, $U_1$, $U_2$.",
+      "$C_1 = 4\\,\\mu\\text{F}$, $C_2 = 8\\,\\mu\\text{F}$ song song, $U = 24\\,\\text{V}$. Tính $Q_1$, $Q_2$."
+    ]
+  },
+  "Năng lượng tụ": {
+    formula: "$$W = \\frac{1}{2}CU^2 = \\frac{Q^2}{2C} = \\frac{QU}{2}$$",
+    notes: [
+      "Ngắt nguồn, tăng $d$: $C$ giảm, $Q$ giữ → $W = Q^2/2C$ <b>tăng</b>",
+      "Giữ nguồn, tăng $d$: $C$ giảm, $U$ giữ → $W = CU^2/2$ <b>giảm</b>",
+      "$1\\,\\text{F}$ với $1\\,\\text{V}$: $W = 0{,}5\\,\\text{J}$ — tụ thực tế dùng $\\mu\\text{F}$, $\\text{mJ}$"
+    ],
+    exercises: [
+      "Tụ $C = 50\\,\\mu\\text{F}$, $U = 100\\,\\text{V}$. Tính $W$.",
+      "Tụ $C = 10\\,\\mu\\text{F}$ tích điện đến $U = 200\\,\\text{V}$, ngắt nguồn, kéo hai bản ra xa gấp đôi. Tính $W'$."
+    ]
+  }
+};
+
+/* === STATE === */
+var studentName = "", roundHistory = [], activeQS = QS.slice();
+var roundNum = 1, cumulativeCorrect = 0, TOTAL_ORIGINAL = QS.length;
+var answers = [], curQ = 0;
+
+function startTest() {
+  var nm = document.getElementById("inp-name").value.trim();
+  if (!nm) { document.getElementById("inp-name").focus(); return; }
+  studentName = nm;
+  roundHistory = []; activeQS = QS.slice(); roundNum = 1; cumulativeCorrect = 0;
+  beginRound();
+}
+
+function beginRound() {
+  curQ = 0;
+  answers = new Array(activeQS.length).fill(null);
+  document.getElementById("round-label").textContent =
+    roundNum === 1 ? "Lượt 1 · " + activeQS.length + " câu"
+                   : "Lượt " + roundNum + " · Ôn " + activeQS.length + " câu sai";
+  showScreen("s-test");
+  renderQ();
+}
+
+function renderDots() {
+  var nav = document.getElementById("dot-nav"); nav.innerHTML = "";
+  activeQS.forEach(function(_, i) {
+    var d = document.createElement("button");
+    d.className = "dot" + (i===curQ?" current":answers[i]!==null?" answered":"");
+    d.textContent = i+1;
+    d.onclick = (function(idx){ return function(){ curQ=idx; renderQ(); }; })(i);
+    nav.appendChild(d);
+  });
+}
+
+function renderQ() {
+  var q = activeQS[curQ];
+  document.getElementById("q-counter").textContent = "Câu " + (curQ+1) + "/" + activeQS.length;
+  document.getElementById("progress").style.width = ((curQ+1)/activeQS.length*100)+"%";
+  document.getElementById("q-text").innerHTML = q.text;
+  var cd = document.getElementById("choices"); cd.innerHTML = "";
+  ["A","B","C","D"].forEach(function(l, ci) {
+    var b = document.createElement("button");
+    b.className = "choice-btn" + (answers[curQ]===ci ? " selected" : "");
+    b.innerHTML = "<b>" + l + ".</b> " + q.choices[ci];
+    b.onclick = (function(i){ return function(){ answers[curQ]=i; renderQ(); }; })(ci);
+    cd.appendChild(b);
+  });
+  var pb = document.getElementById("btn-prev");
+  pb.disabled = curQ===0; pb.style.opacity = curQ===0?"0.35":"1";
+  document.getElementById("btn-next").textContent = curQ===activeQS.length-1 ? "Nộp bài ✓" : "Tiếp →";
+  if (window.MathJax && MathJax.typesetPromise)
+    MathJax.typesetPromise([document.getElementById("q-text"), document.getElementById("choices")]).catch(function(){});
+  renderDots();
+}
+
+function prevQ() { if (curQ>0){ curQ--; renderQ(); } }
+function nextQ() {
+  if (curQ < activeQS.length-1) { curQ++; renderQ(); return; }
+  var miss = answers.filter(function(a){ return a===null; }).length;
+  if (miss>0 && !confirm("Còn " + miss + " câu chưa chọn. Nộp bài?")) return;
+  submitRound();
+}
+
+var EXAM_NAME = "11CC3.dientruong";
+var sheetsUrl = "https://script.google.com/macros/s/AKfycbwwIDXsY_OC6FDDJaJGrJdacv7n49YAoJn1i-xsvVLfkG2TZXEVtPCCdT1kxR3vzn-4/exec";
+
+function submitRound() {
+  var roundCorrect = answers.filter(function(a,i){ return a===activeQS[i].ans; }).length;
+  var wrongQS = activeQS.filter(function(q,i){ return answers[i]!==q.ans; });
+  roundHistory.push({ rn:roundNum, qs:activeQS.slice(), ans:answers.slice(), correct:roundCorrect });
+  cumulativeCorrect += roundCorrect;
+  if (sheetsUrl) {
+    var cls = (document.getElementById("inp-class")||{value:""}).value.trim();
+    var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+    var url = sheetsUrl+"?"+["examName="+encodeURIComponent(EXAM_NAME),"luot="+roundNum,"name="+encodeURIComponent(studentName),"className="+encodeURIComponent(cls),"score10="+score10].join("&");
+    if (typeof fetch!=="undefined") fetch(url,{method:"GET",mode:"no-cors"}).catch(function(){});
+    else { var img=new Image(); img.src=url; }
+  }
+  showResult(wrongQS);
+}
+
+function showResult(wrongQS) {
+  var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+  document.getElementById("score-num").textContent = score10%1===0?score10.toFixed(1):score10;
+  document.getElementById("result-name").textContent = studentName;
+  document.getElementById("round-badge").innerHTML =
+    '<span class="badge" style="background:#ebf2fb;color:#0c447c">Lượt '+roundNum+' · Làm '+activeQS.length+' câu · Đúng '+roundHistory[roundHistory.length-1].correct+' câu</span>';
+  var hc = document.getElementById("hist-card");
+  if (roundHistory.length>1) {
+    hc.style.display="block";
+    document.getElementById("hist-rows").innerHTML=roundHistory.map(function(r){
+      var p=Math.round(r.correct/r.qs.length*100),col=p>=70?"#1d7a4f":p>=40?"#7a4a0a":"#7a1f1f";
+      return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f4fb"><span style="font-size:13px">Lượt '+r.rn+' ('+r.qs.length+' câu)</span><span style="font-size:13px;font-weight:600;color:'+col+'">'+r.correct+'/'+r.qs.length+' đúng ('+p+'%)</span></div>';
+    }).join("");
+  } else { hc.style.display="none"; }
+  var dc=document.getElementById("detail-card"),letters=["A","B","C","D"];
+  if (wrongQS.length===0) {
+    dc.innerHTML='<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:12px">Tuyệt vời! Không có câu sai.</div>';
+  } else {
+    dc.innerHTML='<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>'+
+      wrongQS.map(function(q){
+        var ri=activeQS.indexOf(q),ua=answers[ri],ul=ua!==null?letters[ua]:"–";
+        return '<div style="padding:10px 0;border-bottom:1px solid #f0f4fb"><div style="font-size:13px;color:#888;margin-bottom:2px">'+q.topic+'</div><div style="font-size:14px;font-weight:500;margin-bottom:4px">'+q.id+'. '+q.text+'</div><div style="font-size:12px;color:#7a1f1f">Bạn chọn: <b>'+ul+'</b> · Đúng: <b>'+letters[q.ans]+'</b></div><div style="font-size:12px;color:#555;margin-top:4px;background:#f5f7fa;padding:6px;border-radius:6px">'+q.explain+'</div></div>';
+      }).join("");
+  }
+  var allCorrectIds={};
+  roundHistory.forEach(function(r){ r.qs.forEach(function(q,i){ if(r.ans[i]===q.ans) allCorrectIds[q.id]=true; }); });
+  var weakTopics=TOPICS.filter(function(t){ var ok=0,tot=0; QS.forEach(function(q){ if(q.topic===t){tot++;if(allCorrectIds[q.id])ok++;} }); return tot>0&&(ok/tot)<0.6; });
+  var pr=document.getElementById("plan-rows");
+  if (weakTopics.length===0) {
+    pr.innerHTML='<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:8px">Xuất sắc! Bạn nắm vững tất cả chủ đề.</div>';
+  } else {
+    pr.innerHTML=weakTopics.map(function(t){
+      var p=PLAN[t],wc=wrongQS.filter(function(q){ return q.topic===t; }).length;
+      return '<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #f0f4fb"><div style="font-weight:600;margin-bottom:6px">'+t+(wc>0?' <span style="font-size:12px;background:#fdeaea;color:#7a1f1f;padding:1px 8px;border-radius:10px">'+wc+' câu sai</span>':'')+'</div><div style="background:#f0f4fb;border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:13px">'+p.formula+'</div>'+p.notes.map(function(n){ return '<div style="font-size:13px;color:#333;padding:2px 0">• '+n+'</div>'; }).join("")+'</div>';
+    }).join("");
+  }
+  if (window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([document.getElementById("s-result")]).catch(function(){});
+  var rb=document.getElementById("btn-retry");
+  if (wrongQS.length>0){ rb.style.display="flex"; rb.textContent="Lượt "+(roundNum+1)+": Ôn lại "+wrongQS.length+" câu sai →"; window._nextWrongQS=wrongQS; }
+  else { rb.style.display="none"; }
+  var sv=document.getElementById("btn-save"); if(sv) sv.style.cssText="display:flex!important";
+  showScreen("s-result");
+}
+
+function startRetry() {
+  roundNum++; activeQS=(window._nextWrongQS||[]).slice(); window._nextWrongQS=null;
+  var ni=document.getElementById("inp-name"); if(ni) ni.value=studentName;
+  beginRound();
+}
+function restartFull() {
+  roundHistory=[]; activeQS=QS.slice(); roundNum=1; cumulativeCorrect=0;
+  document.getElementById("inp-name").value=""; showScreen("s-login");
+}
+
+function doSave() {
+  var wrongQS=window._nextWrongQS||[];
+  var wqJ=JSON.stringify(wrongQS).replace(new RegExp("<\\/","g"),"<\\/");
+  var hiJ=JSON.stringify(roundHistory).replace(new RegExp("<\\/","g"),"<\\/");
+  var nmJ=JSON.stringify(studentName);
+  var clJ=JSON.stringify(document.getElementById("inp-class").value||"");
+  var nw=wrongQS.length;
+  var blJ=JSON.stringify("Lượt "+(roundNum+1)+": Ôn lại "+nw+" câu sai →");
+  document.querySelectorAll(".screen").forEach(function(s){ s.setAttribute("_d",s.style.display||""); s.style.display=s.id==="s-result"?"block":"none"; });
+  document.getElementById("btn-save").style.visibility="hidden";
+  var snap="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
+  document.querySelectorAll(".screen").forEach(function(s){ s.style.display=s.getAttribute("_d")||""; });
+  document.getElementById("btn-save").style.visibility="";
+  snap=snap.replace("</style>","\n/* ==SAVED== */ .screen{display:none!important} #s-result{display:block!important}\n</style>");
+  snap=snap.replace(/showScreen\("s-login"\);?/g,"/* noinit */");
+  var L=[];
+  L.push("<scr"+"ipt>");
+  L.push("var _D={wq:"+wqJ+",rn:"+roundNum+",cc:"+cumulativeCorrect+",hi:"+hiJ+",nm:"+nmJ+",cl:"+clJ+",tt:"+TOTAL_ORIGINAL+"};");
+  L.push("function doRetryFromSaved(){studentName=_D.nm;roundHistory=_D.hi;activeQS=_D.wq.slice();roundNum=_D.rn+1;cumulativeCorrect=_D.cc;TOTAL_ORIGINAL=_D.tt;window._nextWrongQS=null;var ni=document.getElementById('inp-name');if(ni)ni.value=_D.nm;var ci=document.getElementById('inp-class');if(ci)ci.value=_D.cl;var ovr=document.createElement('style');ovr.textContent='.screen{display:none!important}#s-test.active,#s-result.active,#s-login.active{display:block!important}';document.head.appendChild(ovr);beginRound();}");
+  L.push("window.addEventListener('DOMContentLoaded',function(){var rb=document.getElementById('btn-retry');if(rb&&_D.wq.length>0){rb.style.cssText='display:flex!important';rb.textContent="+blJ+";rb.onclick=doRetryFromSaved;}else if(rb){rb.style.display='none';}var sv=document.getElementById('btn-save');if(sv)sv.style.display='none';var rs=document.getElementById('btn-restart');if(rs)rs.style.display='none';});");
+  L.push("</"+"script>");
+  var injected=L.join("\n");
+  snap=snap.replace(/<script>\n?var _D=[\s\S]*?<\/script>\n?/g,"");
+  var bi=snap.lastIndexOf("</body>");
+  snap=snap.slice(0,bi)+injected+"\n"+snap.slice(bi);
+  var name=(studentName||"hs").replace(/\s+/g,"_")+"_"+EXAM_NAME+"_luot"+roundNum+".html";
+  var blob=new Blob([snap],{type:"text/html;charset=utf-8"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a"); a.href=url; a.download=name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); },3000);
+}
+
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+
+if(typeof _D==="undefined"){ showScreen("s-login"); }
+</script>
+</body>
+</html>

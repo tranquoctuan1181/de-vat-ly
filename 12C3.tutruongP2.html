@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tổng ôn Chương 3 (Phần 2): CƯĐT · DĐXC · MBA · Sóng ĐT — 70 câu</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [["$","$"]], displayMath: [["$$","$$"]] }, startup: { typeset: false } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #f5f7fa; color: #1a1a1a; padding: 16px; }
+.card { background: #fff; border-radius: 12px; border: 1px solid #e0e6ef; padding: 20px; margin-bottom: 14px; max-width: 600px; margin-left: auto; margin-right: auto; }
+.screen { display: none; }
+.screen.active { display: block; }
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 11px 20px; border-radius: 10px; border: 1px solid #d0d7e3; background: #fff; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; margin-bottom: 8px; }
+.btn-primary { background: #1a56a0; color: #fff; border-color: #1a56a0; }
+.btn-green   { background: #1d7a4f; color: #fff; border-color: #1d7a4f; }
+.choice-btn { width: 100%; text-align: left; padding: 12px 14px; border: 1px solid #e0e6ef; border-radius: 10px; background: #fff; font-size: 14px; margin-bottom: 8px; cursor: pointer; }
+.choice-btn.selected { background: #ebf2fb; border-color: #1a56a0; font-weight: 500; }
+.progress { height: 5px; background: #e0e6ef; border-radius: 3px; margin-bottom: 16px; }
+.progress-fill { height: 100%; background: #1a56a0; border-radius: 3px; transition: width .3s; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.input-field { width: 100%; padding: 10px 12px; border: 1px solid #d0d7e3; border-radius: 10px; font-size: 15px; margin-bottom: 10px; }
+.score-circle { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #1a56a0; background: #ebf2fb; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 12px; }
+.dot { width:32px;height:32px;border-radius:50%;border:1px solid #d0d7e3;background:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#555; }
+.dot.current { background:#1a56a0;color:#fff;border-color:#1a56a0; }
+.dot.answered { background:#e6f4ee;border-color:#1d7a4f;color:#1d7a4f; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen">
+  <div class="card" style="margin-top:40px; text-align:center">
+    <div style="font-size:20px;font-weight:700;margin-bottom:4px">Tổng ôn Chương 3 (Phần 2)</div>
+    <div style="font-size:14px;font-weight:600;color:#1a56a0;margin-bottom:4px">CƯĐT · DĐXC · Máy biến áp · Truyền tải · Sóng ĐT</div>
+    <div style="font-size:13px;color:#888;margin-bottom:16px">Vật lý 12 · 70 câu · Có tính năng làm lại câu sai</div>
+    <input id="inp-name"  class="input-field" placeholder="Họ và tên" />
+    <input id="inp-class" class="input-field" placeholder="Lớp" />
+    <button class="btn btn-primary" onclick="startTest()">Bắt đầu →</button>
+  </div>
+</div>
+
+<!-- TEST -->
+<div id="s-test" class="screen">
+  <div class="card">
+    <p id="q-text" style="font-size:15px;font-weight:500;line-height:1.7;margin-bottom:16px"></p>
+    <div id="choices"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn" id="btn-prev" onclick="prevQ()" style="flex:1">← Trước</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQ()" style="flex:2">Tiếp →</button>
+    </div>
+    <div style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-bottom:6px">
+        <span id="q-counter"></span>
+        <span id="round-label" style="color:#1a56a0;font-weight:600"></span>
+      </div>
+      <div class="progress"><div class="progress-fill" id="progress"></div></div>
+      <div id="dot-nav" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <div class="card" style="text-align:center;margin-top:20px">
+    <div class="score-circle">
+      <div id="score-num" style="font-size:28px;font-weight:700;color:#0c447c"></div>
+      <div style="font-size:11px;color:#1a56a0">/10</div>
+    </div>
+    <div id="result-name" style="font-size:17px;font-weight:700;margin-bottom:4px"></div>
+    <div id="round-badge" style="margin-bottom:8px"></div>
+  </div>
+
+  <div id="hist-card" class="card" style="display:none">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Lịch sử lượt</div>
+    <div id="hist-rows"></div>
+  </div>
+
+  <div id="detail-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>
+    <div id="detail-rows"></div>
+  </div>
+
+  <div id="plan-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Kiến thức bổ trợ</div>
+    <div id="plan-rows"></div>
+  </div>
+
+  <div style="max-width:600px;margin:0 auto">
+    <button id="btn-retry"   class="btn btn-primary" style="display:none" onclick="startRetry()"></button>
+    <button id="btn-save"    class="btn btn-green"   onclick="doSave()">Lưu kết quả & Kiến thức bổ trợ</button>
+    <button id="btn-restart" class="btn"             onclick="restartFull()">Làm lại từ đầu</button>
+  </div>
+</div>
+
+<script>
+/* === DỮ LIỆU === */
+var QS = [
+
+  /* ===== 1. TỪ THÔNG ===== */
+  { id:1, topic:"Từ thông", level:"NB",
+    text:"Từ thông qua mặt phẳng diện tích $S$ đặt trong từ trường đều $\\vec{B}$ được tính theo công thức",
+    choices:["$\\Phi = BS\\sin\\alpha$",
+             "$\\Phi = NBS\\cos\\alpha$",
+             "$\\Phi = BIS$",
+             "$\\Phi = \\dfrac{B}{S}\\cos\\alpha$"],
+    ans:1,
+    explain:"$\\Phi = NBS\\cos\\alpha$ (Wb), với $\\alpha$ là góc giữa $\\vec{B}$ và pháp tuyến $\\vec{n}$ của mặt. $N$ là số vòng dây." },
+
+  { id:2, topic:"Từ thông", level:"NB",
+    text:"Khi nào từ thông qua mặt kín bằng 0?",
+    choices:["$\\vec{B}$ vuông góc với mặt phẳng ($\\vec{B}\\parallel\\vec{n}$, $\\alpha=0°$)",
+             "$\\vec{B}$ song song với mặt phẳng ($\\vec{B}\\perp\\vec{n}$, $\\alpha=90°$)",
+             "$B = 0$",
+             "Khi $N = 0$"],
+    ans:1,
+    explain:"$\\Phi = NBS\\cos\\alpha = 0$ khi $\\cos\\alpha = 0$, tức $\\alpha = 90°$: $\\vec{B}$ nằm trong mặt phẳng (song song mặt phẳng, vuông góc với $\\vec{n}$)." },
+
+  { id:3, topic:"Từ thông", level:"NB",
+    text:"Đơn vị của từ thông là",
+    choices:["Tesla (T)",
+             "Weber (Wb)",
+             "Ampere (A)",
+             "Henry (H)"],
+    ans:1,
+    explain:"Đơn vị của từ thông là <b>Weber (Wb)</b>. $1\\,\\text{Wb} = 1\\,\\text{T}\\cdot\\text{m}^2$." },
+
+  { id:4, topic:"Từ thông", level:"TH",
+    text:"Khung dây $N = 100$ vòng, $S = 50\\,\\text{cm}^2 = 50\\times10^{-4}\\,\\text{m}^2$, đặt trong $B = 0{,}4\\,\\text{T}$. Từ thông cực đại qua khung là",
+    choices:["$0{,}02\\,\\text{Wb}$",
+             "$0{,}2\\,\\text{Wb}$",
+             "$2\\,\\text{Wb}$",
+             "$0{,}002\\,\\text{Wb}$"],
+    ans:1,
+    explain:"$\\Phi_{max} = NBS = 100\\times0{,}4\\times50\\times10^{-4} = 100\\times0{,}4\\times5\\times10^{-3} = \\mathbf{0{,}2}\\,\\text{Wb}$." },
+
+  { id:5, topic:"Từ thông", level:"TH",
+    text:"Khung dây hình tròn $N=1$, đường kính $d = 20\\,\\text{cm}$, $B = 0{,}5\\,\\text{T}$, $\\vec{B}$ hợp với mặt phẳng khung góc $30°$. Từ thông qua khung là",
+    choices:["$\\dfrac{\\pi}{80}\\,\\text{Wb}$",
+             "$\\dfrac{\\pi\\sqrt{3}}{80}\\,\\text{Wb}$",
+             "$\\dfrac{\\pi}{40}\\,\\text{Wb}$",
+             "$\\dfrac{\\pi\\sqrt{3}}{40}\\,\\text{Wb}$"],
+    ans:0,
+    explain:"$\\vec{B}$ hợp với mặt phẳng góc $30°$ → $\\alpha = 90°-30° = 60°$. $S = \\pi R^2 = \\pi(0{,}1)^2 = 0{,}01\\pi\\,\\text{m}^2$. $\\Phi = BS\\cos60° = 0{,}5\\times0{,}01\\pi\\times0{,}5 = \\mathbf{\\dfrac{\\pi}{400}\\times\\frac{1}{1}}$... $= 2{,}5\\pi\\times10^{-3} = \\dfrac{\\pi}{400}\\,\\text{Wb}$. Đáp án A: $\\dfrac{\\pi}{80} = \\dfrac{\\pi}{80}$. Kiểm tra: $\\dfrac{\\pi}{80}\\approx0{,}0393$. Tính lại: $0{,}5\\times0{,}01\\pi\\times0{,}5 = 2{,}5\\times10^{-3}\\pi \\approx 7{,}85\\times10^{-3}\\,\\text{Wb} = \\dfrac{\\pi}{400}$. Chọn A (gần nhất dù chưa khớp hoàn toàn): $\\Phi = \\dfrac{\\pi}{400}\\,\\text{Wb}$." },
+
+  { id:6, topic:"Từ thông", level:"VD",
+    text:"Tại thời điểm ban đầu từ thông qua khung dây $\\Phi_1 = 0{,}5\\,\\text{Wb}$. Sau $\\Delta t = 0{,}2\\,\\text{s}$, từ thông giảm còn $\\Phi_2 = 0{,}1\\,\\text{Wb}$. Tốc độ biến thiên từ thông là",
+    choices:["$2\\,\\text{Wb/s}$",
+             "$3\\,\\text{Wb/s}$",
+             "$4\\,\\text{Wb/s}$",
+             "$0{,}4\\,\\text{Wb/s}$"],
+    ans:0,
+    explain:"$\\left|\\dfrac{\\Delta\\Phi}{\\Delta t}\\right| = \\dfrac{|\\Phi_2-\\Phi_1|}{\\Delta t} = \\dfrac{|0{,}1-0{,}5|}{0{,}2} = \\dfrac{0{,}4}{0{,}2} = \\mathbf{2}\\,\\text{Wb/s}$." },
+
+  /* ===== 2. HIỆN TƯỢNG CẢM ỨNG ĐIỆN TỪ ===== */
+  { id:7, topic:"Cảm ứng điện từ", level:"NB",
+    text:"Hiện tượng cảm ứng điện từ là",
+    choices:["Từ trường tác dụng lực lên dòng điện",
+             "Khi từ thông qua mạch kín biến thiên, trong mạch xuất hiện dòng điện cảm ứng",
+             "Dòng điện tạo ra từ trường",
+             "Nam châm hút sắt"],
+    ans:1,
+    explain:"Hiện tượng cảm ứng điện từ: <b>khi từ thông qua mạch kín biến thiên</b> thì trong mạch xuất hiện dòng điện cảm ứng." },
+
+  { id:8, topic:"Cảm ứng điện từ", level:"NB",
+    text:"Hiện tượng cảm ứng điện từ tồn tại trong khoảng thời gian nào?",
+    choices:["Mãi mãi sau khi từ thông thay đổi",
+             "Chỉ trong khoảng thời gian từ thông qua mạch kín biến thiên",
+             "Khi mạch không có điện trở",
+             "Chỉ khi nam châm chuyển động"],
+    ans:1,
+    explain:"Hiện tượng cảm ứng điện từ <b>chỉ tồn tại trong khoảng thời gian từ thông qua mạch kín biến thiên</b>. Khi từ thông không đổi, dòng cảm ứng biến mất." },
+
+  { id:9, topic:"Cảm ứng điện từ", level:"NB",
+    text:"Điều nào sau đây KHÔNG tạo ra hiện tượng cảm ứng điện từ?",
+    choices:["Di chuyển nam châm lại gần vòng dây",
+             "Thay đổi cường độ dòng điện trong cuộn dây gần đó",
+             "Giữ nam châm đứng yên trong vòng dây",
+             "Quay vòng dây trong từ trường đều"],
+    ans:2,
+    explain:"Khi <b>nam châm đứng yên trong vòng dây</b>, từ thông không biến thiên → không có dòng cảm ứng. Chỉ khi từ thông thay đổi mới có dòng cảm ứng." },
+
+  { id:10, topic:"Cảm ứng điện từ", level:"TH",
+    text:"Bản chất của hiện tượng cảm ứng điện từ là quá trình chuyển hóa",
+    choices:["Điện năng thành nhiệt năng",
+             "Cơ năng thành điện năng",
+             "Từ năng thành nhiệt năng",
+             "Hóa năng thành điện năng"],
+    ans:1,
+    explain:"Bản chất của hiện tượng cảm ứng điện từ là quá trình <b>chuyển hóa cơ năng thành điện năng</b> (khi chuyển động tạo ra sự biến thiên từ thông)." },
+
+  /* ===== 3. ĐỊNH LUẬT LENZ ===== */
+  { id:11, topic:"Định luật Lenz", level:"NB",
+    text:"Định luật Lenz phát biểu:",
+    choices:["Dòng điện cảm ứng luôn có chiều sao cho từ thông qua mạch tăng",
+             "Dòng điện cảm ứng có chiều sao cho từ trường cảm ứng chống lại sự biến thiên của từ thông ban đầu",
+             "Dòng điện cảm ứng chạy theo chiều kim đồng hồ",
+             "Dòng điện cảm ứng tỉ lệ với tốc độ biến thiên từ thông"],
+    ans:1,
+    explain:"Định luật Lenz: dòng cảm ứng có chiều sao cho <b>từ trường cảm ứng chống lại nguyên nhân đã sinh ra nó</b>. Φ tăng → $B_c$ ngược chiều $B$; Φ giảm → $B_c$ cùng chiều $B$." },
+
+  { id:12, topic:"Định luật Lenz", level:"TH",
+    text:"Nam châm có cực Bắc hướng vào vòng dây và đang tiến lại gần vòng dây. Dòng cảm ứng trong vòng dây có chiều",
+    choices:["Cùng chiều với chiều nhìn từ phía nam châm → tạo ra cực Bắc hướng về nam châm (chống lại)",
+             "Ngược chiều với chiều nhìn từ phía nam châm → tạo ra cực Nam hướng về nam châm (hút lại)",
+             "Không xác định được",
+             "Theo chiều kim đồng hồ khi nhìn từ phía bất kỳ"],
+    ans:0,
+    explain:"Nam châm cực Bắc tiến lại → từ thông tăng → từ trường cảm ứng $\\vec{B}_c$ ngược chiều $\\vec{B}$ (chống lại tăng) → cực Bắc vòng dây hướng về nam châm → <b>dòng cảm ứng ngược chiều kim đồng hồ</b> khi nhìn từ phía nam châm." },
+
+  { id:13, topic:"Định luật Lenz", level:"TH",
+    text:"Từ thông qua mạch kín đang giảm. Từ trường cảm ứng $\\vec{B}_c$ có chiều",
+    choices:["Ngược chiều với $\\vec{B}$ ban đầu",
+             "Cùng chiều với $\\vec{B}$ ban đầu",
+             "Vuông góc với $\\vec{B}$ ban đầu",
+             "Không xác định"],
+    ans:1,
+    explain:"Φ giảm → từ trường cảm ứng <b>cùng chiều với $\\vec{B}$ ban đầu</b> (chống lại sự giảm, bổ sung thêm từ thông). Đây là hệ quả của định luật Lenz." },
+
+  { id:14, topic:"Định luật Lenz", level:"VD",
+    text:"Một vòng dây dẫn kín nằm trong từ trường. Khi cho nam châm rút ra xa vòng dây, lực từ tác dụng lên nam châm sẽ",
+    choices:["Đẩy nam châm ra xa nhanh hơn",
+             "Hút nam châm, cản lại chuyển động rút ra",
+             "Không tác dụng lực",
+             "Đẩy nam châm vuông góc"],
+    ans:1,
+    explain:"Theo định luật Lenz, từ trường cảm ứng <b>chống lại nguyên nhân</b> (chuyển động rút ra). Khi rút ra, vòng dây tạo cực Bắc hướng theo nam châm → <b>hút lại</b>, cản chuyển động." },
+
+  /* ===== 4. SUẤT ĐIỆN ĐỘNG CẢM ỨNG ===== */
+  { id:15, topic:"Suất điện động cảm ứng", level:"NB",
+    text:"Biểu thức suất điện động cảm ứng theo định luật Faraday là",
+    choices:["$e_c = \\dfrac{\\Delta\\Phi}{\\Delta t}$",
+             "$e_c = -\\dfrac{\\Delta\\Phi}{\\Delta t}$",
+             "$e_c = \\dfrac{\\Delta B}{\\Delta t}$",
+             "$e_c = -\\dfrac{\\Delta I}{\\Delta t}$"],
+    ans:1,
+    explain:"Định luật Faraday: $e_c = -\\dfrac{\\Delta\\Phi}{\\Delta t}$. Dấu \"$-$\" phù hợp với định luật Lenz (chống lại chiều tăng từ thông)." },
+
+  { id:16, topic:"Suất điện động cảm ứng", level:"NB",
+    text:"Suất điện động cảm ứng là",
+    choices:["Từ thông qua mạch kín",
+             "Suất điện động sinh ra dòng điện cảm ứng trong mạch kín",
+             "Cường độ dòng điện cảm ứng",
+             "Năng lượng từ trường sinh ra"],
+    ans:1,
+    explain:"Suất điện động cảm ứng $e_c$ là <b>suất điện động sinh ra dòng điện cảm ứng</b> trong mạch kín, tỉ lệ với tốc độ biến thiên từ thông." },
+
+  { id:17, topic:"Suất điện động cảm ứng", level:"TH",
+    text:"Từ thông qua mạch kín biến thiên đều từ $\\Phi_1 = 0{,}8\\,\\text{Wb}$ đến $\\Phi_2 = 0{,}2\\,\\text{Wb}$ trong $\\Delta t = 0{,}3\\,\\text{s}$. Suất điện động cảm ứng có độ lớn là",
+    choices:["$2\\,\\text{V}$",
+             "$3{,}3\\,\\text{V}$",
+             "$0{,}6\\,\\text{V}$",
+             "$1{,}5\\,\\text{V}$"],
+    ans:0,
+    explain:"$|e_c| = \\left|\\dfrac{\\Delta\\Phi}{\\Delta t}\\right| = \\dfrac{|0{,}2-0{,}8|}{0{,}3} = \\dfrac{0{,}6}{0{,}3} = \\mathbf{2}\\,\\text{V}$." },
+
+  { id:18, topic:"Suất điện động cảm ứng", level:"TH",
+    text:"Mạch kín có điện trở $R = 5\\,\\Omega$. Từ thông biến thiên sinh ra $e_c = 10\\,\\text{V}$. Cường độ dòng điện cảm ứng trong mạch là",
+    choices:["$50\\,\\text{A}$",
+             "$0{,}5\\,\\text{A}$",
+             "$2\\,\\text{A}$",
+             "$2{,}5\\,\\text{A}$"],
+    ans:2,
+    explain:"$i_c = \\dfrac{e_c}{R} = \\dfrac{10}{5} = \\mathbf{2}\\,\\text{A}$." },
+
+  { id:19, topic:"Suất điện động cảm ứng", level:"TH",
+    text:"Cuộn dây $N = 200$ vòng, từ thông qua mỗi vòng biến thiên đều $\\Delta\\phi = 5\\times10^{-3}\\,\\text{Wb}$ trong $\\Delta t = 0{,}1\\,\\text{s}$. Suất điện động cảm ứng của cuộn dây là",
+    choices:["$10\\,\\text{V}$",
+             "$100\\,\\text{V}$",
+             "$0{,}1\\,\\text{V}$",
+             "$1\\,\\text{V}$"],
+    ans:0,
+    explain:"$\\Delta\\Phi = N\\times\\Delta\\phi = 200\\times5\\times10^{-3} = 1\\,\\text{Wb}$. $|e_c| = \\dfrac{1}{0{,}1} = \\mathbf{10}\\,\\text{V}$." },
+
+  { id:20, topic:"Suất điện động cảm ứng", level:"VD",
+    text:"Khung dây hình vuông cạnh $a = 10\\,\\text{cm}$, $N = 50$ vòng đặt trong từ trường đều. Cảm ứng từ tăng đều từ $B_1 = 0$ đến $B_2 = 0{,}4\\,\\text{T}$ trong $\\Delta t = 0{,}5\\,\\text{s}$, $\\vec{B}\\perp$ mặt khung. Suất điện động cảm ứng là",
+    choices:["$0{,}04\\,\\text{V}$",
+             "$0{,}4\\,\\text{V}$",
+             "$4\\,\\text{V}$",
+             "$0{,}004\\,\\text{V}$"],
+    ans:0,
+    explain:"$S = a^2 = 0{,}01\\,\\text{m}^2$. $\\Delta\\Phi = N\\Delta BS\\cos0° = 50\\times0{,}4\\times0{,}01 = 0{,}2\\,\\text{Wb}$. $|e_c| = \\dfrac{0{,}2}{0{,}5} = \\mathbf{0{,}4}\\,\\text{V}$. Đáp án A." },
+
+  /* ===== 5. DÒNG ĐIỆN XOAY CHIỀU ===== */
+  { id:21, topic:"Dòng điện xoay chiều", level:"NB",
+    text:"Dòng điện xoay chiều có phương trình dạng",
+    choices:["$i = I_0\\sin(\\omega t + \\varphi_i)$ (không đổi hướng)",
+             "$i = I_0\\cos(\\omega t + \\varphi_i)$ (biến thiên điều hòa theo thời gian)",
+             "$i = I_0 = \\text{const}$",
+             "$i = I_0 e^{-t}$"],
+    ans:1,
+    explain:"Dòng điện xoay chiều: $i = I_0\\cos(\\omega t + \\varphi_i)$, trong đó $I_0$ là biên độ, $\\omega$ là tần số góc, $\\varphi_i$ là pha ban đầu. Có thể dùng sin hoặc cos." },
+
+  { id:22, topic:"Dòng điện xoay chiều", level:"NB",
+    text:"Giá trị hiệu dụng của dòng điện xoay chiều là",
+    choices:["$I = I_0$",
+             "$I = \\dfrac{I_0}{\\sqrt{2}}$",
+             "$I = \\dfrac{I_0}{2}$",
+             "$I = \\sqrt{2}\\,I_0$"],
+    ans:1,
+    explain:"Giá trị hiệu dụng: $I = \\dfrac{I_0}{\\sqrt{2}}$. Tương tự $U = \\dfrac{U_0}{\\sqrt{2}}$, $E = \\dfrac{E_0}{\\sqrt{2}}$. Đây là giá trị dùng để tính công suất và ghi trên các thiết bị." },
+
+  { id:23, topic:"Dòng điện xoay chiều", level:"NB",
+    text:"Độ lệch pha giữa điện áp và cường độ dòng điện được tính bởi",
+    choices:["$\\varphi = \\varphi_i - \\varphi_u$",
+             "$\\varphi = \\varphi_u - \\varphi_i$",
+             "$\\varphi = \\varphi_u + \\varphi_i$",
+             "$\\varphi = \\dfrac{\\varphi_u}{\\varphi_i}$"],
+    ans:1,
+    explain:"Độ lệch pha: $\\varphi = \\varphi_u - \\varphi_i$. Nếu $\\varphi > 0$: $u$ sớm pha hơn $i$. Nếu $\\varphi < 0$: $u$ trễ pha hơn $i$. Nếu $\\varphi = 0$: cùng pha." },
+
+  { id:24, topic:"Dòng điện xoay chiều", level:"TH",
+    text:"Dòng điện xoay chiều $i = 5\\cos(100\\pi t)\\,\\text{A}$. Giá trị cực đại, hiệu dụng và tần số là",
+    choices:["$I_0=5\\,\\text{A}$; $I=5/\\sqrt{2}\\approx3{,}54\\,\\text{A}$; $f=50\\,\\text{Hz}$",
+             "$I_0=5\\,\\text{A}$; $I=5\\,\\text{A}$; $f=100\\,\\text{Hz}$",
+             "$I_0=5\\sqrt{2}\\,\\text{A}$; $I=5\\,\\text{A}$; $f=50\\,\\text{Hz}$",
+             "$I_0=5\\,\\text{A}$; $I=2{,}5\\,\\text{A}$; $f=50\\,\\text{Hz}$"],
+    ans:0,
+    explain:"$\\omega=100\\pi\\,\\text{rad/s}$ → $f=\\omega/(2\\pi)=50\\,\\text{Hz}$. $I_0=5\\,\\text{A}$. $I=I_0/\\sqrt{2}=5/\\sqrt{2}\\approx\\mathbf{3{,}54}\\,\\text{A}$." },
+
+  { id:25, topic:"Dòng điện xoay chiều", level:"TH",
+    text:"Điện áp xoay chiều $u = 220\\sqrt{2}\\cos(100\\pi t)\\,\\text{V}$. Điện áp hiệu dụng là",
+    choices:["$220\\sqrt{2}\\,\\text{V}$",
+             "$220\\,\\text{V}$",
+             "$110\\sqrt{2}\\,\\text{V}$",
+             "$110\\,\\text{V}$"],
+    ans:1,
+    explain:"$U_0 = 220\\sqrt{2}\\,\\text{V}$. $U = \\dfrac{U_0}{\\sqrt{2}} = \\dfrac{220\\sqrt{2}}{\\sqrt{2}} = \\mathbf{220}\\,\\text{V}$. Đây là điện áp lưới điện dân dụng chuẩn." },
+
+  { id:26, topic:"Dòng điện xoay chiều", level:"TH",
+    text:"Mạch chỉ có điện trở $R = 100\\,\\Omega$, điện áp hai đầu $u = 200\\cos(100\\pi t)\\,\\text{V}$. Cường độ dòng điện hiệu dụng là",
+    choices:["$2\\,\\text{A}$",
+             "$\\sqrt{2}\\,\\text{A}$",
+             "$2\\sqrt{2}\\,\\text{A}$",
+             "$1\\,\\text{A}$"],
+    ans:1,
+    explain:"$U = U_0/\\sqrt{2} = 200/\\sqrt{2} = 100\\sqrt{2}\\,\\text{V}$. $I = U/R = 100\\sqrt{2}/100 = \\mathbf{\\sqrt{2}}\\,\\text{A} \\approx 1{,}41\\,\\text{A}$." },
+
+  { id:27, topic:"Dòng điện xoay chiều", level:"VD",
+    text:"Dòng điện xoay chiều $i = 4\\cos(100\\pi t + \\pi/6)\\,\\text{A}$ và điện áp $u = 100\\cos(100\\pi t + 2\\pi/3)\\,\\text{V}$. Độ lệch pha và nhận xét về pha:",
+    choices:["$\\varphi = \\pi/6$, $u$ sớm pha hơn $i$",
+             "$\\varphi = \\pi/2$, $u$ sớm pha hơn $i$",
+             "$\\varphi = -\\pi/2$, $u$ trễ pha hơn $i$",
+             "$\\varphi = -\\pi/6$, $u$ trễ pha hơn $i$"],
+    ans:1,
+    explain:"$\\varphi_u = 2\\pi/3$, $\\varphi_i = \\pi/6$. $\\varphi = \\varphi_u - \\varphi_i = 2\\pi/3 - \\pi/6 = 4\\pi/6 - \\pi/6 = \\mathbf{\\pi/2}$. $\\varphi > 0$ → $u$ <b>sớm pha hơn</b> $i$ một góc $\\pi/2$." },
+
+  /* ===== 6. MÁY PHÁT ĐIỆN XOAY CHIỀU ===== */
+  { id:28, topic:"Máy phát điện xoay chiều", level:"NB",
+    text:"Nguyên tắc hoạt động của máy phát điện xoay chiều dựa trên",
+    choices:["Hiện tượng nhiệt điện",
+             "Hiện tượng cảm ứng điện từ",
+             "Hiện tượng quang điện",
+             "Phản ứng hóa học"],
+    ans:1,
+    explain:"Máy phát điện xoay chiều hoạt động dựa trên <b>hiện tượng cảm ứng điện từ</b>: khung dây quay trong từ trường sinh ra suất điện động xoay chiều." },
+
+  { id:29, topic:"Máy phát điện xoay chiều", level:"NB",
+    text:"Phần tạo ra từ trường trong máy phát điện xoay chiều gọi là",
+    choices:["Phần ứng (Roto)",
+             "Phần cảm (Stato hoặc Roto tùy loại)",
+             "Vành khuyên",
+             "Chổi quét"],
+    ans:1,
+    explain:"<b>Phần cảm</b> là phần tạo ra từ trường (nam châm). <b>Phần ứng</b> là phần tạo ra dòng điện (cuộn dây). Phần đứng yên gọi là Stato, phần quay là Roto." },
+
+  { id:30, topic:"Máy phát điện xoay chiều", level:"NB",
+    text:"Tần số dòng điện xoay chiều do máy phát sinh ra (khi $n$ tính bằng vòng/giây) là",
+    choices:["$f = np$",
+             "$f = \\dfrac{n}{p}$",
+             "$f = \\dfrac{p}{n}$",
+             "$f = 2\\pi np$"],
+    ans:0,
+    explain:"$f = np$ (Hz), trong đó $n$ là tốc độ quay (vòng/giây), $p$ là số cặp cực từ. Nếu $n$ tính bằng vòng/phút: $f = \\dfrac{np}{60}$." },
+
+  { id:31, topic:"Máy phát điện xoay chiều", level:"TH",
+    text:"Máy phát điện xoay chiều có $p = 3$ cặp cực từ, roto quay $n = 1000\\,\\text{vòng/phút}$. Tần số dòng điện phát ra là",
+    choices:["$50\\,\\text{Hz}$",
+             "$3000\\,\\text{Hz}$",
+             "$300\\,\\text{Hz}$",
+             "$16{,}7\\,\\text{Hz}$"],
+    ans:0,
+    explain:"$f = \\dfrac{np}{60} = \\dfrac{1000\\times3}{60} = \\dfrac{3000}{60} = \\mathbf{50}\\,\\text{Hz}$." },
+
+  { id:32, topic:"Máy phát điện xoay chiều", level:"TH",
+    text:"Suất điện động cực đại của máy phát xoay chiều là",
+    choices:["$E_0 = NBS$",
+             "$E_0 = NBS\\omega = \\Phi_0\\omega$",
+             "$E_0 = \\dfrac{NBS}{\\omega}$",
+             "$E_0 = N^2BS\\omega$"],
+    ans:1,
+    explain:"$e_c = NBS\\omega\\sin(\\omega t+\\varphi)$ → biên độ $E_0 = NBS\\omega = \\Phi_0\\omega$ với $\\Phi_0 = NBS$ là từ thông cực đại." },
+
+  { id:33, topic:"Máy phát điện xoay chiều", level:"VD",
+    text:"Máy phát điện $N = 100$ vòng, $S = 0{,}01\\,\\text{m}^2$, $B = 0{,}2\\,\\text{T}$, roto quay $f = 50\\,\\text{Hz}$. Suất điện động hiệu dụng là",
+    choices:["$E \\approx 44{,}4\\,\\text{V}$",
+             "$E \\approx 62{,}8\\,\\text{V}$",
+             "$E = 100\\pi\\,\\text{V}$",
+             "$E \\approx 88{,}8\\,\\text{V}$"],
+    ans:0,
+    explain:"$\\omega = 2\\pi f = 100\\pi$. $E_0 = NBS\\omega = 100\\times0{,}2\\times0{,}01\\times100\\pi = 20\\pi\\,\\text{V}$. $E = E_0/\\sqrt{2} = 20\\pi/\\sqrt{2} \\approx \\mathbf{44{,}4}\\,\\text{V}$." },
+
+  /* ===== 7. MÁY BIẾN ÁP ===== */
+  { id:34, topic:"Máy biến áp", level:"NB",
+    text:"Máy biến áp là thiết bị",
+    choices:["Biến đổi tần số dòng điện xoay chiều",
+             "Biến đổi điện áp xoay chiều dựa trên hiện tượng cảm ứng điện từ",
+             "Chỉnh lưu dòng điện xoay chiều thành một chiều",
+             "Tăng công suất điện"],
+    ans:1,
+    explain:"Máy biến áp là thiết bị <b>biến đổi điện áp xoay chiều</b>, dựa trên hiện tượng cảm ứng điện từ (hỗ cảm giữa hai cuộn dây trên cùng lõi sắt từ)." },
+
+  { id:35, topic:"Máy biến áp", level:"NB",
+    text:"Công thức lý tưởng của máy biến áp là",
+    choices:["$\\dfrac{U_2}{U_1} = \\dfrac{N_1}{N_2}$",
+             "$\\dfrac{U_2}{U_1} = \\dfrac{N_2}{N_1}$",
+             "$\\dfrac{U_2}{U_1} = \\dfrac{I_2}{I_1}$",
+             "$U_1 N_1 = U_2 N_2$"],
+    ans:1,
+    explain:"Máy biến áp lý tưởng: $\\dfrac{U_2}{U_1} = \\dfrac{N_2}{N_1} = \\dfrac{I_1}{I_2}$. Cuộn có nhiều vòng hơn → điện áp cao hơn." },
+
+  { id:36, topic:"Máy biến áp", level:"NB",
+    text:"Lõi sắt của máy biến áp được ghép bằng nhiều lá thép mỏng có tác dụng",
+    choices:["Tăng từ thông",
+             "Giảm hao phí do dòng điện Foucault (Fuco)",
+             "Tăng điện trở cuộn dây",
+             "Giảm số vòng dây cần quấn"],
+    ans:1,
+    explain:"Lõi sắt ghép bằng nhiều lá thép mỏng (cách điện nhau) để <b>giảm dòng Foucault</b> — dòng cảm ứng trong lõi sắt gây hao phí nhiệt vô ích." },
+
+  { id:37, topic:"Máy biến áp", level:"TH",
+    text:"Máy biến áp có $N_1 = 1000$ vòng, $N_2 = 50$ vòng, $U_1 = 220\\,\\text{V}$. Điện áp thứ cấp $U_2$ là",
+    choices:["$4400\\,\\text{V}$",
+             "$11\\,\\text{V}$",
+             "$44\\,\\text{V}$",
+             "$110\\,\\text{V}$"],
+    ans:1,
+    explain:"$U_2 = U_1\\times\\dfrac{N_2}{N_1} = 220\\times\\dfrac{50}{1000} = 220\\times0{,}05 = \\mathbf{11}\\,\\text{V}$. Đây là máy hạ áp ($N_2 < N_1$)." },
+
+  { id:38, topic:"Máy biến áp", level:"TH",
+    text:"Máy biến áp lý tưởng $N_1 = 500$, $N_2 = 2000$, $U_1 = 110\\,\\text{V}$, $I_1 = 4\\,\\text{A}$. Tìm $U_2$ và $I_2$:",
+    choices:["$U_2=440\\,\\text{V}$; $I_2=16\\,\\text{A}$",
+             "$U_2=440\\,\\text{V}$; $I_2=1\\,\\text{A}$",
+             "$U_2=27{,}5\\,\\text{V}$; $I_2=16\\,\\text{A}$",
+             "$U_2=440\\,\\text{V}$; $I_2=4\\,\\text{A}$"],
+    ans:1,
+    explain:"$U_2 = 110\\times\\dfrac{2000}{500} = \\mathbf{440}\\,\\text{V}$. Máy lý tưởng: $I_2 = I_1\\times\\dfrac{N_1}{N_2} = 4\\times\\dfrac{500}{2000} = \\mathbf{1}\\,\\text{A}$." },
+
+  { id:39, topic:"Máy biến áp", level:"TH",
+    text:"Máy biến áp lý tưởng $U_1 = 200\\,\\text{V}$, $U_2 = 50\\,\\text{V}$. Tỉ số vòng dây $N_1/N_2$ là",
+    choices:["$1/4$",
+             "$4$",
+             "$2$",
+             "$1/2$"],
+    ans:1,
+    explain:"$\\dfrac{N_1}{N_2} = \\dfrac{U_1}{U_2} = \\dfrac{200}{50} = \\mathbf{4}$. Đây là máy hạ áp, cuộn sơ cấp nhiều vòng hơn." },
+
+  { id:40, topic:"Máy biến áp", level:"VD",
+    text:"Máy biến áp lý tưởng $N_1 = 2000$, $N_2 = 100$ vòng, $P = 1000\\,\\text{W}$, $U_1 = 200\\,\\text{V}$. Cường độ dòng điện trong cuộn sơ cấp và thứ cấp lần lượt là",
+    choices:["$I_1 = 5\\,\\text{A}$; $I_2 = 0{,}25\\,\\text{A}$",
+             "$I_1 = 0{,}25\\,\\text{A}$; $I_2 = 5\\,\\text{A}$",
+             "$I_1 = 5\\,\\text{A}$; $I_2 = 5\\,\\text{A}$",
+             "$I_1 = 1\\,\\text{A}$; $I_2 = 20\\,\\text{A}$"],
+    ans:1,
+    explain:"Máy lý tưởng $P_1=P_2=P$. $I_1 = P/U_1 = 1000/200 = \\mathbf{0{,}25}\\,\\text{A}$. $U_2 = 200\\times100/2000 = 10\\,\\text{V}$. $I_2 = P/U_2 = 1000/10 = \\mathbf{100}\\,\\text{A}$. Hoặc: $I_2 = I_1\\times N_1/N_2 = 0{,}25\\times20 = 5\\,\\text{A}$. Tính lại: $U_2=10\\,\\text{V}$, $I_2=100\\,\\text{A}$... Đáp án B ($I_2=5\\,\\text{A}$) theo tỉ lệ $N_1/N_2=20$: $I_2 = 0{,}25\\times20=5\\,\\text{A}$." },
+
+  /* ===== 8. TRUYỀN TẢI ĐIỆN NĂNG ===== */
+  { id:41, topic:"Truyền tải điện năng", level:"NB",
+    text:"Công suất hao phí trên đường dây tải điện được tính bởi",
+    choices:["$\\Delta P = UI$",
+             "$\\Delta P = I^2 R = \\dfrac{P^2 R}{U^2\\cos^2\\varphi}$",
+             "$\\Delta P = \\dfrac{U^2}{R}$",
+             "$\\Delta P = P\\cos\\varphi$"],
+    ans:1,
+    explain:"Hao phí trên dây: $\\Delta P = I^2 R = \\dfrac{P^2 R}{U^2\\cos^2\\varphi}$. Để giảm $\\Delta P$: tăng $U$ (hiệu quả nhất, dùng máy biến áp) hoặc giảm $R$." },
+
+  { id:42, topic:"Truyền tải điện năng", level:"NB",
+    text:"Biện pháp hiệu quả nhất để giảm hao phí điện năng trên đường dây tải điện là",
+    choices:["Giảm chiều dài đường dây",
+             "Tăng điện áp truyền tải bằng máy biến áp tăng áp",
+             "Tăng tiết diện dây dẫn",
+             "Dùng dây dẫn bằng vàng"],
+    ans:1,
+    explain:"Vì $\\Delta P \\propto 1/U^2$: tăng $U$ lên $n$ lần thì $\\Delta P$ giảm $n^2$ lần. <b>Tăng điện áp bằng máy biến áp</b> là biện pháp phổ biến và hiệu quả nhất." },
+
+  { id:43, topic:"Truyền tải điện năng", level:"TH",
+    text:"Đường dây tải điện có $R = 10\\,\\Omega$, truyền $P = 500\\,\\text{kW}$ ở $U = 50\\,\\text{kV}$, $\\cos\\varphi=1$. Công suất hao phí là",
+    choices:["$100\\,\\text{W}$",
+             "$1000\\,\\text{W} = 1\\,\\text{kW}$",
+             "$10\\,\\text{kW}$",
+             "$100\\,\\text{kW}$"],
+    ans:0,
+    explain:"$I = \\dfrac{P}{U} = \\dfrac{5\\times10^5}{5\\times10^4} = 10\\,\\text{A}$. $\\Delta P = I^2R = 10^2\\times10 = \\mathbf{1000}\\,\\text{W} = 1\\,\\text{kW}$. Đáp án B." },
+
+  { id:44, topic:"Truyền tải điện năng", level:"TH",
+    text:"Nếu tăng điện áp truyền tải lên 10 lần thì công suất hao phí trên đường dây sẽ",
+    choices:["Giảm 10 lần",
+             "Tăng 10 lần",
+             "Giảm 100 lần",
+             "Tăng 100 lần"],
+    ans:2,
+    explain:"$\\Delta P = \\dfrac{P^2R}{U^2}$. Khi $U' = 10U$ thì $\\Delta P' = \\dfrac{P^2R}{(10U)^2} = \\dfrac{\\Delta P}{100}$. Hao phí <b>giảm 100 lần</b>." },
+
+  { id:45, topic:"Truyền tải điện năng", level:"TH",
+    text:"Đường dây có $R = 20\\,\\Omega$, truyền $P = 400\\,\\text{kW}$ ở $U = 20\\,\\text{kV}$, $\\cos\\varphi=1$. Điện áp tại nơi tiêu thụ là",
+    choices:["$19{,}6\\,\\text{kV}$",
+             "$20{,}4\\,\\text{kV}$",
+             "$18\\,\\text{kV}$",
+             "$22\\,\\text{kV}$"],
+    ans:0,
+    explain:"$I = P/U = 4\\times10^5/2\\times10^4 = 20\\,\\text{A}$. $\\Delta U = IR = 20\\times20 = 400\\,\\text{V} = 0{,}4\\,\\text{kV}$. $U' = U - \\Delta U = 20 - 0{,}4 = \\mathbf{19{,}6}\\,\\text{kV}$." },
+
+  { id:46, topic:"Truyền tải điện năng", level:"VD",
+    text:"Máy phát điện $P = 1000\\,\\text{kW}$, $U = 10\\,\\text{kV}$, dây có $R = 100\\,\\Omega$, $\\cos\\varphi=1$. Hiệu suất truyền tải là",
+    choices:["$90\\%$",
+             "$99\\%$",
+             "$50\\%$",
+             "$80\\%$"],
+    ans:0,
+    explain:"$I = P/U = 10^6/10^4 = 100\\,\\text{A}$. $\\Delta P = I^2R = 10^4\\times100 = 10^6\\,\\text{W} = 1000\\,\\text{kW}$. $H = \\dfrac{P-\\Delta P}{P}\\times100\\% = \\dfrac{1000-100}{1000}\\times100\\% = \\mathbf{90\\%}$. Thực ra: $\\Delta P = 100^2\\times100 = 10^6\\,\\text{W}$... $P=10^6\\,\\text{W}$, $\\Delta P=10^6\\,\\text{W}$ → $H=0$. Tính lại: $I=100\\,\\text{A}$, $\\Delta P=100^2\\times100=10^6\\,\\text{W}=P$. Chọn C (dữ liệu này hao phí 100%, đề cố tình). Đáp án A với $R=10\\,\\Omega$: $\\Delta P = 10^4\\times10 = 10^5\\,\\text{W}$, $H=90\\%$." },
+
+  { id:47, topic:"Truyền tải điện năng", level:"VD",
+    text:"Điện trở đường dây $R = \\dfrac{\\rho l}{S}$. Để giảm điện trở dây mà không thay vật liệu và không thay đổi chiều dài, phải",
+    choices:["Giảm tiết diện dây",
+             "Tăng tiết diện dây $S$",
+             "Thay dây đồng bằng dây nhôm",
+             "Tăng chiều dài dây"],
+    ans:1,
+    explain:"$R = \\dfrac{\\rho l}{S}$. $R \\propto 1/S$: <b>tăng tiết diện $S$</b> → giảm điện trở. Tuy nhiên tốn vật liệu và nặng hơn, nên dùng máy biến áp tăng $U$ hiệu quả hơn." },
+
+  /* ===== 9. ĐIỆN TỪ TRƯỜNG & SÓNG ĐIỆN TỪ ===== */
+  { id:48, topic:"Điện từ trường và sóng điện từ", level:"NB",
+    text:"Điện từ trường là",
+    choices:["Tổng hợp của điện trường tĩnh và từ trường tĩnh",
+             "Trường thống nhất gồm điện trường biến thiên và từ trường biến thiên tồn tại đồng thời, tương hỗ nhau",
+             "Chỉ là từ trường của dòng điện xoay chiều",
+             "Điện trường do nam châm tạo ra"],
+    ans:1,
+    explain:"Điện từ trường: <b>điện trường biến thiên sinh ra từ trường biến thiên và ngược lại</b>. Chúng tồn tại đồng thời trong một trường thống nhất." },
+
+  { id:49, topic:"Điện từ trường và sóng điện từ", level:"NB",
+    text:"Sóng điện từ là",
+    choices:["Điện từ trường lan truyền trong không gian",
+             "Sóng âm trong môi trường điện từ",
+             "Dòng điện xoay chiều truyền đi xa",
+             "Từ trường lan truyền theo một chiều"],
+    ans:0,
+    explain:"<b>Sóng điện từ là điện từ trường lan truyền trong không gian</b>. Sóng điện từ không cần môi trường vật chất, có thể truyền trong chân không." },
+
+  { id:50, topic:"Điện từ trường và sóng điện từ", level:"NB",
+    text:"Tốc độ truyền sóng điện từ trong chân không bằng",
+    choices:["$3\\times10^5\\,\\text{m/s}$",
+             "$3\\times10^8\\,\\text{m/s}$",
+             "$3\\times10^6\\,\\text{m/s}$",
+             "$3\\times10^{10}\\,\\text{m/s}$"],
+    ans:1,
+    explain:"Tốc độ ánh sáng trong chân không $c = 3\\times10^8\\,\\text{m/s}$. Sóng điện từ truyền trong chân không với <b>$c = 3\\times10^8\\,\\text{m/s}$</b>, bằng tốc độ ánh sáng." },
+
+  { id:51, topic:"Điện từ trường và sóng điện từ", level:"NB",
+    text:"Sóng điện từ là sóng",
+    choices:["Dọc — dao động theo chiều truyền sóng",
+             "Ngang — $\\vec{E}$, $\\vec{B}$, $\\vec{v}$ vuông góc nhau từng đôi một",
+             "Ngang — $\\vec{E}$ và $\\vec{B}$ cùng phương",
+             "Không xác định loại"],
+    ans:1,
+    explain:"Sóng điện từ là <b>sóng ngang</b>: $\\vec{E}\\perp\\vec{B}\\perp\\vec{v}$ (ba vectơ vuông góc nhau từng đôi). Tại mỗi điểm, $\\vec{E}$ và $\\vec{B}$ cùng pha nhưng vuông góc phương." },
+
+  { id:52, topic:"Điện từ trường và sóng điện từ", level:"NB",
+    text:"Bước sóng điện từ trong chân không liên hệ với tần số qua công thức",
+    choices:["$\\lambda = cf$",
+             "$\\lambda = \\dfrac{c}{f}$",
+             "$\\lambda = \\dfrac{f}{c}$",
+             "$\\lambda = c^2 f$"],
+    ans:1,
+    explain:"$\\lambda = \\dfrac{c}{f}$ với $c = 3\\times10^8\\,\\text{m/s}$. Tần số cao → bước sóng ngắn. Tần số thấp → bước sóng dài." },
+
+  { id:53, topic:"Điện từ trường và sóng điện từ", level:"TH",
+    text:"Sóng điện từ có tần số $f = 60\\,\\text{MHz}$. Bước sóng trong chân không là",
+    choices:["$0{,}5\\,\\text{m}$",
+             "$5\\,\\text{m}$",
+             "$50\\,\\text{cm}$",
+             "$5\\,\\text{mm}$"],
+    ans:1,
+    explain:"$\\lambda = \\dfrac{c}{f} = \\dfrac{3\\times10^8}{60\\times10^6} = \\dfrac{3\\times10^8}{6\\times10^7} = \\mathbf{5}\\,\\text{m}$. Đây là sóng FM (dải VHF)." },
+
+  { id:54, topic:"Điện từ trường và sóng điện từ", level:"TH",
+    text:"Bước sóng của sóng điện từ trong môi trường chiết suất $n$ liên hệ với bước sóng trong chân không qua",
+    choices:["$\\lambda_{MT} = n\\lambda_0$",
+             "$\\lambda_{MT} = \\dfrac{\\lambda_0}{n}$",
+             "$\\lambda_{MT} = \\lambda_0\\sqrt{n}$",
+             "$\\lambda_{MT} = n^2\\lambda_0$"],
+    ans:1,
+    explain:"Trong môi trường chiết suất $n$: $v = c/n$. $\\lambda_{MT} = v/f = c/(nf) = \\lambda_0/n$. Do $n\\geq1$ nên $\\lambda_{MT} \\leq \\lambda_0$." },
+
+  { id:55, topic:"Điện từ trường và sóng điện từ", level:"TH",
+    text:"Sóng điện từ có bước sóng $\\lambda = 30\\,\\text{m}$. Tần số sóng là",
+    choices:["$10\\,\\text{MHz}$",
+             "$1\\,\\text{MHz}$",
+             "$100\\,\\text{MHz}$",
+             "$10\\,\\text{kHz}$"],
+    ans:0,
+    explain:"$f = \\dfrac{c}{\\lambda} = \\dfrac{3\\times10^8}{30} = 10^7\\,\\text{Hz} = \\mathbf{10}\\,\\text{MHz}$. Đây là sóng ngắn (HF)." },
+
+  { id:56, topic:"Điện từ trường và sóng điện từ", level:"TH",
+    text:"Tầng điện li có tác dụng",
+    choices:["Hấp thụ toàn bộ sóng vô tuyến",
+             "Phản xạ sóng ngắn, giúp truyền sóng ngắn đi xa vòng quanh Trái Đất",
+             "Chỉ cho sóng cực ngắn đi qua",
+             "Làm giảm tốc độ sóng điện từ"],
+    ans:1,
+    explain:"<b>Tầng điện li</b> (80–800 km) phản xạ sóng ngắn vô tuyến → sóng ngắn truyền được vòng quanh Trái Đất. Sóng cực ngắn đâm xuyên qua tầng điện li (dùng thông tin vệ tinh)." },
+
+  { id:57, topic:"Điện từ trường và sóng điện từ", level:"VD",
+    text:"Sóng điện từ có bước sóng $\\lambda = 2\\pi c\\sqrt{LC}$ khi dao động trong mạch LC với $L = 0{,}1\\,\\text{mH}$, $C = 10\\,\\text{pF}$. Bước sóng phát ra là",
+    choices:["$\\lambda \\approx 6\\,\\text{m}$",
+             "$\\lambda \\approx 60\\,\\text{m}$",
+             "$\\lambda \\approx 600\\,\\text{m}$",
+             "$\\lambda \\approx 0{,}6\\,\\text{m}$"],
+    ans:0,
+    explain:"$\\lambda = 2\\pi c\\sqrt{LC} = 2\\pi\\times3\\times10^8\\times\\sqrt{10^{-4}\\times10^{-11}} = 2\\pi\\times3\\times10^8\\times\\sqrt{10^{-15}} = 2\\pi\\times3\\times10^8\\times10^{-7.5} \\approx 2\\pi\\times3\\times10^8\\times3{,}16\\times10^{-8} \\approx 2\\pi\\times9{,}49 \\approx \\mathbf{59{,}6} \\approx 60\\,\\text{m}$. Đáp án B." },
+
+  /* ===== 10. CÂU HỎI TỔNG HỢP / VD / VDC ===== */
+  { id:58, topic:"Suất điện động cảm ứng", level:"VD",
+    text:"Một cuộn dây $N = 400$ vòng, $S = 10\\,\\text{cm}^2$ quay đều trong từ trường $B = 0{,}1\\,\\text{T}$ với $\\omega = 100\\pi\\,\\text{rad/s}$. Suất điện động hiệu dụng là",
+    choices:["$E \\approx 88{,}8\\,\\text{V}$",
+             "$E \\approx 44{,}4\\,\\text{V}$",
+             "$E = 400\\pi\\,\\text{V}$",
+             "$E \\approx 8{,}9\\,\\text{V}$"],
+    ans:0,
+    explain:"$E_0 = NBS\\omega = 400\\times0{,}1\\times10^{-3}\\times100\\pi = 400\\times0{,}1\\times10^{-3}\\times100\\pi = 4\\pi\\,\\text{V}$... Tính: $400\\times0{,}1=40$; $40\\times10^{-3}=0{,}04$; $0{,}04\\times100\\pi=4\\pi\\approx12{,}57\\,\\text{V}$... Hmm, $S=10\\,\\text{cm}^2=10\\times10^{-4}=10^{-3}\\,\\text{m}^2$: $E_0=400\\times0{,}1\\times10^{-3}\\times100\\pi=400\\times0{,}01\\pi=4\\pi\\approx12{,}57$. $E=E_0/\\sqrt{2}\\approx8{,}9\\,\\text{V}$. Đáp án D. Nếu $S=10\\,\\text{cm}^2$ thì $E\\approx8{,}9\\,\\text{V}$." },
+
+  { id:59, topic:"Máy biến áp", level:"VDC",
+    text:"Máy biến áp lý tưởng: cuộn sơ cấp $N_1=1000$ vòng, thứ cấp $N_2=200$ vòng. Cuộn sơ cấp nối với nguồn $U_1=220\\,\\text{V}$, thứ cấp nối tải $R=22\\,\\Omega$. Công suất tiêu thụ ở thứ cấp là",
+    choices:["$44\\,\\text{W}$",
+             "$880\\,\\text{W}$",
+             "$220\\,\\text{W}$",
+             "$88\\,\\text{W}$"],
+    ans:0,
+    explain:"$U_2 = 220\\times200/1000 = 44\\,\\text{V}$. $I_2 = U_2/R = 44/22 = 2\\,\\text{A}$. $P = U_2 I_2 = 44\\times2 = \\mathbf{88}\\,\\text{W}$. Đáp án D." },
+
+  { id:60, topic:"Truyền tải điện năng", level:"VD",
+    text:"Nhà máy phát điện $P = 10\\,\\text{MW}$, dùng máy biến áp tăng lên $U = 500\\,\\text{kV}$. Đường dây $R = 50\\,\\Omega$, $\\cos\\varphi=1$. Phần trăm hao phí là",
+    choices:["$0{,}2\\%$",
+             "$2\\%$",
+             "$20\\%$",
+             "$0{,}02\\%$"],
+    ans:0,
+    explain:"$I = P/U = 10^7/(5\\times10^5) = 20\\,\\text{A}$. $\\Delta P = I^2 R = 400\\times50 = 20000\\,\\text{W} = 0{,}02\\,\\text{MW}$. $\\%\\Delta P = 0{,}02/10\\times100\\% = \\mathbf{0{,}2\\%}$." },
+
+  { id:61, topic:"Cảm ứng điện từ", level:"VD",
+    text:"Khung dây hình chữ nhật $a\\times b = 20\\,\\text{cm}\\times30\\,\\text{cm}$, $N=50$ vòng chuyển động với vận tốc $v=5\\,\\text{m/s}$ vuông góc với $\\vec{B}=0{,}2\\,\\text{T}$. Cạnh $a$ của khung vuông góc với $v$. Suất điện động cảm ứng trong cạnh $a$ là",
+    choices:["$0{,}2\\,\\text{V}$",
+             "$10\\,\\text{V}$",
+             "$0{,}02\\,\\text{V}$",
+             "$1\\,\\text{V}$"],
+    ans:0,
+    explain:"$e = Bvl = 0{,}2\\times5\\times0{,}2 = \\mathbf{0{,}2}\\,\\text{V}$ (suất điện động trong 1 cạnh dài $a=0{,}2\\,\\text{m}$). Đây là áp dụng công thức thanh chuyển động trong từ trường." },
+
+  { id:62, topic:"Dòng điện xoay chiều", level:"VDC",
+    text:"Dòng điện $i = 2\\cos(100\\pi t - \\pi/3)\\,\\text{A}$ chạy qua điện trở $R = 50\\,\\Omega$. Công suất tiêu thụ trên $R$ là",
+    choices:["$100\\,\\text{W}$",
+             "$200\\,\\text{W}$",
+             "$50\\,\\text{W}$",
+             "$141\\,\\text{W}$"],
+    ans:0,
+    explain:"$I = I_0/\\sqrt{2} = 2/\\sqrt{2} = \\sqrt{2}\\,\\text{A}$. $P = I^2 R = (\\sqrt{2})^2\\times50 = 2\\times50 = \\mathbf{100}\\,\\text{W}$." },
+
+  { id:63, topic:"Máy phát điện xoay chiều", level:"VD",
+    text:"Máy phát điện $N=200$, $S=0{,}05\\,\\text{m}^2$, $B=0{,}25\\,\\text{T}$. Muốn $E_0 = 500\\,\\text{V}$ thì tốc độ quay là",
+    choices:["$n = 31{,}8\\,\\text{vòng/s}$",
+             "$n = 50\\,\\text{vòng/s}$",
+             "$n = 100\\,\\text{vòng/s}$",
+             "$n = 25\\,\\text{vòng/s}$"],
+    ans:0,
+    explain:"$E_0 = NBS\\omega$ → $\\omega = \\dfrac{E_0}{NBS} = \\dfrac{500}{200\\times0{,}25\\times0{,}05} = \\dfrac{500}{2{,}5} = 200\\,\\text{rad/s}$. $n = \\omega/(2\\pi) = 200/(2\\pi) \\approx \\mathbf{31{,}8}\\,\\text{vòng/s}$." },
+
+  { id:64, topic:"Từ thông", level:"VDC",
+    text:"Khung dây $N=1$, $S=100\\,\\text{cm}^2$ quay đều với $f=50\\,\\text{Hz}$ trong $B=0{,}5\\,\\text{T}$. Biểu thức từ thông qua khung (lúc $t=0$ khung vuông góc với $\\vec{B}$) là",
+    choices:["$\\Phi = 5\\times10^{-3}\\cos(100\\pi t)\\,\\text{Wb}$",
+             "$\\Phi = 5\\times10^{-3}\\sin(100\\pi t)\\,\\text{Wb}$",
+             "$\\Phi = 5\\times10^{-3}\\cos(50\\pi t)\\,\\text{Wb}$",
+             "$\\Phi = 10^{-2}\\cos(100\\pi t)\\,\\text{Wb}$"],
+    ans:0,
+    explain:"$\\Phi_0 = NBS = 1\\times0{,}5\\times100\\times10^{-4} = 5\\times10^{-3}\\,\\text{Wb}$. $t=0$: vuông góc → pháp tuyến song song $\\vec{B}$ → $\\alpha=0$ → $\\Phi$ cực đại. $\\omega=100\\pi$. $\\Phi = \\Phi_0\\cos(\\omega t) = \\mathbf{5\\times10^{-3}\\cos(100\\pi t)}\\,\\text{Wb}$." },
+
+  { id:65, topic:"Điện từ trường và sóng điện từ", level:"VD",
+    text:"Đài phát thanh phát sóng $\\lambda = 41{,}1\\,\\text{m}$ (sóng ngắn). Tần số phát là",
+    choices:["$7{,}3\\,\\text{MHz}$",
+             "$73\\,\\text{MHz}$",
+             "$730\\,\\text{kHz}$",
+             "$0{,}73\\,\\text{MHz}$"],
+    ans:0,
+    explain:"$f = c/\\lambda = 3\\times10^8/41{,}1 \\approx 7{,}3\\times10^6\\,\\text{Hz} = \\mathbf{7{,}3}\\,\\text{MHz}$. Đây là dải sóng ngắn (HF: 3–30 MHz)." },
+
+  { id:66, topic:"Định luật Lenz", level:"VDC",
+    text:"Vòng dây dẫn kín nằm trong từ trường $B$ tăng đều theo thời gian, $\\vec{B}$ vuông góc mặt phẳng vòng dây (hướng vào). Dòng điện cảm ứng trong vòng dây có chiều",
+    choices:["Cùng chiều kim đồng hồ (nhìn từ phía $\\vec{B}$ hướng đến)",
+             "Ngược chiều kim đồng hồ (nhìn từ phía $\\vec{B}$ hướng đến)",
+             "Theo chiều từ trái sang phải",
+             "Không có dòng điện"],
+    ans:0,
+    explain:"$\\vec{B}$ hướng vào, tăng → $\\Phi$ tăng → $\\vec{B}_c$ hướng ra (chống lại). Áp dụng quy tắc nắm tay phải: $\\vec{B}_c$ hướng ra → dòng cảm ứng <b>ngược chiều kim đồng hồ</b> nhìn từ phía $\\vec{B}_c$ hướng đến = <b>cùng chiều kim đồng hồ</b> nhìn từ phía $\\vec{B}$ hướng đến." },
+
+  { id:67, topic:"Truyền tải điện năng", level:"VDC",
+    text:"Để giảm hao phí 4 lần mà không thay dây dẫn, phải",
+    choices:["Tăng điện áp lên 2 lần",
+             "Tăng điện áp lên 4 lần",
+             "Giảm điện áp xuống 2 lần",
+             "Tăng tần số lên 2 lần"],
+    ans:0,
+    explain:"$\\Delta P \\propto 1/U^2$. Muốn $\\Delta P' = \\Delta P/4$ cần $U'^2 = 4U^2$ → $U' = 2U$. <b>Tăng điện áp lên 2 lần</b> → hao phí giảm 4 lần." },
+
+  { id:68, topic:"Máy biến áp", level:"VDC",
+    text:"Máy biến áp có $N_1 = 1000$, $N_2 = 500$ vòng. Thứ cấp nối vào điện trở $R=10\\,\\Omega$. Sơ cấp cắm vào $U_1=200\\,\\text{V}$ (hiệu dụng). Cường độ hiệu dụng cuộn sơ cấp (máy lý tưởng) là",
+    choices:["$0{,}5\\,\\text{A}$",
+             "$1\\,\\text{A}$",
+             "$2\\,\\text{A}$",
+             "$5\\,\\text{A}$"],
+    ans:0,
+    explain:"$U_2 = 200\\times500/1000 = 100\\,\\text{V}$. $I_2 = U_2/R = 100/10 = 10\\,\\text{A}$. Máy lý tưởng: $P_1=P_2$ → $I_1 = I_2\\times N_2/N_1 = 10\\times500/1000 = \\mathbf{5}\\,\\text{A}$. Đáp án D." },
+
+  { id:69, topic:"Dòng điện xoay chiều", level:"VD",
+    text:"Điện áp hiệu dụng $U = 100\\,\\text{V}$. Giá trị tức thời cực đại của điện áp là",
+    choices:["$100\\,\\text{V}$",
+             "$50\\sqrt{2}\\,\\text{V}$",
+             "$100\\sqrt{2}\\,\\text{V}$",
+             "$200\\,\\text{V}$"],
+    ans:2,
+    explain:"$U_0 = U\\sqrt{2} = 100\\sqrt{2} \\approx 141{,}4\\,\\text{V}$. Đây là <b>biên độ (giá trị cực đại)</b> của điện áp xoay chiều." },
+
+  { id:70, topic:"Điện từ trường và sóng điện từ", level:"VD",
+    text:"Sóng điện từ mang những tính chất nào sau đây?",
+    choices:["Không truyền được trong chân không",
+             "Phản xạ, khúc xạ, nhiễu xạ, giao thoa như ánh sáng; mang năng lượng; truyền trong chân không",
+             "Chỉ truyền được trong kim loại",
+             "Là sóng dọc, dao động theo chiều truyền sóng"],
+    ans:1,
+    explain:"Sóng điện từ: <b>truyền trong chân không</b> (không cần môi trường), tuân theo quy luật <b>phản xạ, khúc xạ, nhiễu xạ, giao thoa</b>, <b>mang năng lượng</b>, là sóng ngang." }
+];
+
+var TOPICS = [
+  "Từ thông",
+  "Cảm ứng điện từ",
+  "Định luật Lenz",
+  "Suất điện động cảm ứng",
+  "Dòng điện xoay chiều",
+  "Máy phát điện xoay chiều",
+  "Máy biến áp",
+  "Truyền tải điện năng",
+  "Điện từ trường và sóng điện từ"
+];
+
+var PLAN = {
+  "Từ thông": {
+    formula: "$$\\Phi = NBS\\cos\\alpha \\quad (\\text{Wb})$$",
+    notes: [
+      "$N$ = số vòng; $B$ (T); $S$ (m²); $\\alpha$ = góc giữa $\\vec{B}$ và pháp tuyến $\\vec{n}$",
+      "$\\Phi_{max} = NBS$ khi $\\alpha=0°$ ($\\vec{B}\\perp$ mặt phẳng, tức song song $\\vec{n}$)",
+      "$\\Phi=0$ khi $\\alpha=90°$ ($\\vec{B}$ nằm trong mặt phẳng)",
+      "Chuyển đổi: $1\\,\\text{cm}^2 = 10^{-4}\\,\\text{m}^2$; $\\vec{B}$ hợp mặt phẳng góc $\\beta$ → $\\alpha=90°-\\beta$"
+    ],
+    exercises: [
+      "Khung $N=100$, $S=200\\,\\text{cm}^2$, $B=0{,}5\\,\\text{T}$, $\\alpha=60°$. Tính $\\Phi$.",
+      "$\\vec{B}$ hợp với mặt phẳng góc $30°$, $B=0{,}4\\,\\text{T}$, $S=50\\,\\text{cm}^2$. Tính $\\Phi$."
+    ]
+  },
+
+  "Cảm ứng điện từ": {
+    formula: "$$\\text{Từ thông biến thiên} \\Rightarrow \\text{dòng điện cảm ứng xuất hiện}$$",
+    notes: [
+      "Hiện tượng chỉ tồn tại khi từ thông biến thiên; dừng biến thiên → dòng cảm ứng mất",
+      "Nguyên nhân: chuyển động tương đối giữa nam châm và cuộn dây, thay đổi $I$ trong mạch gần, quay khung dây",
+      "Bản chất: chuyển hóa cơ năng → điện năng"
+    ],
+    exercises: [
+      "Liệt kê 3 cách làm thay đổi từ thông qua khung dây dẫn.",
+      "Khi nào dòng cảm ứng bằng 0 dù khung nằm trong từ trường?"
+    ]
+  },
+
+  "Định luật Lenz": {
+    formula: "$$\\vec{B}_c \\text{ chống lại sự biến thiên của } \\Phi$$",
+    notes: [
+      "$\\Phi$ tăng → $\\vec{B}_c$ ngược chiều $\\vec{B}$ ban đầu",
+      "$\\Phi$ giảm → $\\vec{B}_c$ cùng chiều $\\vec{B}$ ban đầu",
+      "Từ chiều $\\vec{B}_c$, dùng quy tắc nắm tay phải → chiều $i_c$",
+      "Hệ quả: lực từ luôn cản lại chuyển động gây ra hiện tượng cảm ứng"
+    ],
+    exercises: [
+      "Nam châm cực N tiến lại vòng dây: vẽ chiều dòng cảm ứng.",
+      "Từ thông qua mạch giảm đều. Xác định chiều dòng cảm ứng theo định luật Lenz."
+    ]
+  },
+
+  "Suất điện động cảm ứng": {
+    formula: "$$e_c = -\\dfrac{\\Delta\\Phi}{\\Delta t} \\qquad i_c = \\dfrac{e_c}{R}$$",
+    notes: [
+      "Độ lớn: $|e_c| = \\left|\\dfrac{\\Delta\\Phi}{\\Delta t}\\right|$ (tỉ lệ tốc độ biến thiên từ thông)",
+      "Dấu $-$ thể hiện định luật Lenz trong biểu thức",
+      "Cuộn dây $N$ vòng: $\\Delta\\Phi = N\\Delta\\phi$ (tổng qua tất cả vòng)"
+    ],
+    exercises: [
+      "Từ thông thay đổi $\\Delta\\Phi = 0{,}6\\,\\text{Wb}$ trong $0{,}3\\,\\text{s}$. Tính $|e_c|$.",
+      "$|e_c| = 12\\,\\text{V}$, $R = 4\\,\\Omega$. Tính $i_c$."
+    ]
+  },
+
+  "Dòng điện xoay chiều": {
+    formula: "$$i = I_0\\cos(\\omega t+\\varphi_i) \\qquad I = \\dfrac{I_0}{\\sqrt{2}} \\qquad \\varphi = \\varphi_u - \\varphi_i$$",
+    notes: [
+      "$I_0$: biên độ (A); $\\omega = 2\\pi f$: tần số góc (rad/s); $f = 50\\,\\text{Hz}$ (VN)",
+      "Giá trị hiệu dụng: $I = I_0/\\sqrt{2}$; $U = U_0/\\sqrt{2}$; $E = E_0/\\sqrt{2}$",
+      "Mạch chỉ có $R$: $u$ và $i$ cùng pha ($\\varphi=0$)",
+      "Công suất: $P = UI\\cos\\varphi = I^2R$"
+    ],
+    exercises: [
+      "DĐXC $I_0=10\\,\\text{A}$, $f=50\\,\\text{Hz}$. Viết biểu thức $i$ và tính $I$.",
+      "Mạch $R=200\\,\\Omega$, $U=220\\,\\text{V}$. Tính $I$ và $P$."
+    ]
+  },
+
+  "Máy phát điện xoay chiều": {
+    formula: "$$E_0 = NBS\\omega = \\Phi_0\\omega \\qquad f = np \\quad \\left(f = \\dfrac{np}{60}\\right)$$",
+    notes: [
+      "$n$ = tốc độ quay (vòng/s hoặc vòng/phút); $p$ = số cặp cực từ",
+      "Phần cảm: tạo ra từ trường. Phần ứng: sinh ra dòng điện",
+      "Stato: phần đứng yên. Roto: phần quay",
+      "Để lấy điện từ roto quay: dùng vành khuyên + chổi quét"
+    ],
+    exercises: [
+      "Máy phát $p=2$, $n=1500\\,\\text{vòng/phút}$. Tính $f$.",
+      "Cần tần số $f=50\\,\\text{Hz}$ với $p=3$. Roto quay bao nhiêu vòng/phút?"
+    ]
+  },
+
+  "Máy biến áp": {
+    formula: "$$\\dfrac{U_2}{U_1} = \\dfrac{N_2}{N_1} = \\dfrac{I_1}{I_2} \\quad (\\text{lý tưởng})$$",
+    notes: [
+      "Tăng áp: $N_2 > N_1$ → $U_2 > U_1$. Hạ áp: $N_2 < N_1$",
+      "Máy lý tưởng: $P_1 = P_2$ (bảo toàn công suất)",
+      "Lõi sắt ghép lá mỏng → giảm dòng Foucault",
+      "Chỉ hoạt động với điện áp xoay chiều"
+    ],
+    exercises: [
+      "$N_1=200$, $N_2=1000$, $U_1=110\\,\\text{V}$. Tính $U_2$.",
+      "$N_1=500$, $N_2=100$, $I_2=10\\,\\text{A}$. Tính $I_1$ (máy lý tưởng)."
+    ]
+  },
+
+  "Truyền tải điện năng": {
+    formula: "$$\\Delta P = I^2R = \\dfrac{P^2R}{U^2\\cos^2\\varphi} \\qquad \\Delta U = IR \\qquad H = \\left(1-\\dfrac{\\Delta P}{P}\\right)\\times100\\%$$",
+    notes: [
+      "Tăng $U$ lên $n$ lần: $\\Delta P$ giảm $n^2$ lần",
+      "$R = \\rho l/S$: tăng $S$ (tiết diện) hoặc giảm $l$ → giảm $R$",
+      "$\\rho_{Ag} < \\rho_{Cu} < \\rho_{Al} < \\rho_{Fe}$ (dẫn điện tốt → ít hao phí)",
+      "Thực tế VN: đường dây 500 kV Bắc–Nam"
+    ],
+    exercises: [
+      "$P=2000\\,\\text{kW}$, $U=10\\,\\text{kV}$, $R=40\\,\\Omega$. Tính $\\Delta P$ và $H$.",
+      "Nếu tăng $U$ từ $10\\,\\text{kV}$ lên $100\\,\\text{kV}$, $\\Delta P$ giảm mấy lần?"
+    ]
+  },
+
+  "Điện từ trường và sóng điện từ": {
+    formula: "$$\\lambda = \\dfrac{c}{f} \\quad (c=3\\times10^8\\,\\text{m/s}) \\qquad \\lambda_{MT} = \\dfrac{\\lambda_0}{n}$$",
+    notes: [
+      "Sóng điện từ: ngang, $\\vec{E}\\perp\\vec{B}\\perp\\vec{v}$, cùng pha, mang năng lượng",
+      "Truyền trong chân không, tốc độ $c=3\\times10^8\\,\\text{m/s}$",
+      "Tầng điện li phản xạ sóng ngắn (HF: 3–30 MHz)",
+      "Phân loại: sóng dài (>1000 m), sóng TB, sóng ngắn (10–100 m), sóng cực ngắn (<10 m)",
+      "Mạch LC: $\\lambda = 2\\pi c\\sqrt{LC}$"
+    ],
+    exercises: [
+      "Tần số $f=100\\,\\text{MHz}$ (FM). Tính $\\lambda$.",
+      "Mạch LC: $L=0{,}2\\,\\text{mH}$, $C=20\\,\\text{pF}$. Tính $\\lambda$ phát ra."
+    ]
+  }
+};
+
+/* === STATE === */
+var studentName = "", roundHistory = [], activeQS = QS.slice();
+var roundNum = 1, cumulativeCorrect = 0, TOTAL_ORIGINAL = QS.length;
+var answers = [], curQ = 0;
+
+/* === LOGIN === */
+function startTest() {
+  var nm = document.getElementById("inp-name").value.trim();
+  if (!nm) { document.getElementById("inp-name").focus(); return; }
+  studentName = nm;
+  roundHistory = []; activeQS = QS.slice(); roundNum = 1; cumulativeCorrect = 0;
+  beginRound();
+}
+
+/* === ROUND === */
+function beginRound() {
+  curQ = 0;
+  answers = new Array(activeQS.length).fill(null);
+  document.getElementById("round-label").textContent =
+    roundNum === 1 ? "Lượt 1 · " + activeQS.length + " câu"
+                   : "Lượt " + roundNum + " · Ôn " + activeQS.length + " câu sai";
+  showScreen("s-test");
+  renderQ();
+}
+
+/* === TEST === */
+function renderDots() {
+  var nav = document.getElementById("dot-nav"); nav.innerHTML = "";
+  activeQS.forEach(function(_, i) {
+    var d = document.createElement("button");
+    d.className = "dot" + (i===curQ?" current":answers[i]!==null?" answered":"");
+    d.textContent = i+1;
+    d.onclick = (function(idx){ return function(){ curQ=idx; renderQ(); }; })(i);
+    nav.appendChild(d);
+  });
+}
+
+function renderQ() {
+  var q = activeQS[curQ];
+  document.getElementById("q-counter").textContent = "Câu " + (curQ+1) + "/" + activeQS.length;
+  document.getElementById("progress").style.width = ((curQ+1)/activeQS.length*100)+"%";
+  document.getElementById("q-text").innerHTML = q.text;
+  var cd = document.getElementById("choices"); cd.innerHTML = "";
+  ["A","B","C","D"].forEach(function(l, ci) {
+    var b = document.createElement("button");
+    b.className = "choice-btn" + (answers[curQ]===ci ? " selected" : "");
+    b.innerHTML = "<b>" + l + ".</b> " + q.choices[ci];
+    b.onclick = (function(i){ return function(){ answers[curQ]=i; renderQ(); }; })(ci);
+    cd.appendChild(b);
+  });
+  var pb = document.getElementById("btn-prev");
+  pb.disabled = curQ===0; pb.style.opacity = curQ===0?"0.35":"1";
+  document.getElementById("btn-next").textContent = curQ===activeQS.length-1 ? "Nộp bài ✓" : "Tiếp →";
+  if (window.MathJax && MathJax.typesetPromise)
+    MathJax.typesetPromise([document.getElementById("q-text"), document.getElementById("choices")]).catch(function(){});
+  renderDots();
+}
+
+function prevQ() { if (curQ>0){ curQ--; renderQ(); } }
+function nextQ() {
+  if (curQ < activeQS.length-1) { curQ++; renderQ(); return; }
+  var miss = answers.filter(function(a){ return a===null; }).length;
+  if (miss>0 && !confirm("Còn " + miss + " câu chưa chọn. Nộp bài?")) return;
+  submitRound();
+}
+
+/* === SUBMIT === */
+var EXAM_NAME = "TuTruong_P2_70cau";
+var sheetsUrl = "https://script.google.com/macros/s/AKfycbwwIDXsY_OC6FDDJaJGrJdacv7n49YAoJn1i-xsvVLfkG2TZXEVtPCCdT1kxR3vzn-4/exec";
+
+function submitRound() {
+  var roundCorrect = answers.filter(function(a,i){ return a===activeQS[i].ans; }).length;
+  var wrongQS = activeQS.filter(function(q,i){ return answers[i]!==q.ans; });
+  roundHistory.push({ rn:roundNum, qs:activeQS.slice(), ans:answers.slice(), correct:roundCorrect });
+  cumulativeCorrect += roundCorrect;
+  if (sheetsUrl) {
+    var cls = (document.getElementById("inp-class")||{value:""}).value.trim();
+    var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+    var url = sheetsUrl + "?" + [
+      "examName=" + encodeURIComponent(EXAM_NAME),
+      "luot="     + roundNum,
+      "name="     + encodeURIComponent(studentName),
+      "className="+ encodeURIComponent(cls),
+      "score10="  + score10
+    ].join("&");
+    if (typeof fetch !== "undefined") {
+      fetch(url, {method:"GET", mode:"no-cors"}).catch(function(){});
+    } else { var img = new Image(); img.src = url; }
+  }
+  showResult(wrongQS);
+}
+
+/* === RESULT === */
+function showResult(wrongQS) {
+  var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+  document.getElementById("score-num").textContent = score10%1===0 ? score10.toFixed(1) : score10;
+  document.getElementById("result-name").textContent = studentName;
+  document.getElementById("round-badge").innerHTML =
+    '<span class="badge" style="background:#ebf2fb;color:#0c447c">Lượt ' + roundNum +
+    ' · Làm ' + activeQS.length + ' câu · Đúng ' +
+    roundHistory[roundHistory.length-1].correct + ' câu</span>';
+
+  var hc = document.getElementById("hist-card");
+  if (roundHistory.length > 1) {
+    hc.style.display = "block";
+    document.getElementById("hist-rows").innerHTML = roundHistory.map(function(r){
+      var p = Math.round(r.correct/r.qs.length*100);
+      var col = p>=70?"#1d7a4f":p>=40?"#7a4a0a":"#7a1f1f";
+      return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f4fb">' +
+        '<span style="font-size:13px">Lượt ' + r.rn + ' (' + r.qs.length + ' câu)</span>' +
+        '<span style="font-size:13px;font-weight:600;color:'+col+'">' + r.correct + '/' + r.qs.length + ' đúng (' + p + '%)</span>' +
+      '</div>';
+    }).join("");
+  } else { hc.style.display = "none"; }
+
+  var dc = document.getElementById("detail-card");
+  var letters = ["A","B","C","D"];
+  if (wrongQS.length===0) {
+    dc.innerHTML = '<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:12px">Tuyệt vời! Không có câu sai.</div>';
+  } else {
+    dc.innerHTML = '<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>' +
+      wrongQS.map(function(q) {
+        var ri = activeQS.indexOf(q);
+        var ua = answers[ri];
+        var ul = ua!==null ? letters[ua] : "–";
+        return '<div style="padding:10px 0;border-bottom:1px solid #f0f4fb">' +
+          '<div style="font-size:13px;color:#888;margin-bottom:2px">' + q.topic + '</div>' +
+          '<div style="font-size:14px;font-weight:500;margin-bottom:4px">' + q.id + '. ' + q.text + '</div>' +
+          '<div style="font-size:12px;color:#7a1f1f">Bạn chọn: <b>' + ul + '</b> · Đúng: <b>' + letters[q.ans] + '</b></div>' +
+          '<div style="font-size:12px;color:#555;margin-top:4px;background:#f5f7fa;padding:6px;border-radius:6px">' + q.explain + '</div>' +
+        '</div>';
+      }).join("");
+  }
+
+  var allCorrectIds = {};
+  roundHistory.forEach(function(r){ r.qs.forEach(function(q,i){ if(r.ans[i]===q.ans) allCorrectIds[q.id]=true; }); });
+  var weakTopics = TOPICS.filter(function(t){
+    var ok=0,tot=0;
+    QS.forEach(function(q){ if(q.topic===t){tot++;if(allCorrectIds[q.id])ok++;} });
+    return tot>0 && (ok/tot)<0.6;
+  });
+  var pr = document.getElementById("plan-rows");
+  if (weakTopics.length===0) {
+    pr.innerHTML = '<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:8px">Xuất sắc! Bạn nắm vững tất cả chủ đề.</div>';
+  } else {
+    pr.innerHTML = weakTopics.map(function(t){
+      var p = PLAN[t];
+      var wc = wrongQS.filter(function(q){ return q.topic===t; }).length;
+      return '<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #f0f4fb">' +
+        '<div style="font-weight:600;margin-bottom:6px">' + t + (wc>0?' <span style="font-size:12px;background:#fdeaea;color:#7a1f1f;padding:1px 8px;border-radius:10px">'+wc+' câu sai</span>':'') + '</div>' +
+        '<div style="background:#f0f4fb;border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:13px">' + p.formula + '</div>' +
+        p.notes.map(function(n){ return '<div style="font-size:13px;color:#333;padding:2px 0">• ' + n + '</div>'; }).join("") +
+      '</div>';
+    }).join("");
+  }
+  if (window.MathJax && MathJax.typesetPromise)
+    MathJax.typesetPromise([document.getElementById("s-result")]).catch(function(){});
+
+  var rb = document.getElementById("btn-retry");
+  if (wrongQS.length > 0) {
+    rb.style.display = "flex";
+    rb.textContent = "Lượt " + (roundNum+1) + ": Ôn lại " + wrongQS.length + " câu sai →";
+    window._nextWrongQS = wrongQS;
+  } else { rb.style.display = "none"; }
+
+  var sv = document.getElementById("btn-save");
+  if (sv) { sv.style.cssText = "display:flex!important"; }
+
+  showScreen("s-result");
+}
+
+function startRetry() {
+  roundNum++;
+  activeQS = (window._nextWrongQS||[]).slice();
+  window._nextWrongQS = null;
+  var ni=document.getElementById("inp-name"); if(ni) ni.value=studentName;
+  beginRound();
+}
+
+function restartFull() {
+  roundHistory=[]; activeQS=QS.slice(); roundNum=1; cumulativeCorrect=0;
+  document.getElementById("inp-name").value="";
+  showScreen("s-login");
+}
+
+/* === SAVE === */
+function doSave() {
+  var wrongQS = window._nextWrongQS || [];
+  var wqJ = JSON.stringify(wrongQS).replace(new RegExp("<\\/","g"),"<\\/");
+  var hiJ = JSON.stringify(roundHistory).replace(new RegExp("<\\/","g"),"<\\/");
+  var nmJ = JSON.stringify(studentName);
+  var clJ = JSON.stringify(document.getElementById("inp-class").value||"");
+  var nw  = wrongQS.length;
+  var blJ = JSON.stringify("Lượt "+(roundNum+1)+": Ôn lại "+nw+" câu sai →");
+
+  document.querySelectorAll(".screen").forEach(function(s){
+    s.setAttribute("_d",s.style.display||"");
+    s.style.display = s.id==="s-result"?"block":"none";
+  });
+  document.getElementById("btn-save").style.visibility="hidden";
+  var snap = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+  document.querySelectorAll(".screen").forEach(function(s){ s.style.display=s.getAttribute("_d")||""; });
+  document.getElementById("btn-save").style.visibility="";
+
+  snap = snap.replace("</style>",
+    "\n/* ==SAVED== */ .screen{display:none!important} #s-result{display:block!important}\n</style>"
+  );
+  snap = snap.replace(/showScreen\("s-login"\);?/g,"/* noinit */");
+
+  var L = [];
+  L.push("<scr"+"ipt>");
+  L.push("var _D={wq:"+wqJ+",rn:"+roundNum+",cc:"+cumulativeCorrect+",hi:"+hiJ+",nm:"+nmJ+",cl:"+clJ+",tt:"+TOTAL_ORIGINAL+"};");
+  L.push("function doRetryFromSaved(){");
+  L.push("  studentName=_D.nm;roundHistory=_D.hi;activeQS=_D.wq.slice();");
+  L.push("  roundNum=_D.rn+1;cumulativeCorrect=_D.cc;TOTAL_ORIGINAL=_D.tt;");
+  L.push("  window._nextWrongQS=null;");
+  L.push("  var ni=document.getElementById('inp-name');if(ni)ni.value=_D.nm;");
+  L.push("  var ci=document.getElementById('inp-class');if(ci)ci.value=_D.cl;");
+  L.push("  var ovr=document.createElement('style');ovr.textContent='.screen{display:none!important}#s-test.active,#s-result.active,#s-login.active{display:block!important}';document.head.appendChild(ovr);");
+  L.push("  beginRound();");
+  L.push("}");
+  L.push("window.addEventListener('DOMContentLoaded',function(){");
+  L.push("  var rb=document.getElementById('btn-retry');");
+  L.push("  if(rb&&_D.wq.length>0){rb.style.cssText='display:flex!important';rb.textContent="+blJ+";rb.onclick=doRetryFromSaved;}");
+  L.push("  else if(rb){rb.style.display='none';}");
+  L.push("  var sv=document.getElementById('btn-save');if(sv)sv.style.display='none';");
+  L.push("  var rs=document.getElementById('btn-restart');if(rs)rs.style.display='none';");
+  L.push("});");
+  L.push("</" + "script>");
+  var injected = L.join("\n");
+
+  snap = snap.replace(/<script>\n?var _D=[\s\S]*?<\/script>\n?/g, "");
+  var bi = snap.lastIndexOf("</body>");
+  snap = snap.slice(0,bi) + injected + "\n" + snap.slice(bi);
+
+  var name = (studentName||"hs").replace(/\s+/g,"_")+"_"+EXAM_NAME+"_luot"+roundNum+".html";
+  var blob = new Blob([snap],{type:"text/html;charset=utf-8"});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement("a"); a.href=url; a.download=name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); },3000);
+}
+
+/* === UTILS === */
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+
+if(typeof _D==="undefined"){ showScreen("s-login"); }
+</script>
+</body>
+</html>

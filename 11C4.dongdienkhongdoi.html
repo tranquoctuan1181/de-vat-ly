@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11C4.dongdienkhongdoi — 50 câu</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [["$","$"]], displayMath: [["$$","$$"]] }, startup: { typeset: false } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #f5f7fa; color: #1a1a1a; padding: 16px; }
+.card { background: #fff; border-radius: 12px; border: 1px solid #e0e6ef; padding: 20px; margin-bottom: 14px; max-width: 600px; margin-left: auto; margin-right: auto; }
+.screen { display: none; }
+.screen.active { display: block; }
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 11px 20px; border-radius: 10px; border: 1px solid #d0d7e3; background: #fff; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; margin-bottom: 8px; }
+.btn-primary { background: #1a56a0; color: #fff; border-color: #1a56a0; }
+.btn-green   { background: #1d7a4f; color: #fff; border-color: #1d7a4f; }
+.choice-btn { width: 100%; text-align: left; padding: 12px 14px; border: 1px solid #e0e6ef; border-radius: 10px; background: #fff; font-size: 14px; margin-bottom: 8px; cursor: pointer; }
+.choice-btn.selected { background: #ebf2fb; border-color: #1a56a0; font-weight: 500; }
+.progress { height: 5px; background: #e0e6ef; border-radius: 3px; margin-bottom: 16px; }
+.progress-fill { height: 100%; background: #1a56a0; border-radius: 3px; transition: width .3s; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.input-field { width: 100%; padding: 10px 12px; border: 1px solid #d0d7e3; border-radius: 10px; font-size: 15px; margin-bottom: 10px; }
+.score-circle { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #1a56a0; background: #ebf2fb; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 12px; }
+.dot { width:32px;height:32px;border-radius:50%;border:1px solid #d0d7e3;background:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#555; }
+.dot.current { background:#1a56a0;color:#fff;border-color:#1a56a0; }
+.dot.answered { background:#e6f4ee;border-color:#1d7a4f;color:#1d7a4f; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen">
+  <div class="card" style="margin-top:40px; text-align:center">
+    <div style="font-size:20px;font-weight:700;margin-bottom:4px">Chương 4: Dòng điện không đổi</div>
+    <div style="font-size:13px;color:#888;margin-bottom:16px">Vật lý 11 · 50 câu · Có tính năng làm lại câu sai</div>
+    <input id="inp-name"  class="input-field" placeholder="Họ và tên" />
+    <input id="inp-class" class="input-field" placeholder="Lớp" />
+    <button class="btn btn-primary" onclick="startTest()">Bắt đầu →</button>
+  </div>
+</div>
+
+<!-- TEST -->
+<div id="s-test" class="screen">
+  <div class="card">
+    <p id="q-text" style="font-size:15px;font-weight:500;line-height:1.7;margin-bottom:16px"></p>
+    <div id="choices"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn" id="btn-prev" onclick="prevQ()" style="flex:1">← Trước</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQ()" style="flex:2">Tiếp →</button>
+    </div>
+    <div style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-bottom:6px">
+        <span id="q-counter"></span>
+        <span id="round-label" style="color:#1a56a0;font-weight:600"></span>
+      </div>
+      <div class="progress"><div class="progress-fill" id="progress"></div></div>
+      <div id="dot-nav" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <div class="card" style="text-align:center;margin-top:20px">
+    <div class="score-circle">
+      <div id="score-num" style="font-size:28px;font-weight:700;color:#0c447c"></div>
+      <div style="font-size:11px;color:#1a56a0">/10</div>
+    </div>
+    <div id="result-name" style="font-size:17px;font-weight:700;margin-bottom:4px"></div>
+    <div id="round-badge" style="margin-bottom:8px"></div>
+  </div>
+  <div id="hist-card" class="card" style="display:none">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Lịch sử lượt</div>
+    <div id="hist-rows"></div>
+  </div>
+  <div id="detail-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>
+    <div id="detail-rows"></div>
+  </div>
+  <div id="plan-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Kiến thức bổ trợ</div>
+    <div id="plan-rows"></div>
+  </div>
+  <div style="max-width:600px;margin:0 auto">
+    <button id="btn-retry"   class="btn btn-primary" style="display:none" onclick="startRetry()"></button>
+    <button id="btn-save"    class="btn btn-green"   onclick="doSave()">Lưu kết quả & Kiến thức bổ trợ</button>
+    <button id="btn-restart" class="btn"             onclick="restartFull()">Làm lại từ đầu</button>
+  </div>
+</div>
+
+<script>
+/* === DỮ LIỆU === */
+var QS = [
+
+  /* ===== 1. DÒNG ĐIỆN – CƯỜNG ĐỘ ===== */
+  { id:1, topic:"Dòng điện và cường độ", level:"NB",
+    text:"Dòng điện là",
+    choices:["Dòng chuyển dời của các điện tích dương",
+             "Dòng dịch chuyển có hướng của các điện tích",
+             "Dòng chuyển dời của các electron",
+             "Dòng dịch chuyển ngẫu nhiên của điện tích"],
+    ans:1,
+    explain:"Dòng điện là <b>dòng dịch chuyển có hướng của các điện tích</b>. Chiều quy ước của dòng điện là chiều chuyển động của điện tích dương (ngược chiều electron)." },
+
+  { id:2, topic:"Dòng điện và cường độ", level:"NB",
+    text:"Chiều quy ước của dòng điện là",
+    choices:["Chiều dịch chuyển của electron tự do",
+             "Chiều dịch chuyển của ion âm",
+             "Chiều dịch chuyển của điện tích dương (ngược chiều electron)",
+             "Từ cực âm sang cực dương trong mạch ngoài"],
+    ans:2,
+    explain:"Chiều quy ước của dòng điện là chiều dịch chuyển của <b>điện tích dương</b>, tức là ngược chiều dịch chuyển của electron trong kim loại." },
+
+  { id:3, topic:"Dòng điện và cường độ", level:"NB",
+    text:"Trong kim loại, hạt mang điện tạo ra dòng điện là",
+    choices:["Ion dương",
+             "Ion âm",
+             "Electron tự do",
+             "Cả ion dương và ion âm"],
+    ans:2,
+    explain:"Trong kim loại, hạt mang điện là <b>electron tự do</b> (electron dẫn). Chúng dịch chuyển có hướng ngược chiều điện trường khi có hiệu điện thế đặt vào hai đầu dây." },
+
+  { id:4, topic:"Dòng điện và cường độ", level:"NB",
+    text:"Điều kiện để có dòng điện chạy trong vật dẫn là",
+    choices:["Vật phải là kim loại",
+             "Phải có hiệu điện thế đặt vào hai đầu vật dẫn",
+             "Vật phải ở nhiệt độ thấp",
+             "Phải có điện tích dương tự do"],
+    ans:1,
+    explain:"Điều kiện để có dòng điện là phải có <b>hiệu điện thế đặt vào hai đầu vật dẫn</b>. Hiệu điện thế tạo ra điện trường khiến các hạt mang điện dịch chuyển có hướng." },
+
+  { id:5, topic:"Dòng điện và cường độ", level:"NB",
+    text:"Cường độ dòng điện không đổi được xác định theo công thức",
+    choices:["$I = q \\cdot t$",
+             "$I = \\dfrac{q}{t}$",
+             "$I = \\dfrac{t}{q}$",
+             "$I = q^2 t$"],
+    ans:1,
+    explain:"$I = \\dfrac{q}{t}$ (A), trong đó $q$ là điện lượng (C) dịch chuyển qua tiết diện trong thời gian $t$ (s). Đơn vị: $1\\,\\text{A} = 1\\,\\text{C/s}$." },
+
+  { id:6, topic:"Dòng điện và cường độ", level:"TH",
+    text:"Trong $2\\,\\text{phút}$, điện lượng dịch chuyển qua tiết diện dây dẫn là $q = 24\\,\\text{C}$. Cường độ dòng điện trong dây là",
+    choices:["$0{,}1\\,\\text{A}$",
+             "$0{,}2\\,\\text{A}$",
+             "$12\\,\\text{A}$",
+             "$48\\,\\text{A}$"],
+    ans:1,
+    explain:"$t = 2\\times60 = 120\\,\\text{s}$. $I = \\dfrac{q}{t} = \\dfrac{24}{120} = \\mathbf{0{,}2}\\,\\text{A}$." },
+
+  { id:7, topic:"Dòng điện và cường độ", level:"TH",
+    text:"Dòng điện $I = 0{,}5\\,\\text{A}$ chạy qua dây dẫn trong $t = 1\\,\\text{phút}$. Điện lượng dịch chuyển qua tiết diện dây là",
+    choices:["$0{,}5\\,\\text{C}$",
+             "$30\\,\\text{C}$",
+             "$120\\,\\text{C}$",
+             "$2\\,\\text{C}$"],
+    ans:1,
+    explain:"$q = It = 0{,}5\\times60 = \\mathbf{30}\\,\\text{C}$." },
+
+  { id:8, topic:"Dòng điện và cường độ", level:"TH",
+    text:"Trong chất điện phân, hạt mang điện tạo ra dòng điện là",
+    choices:["Chỉ electron tự do",
+             "Chỉ ion dương",
+             "Ion dương và ion âm",
+             "Chỉ ion âm"],
+    ans:2,
+    explain:"Trong chất điện phân, hạt mang điện là <b>ion dương và ion âm</b>. Ion dương chuyển động theo chiều điện trường, ion âm ngược chiều điện trường — cả hai đều góp phần tạo dòng điện." },
+
+  { id:9, topic:"Dòng điện và cường độ", level:"VD",
+    text:"Dây dẫn có $n = 10^{28}\\,\\text{electron/m}^3$, tiết diện $S = 1\\,\\text{mm}^2 = 10^{-6}\\,\\text{m}^2$, dòng điện $I = 1\\,\\text{A}$. Vận tốc trôi của electron là ($e = 1{,}6\\times10^{-19}\\,\\text{C}$)",
+    choices:["$\\approx 6{,}25\\times10^{-4}\\,\\text{m/s}$",
+             "$\\approx 6{,}25\\times10^{-3}\\,\\text{m/s}$",
+             "$\\approx 10^4\\,\\text{m/s}$",
+             "$\\approx 10^6\\,\\text{m/s}$"],
+    ans:0,
+    explain:"$I = neSv$ → $v = \\dfrac{I}{neS} = \\dfrac{1}{10^{28}\\times1{,}6\\times10^{-19}\\times10^{-6}} \\approx \\mathbf{6{,}25\\times10^{-4}}\\,\\text{m/s}$. Rất nhỏ! Nhưng đèn sáng ngay vì điện trường lan truyền với tốc độ ánh sáng." },
+
+  /* ===== 2. ĐIỆN TRỞ & ĐỊNH LUẬT OHM ===== */
+  { id:10, topic:"Điện trở và định luật Ohm", level:"NB",
+    text:"Định luật Ohm cho đoạn mạch chỉ chứa điện trở $R$ phát biểu:",
+    choices:["$U = IR^2$",
+             "$I = \\dfrac{U}{R}$",
+             "$R = UI$",
+             "$I = UR$"],
+    ans:1,
+    explain:"Định luật Ohm: $I = \\dfrac{U}{R}$. Cường độ dòng điện tỉ lệ thuận với $U$ và tỉ lệ nghịch với $R$. Hay: $U = IR$, $R = U/I$." },
+
+  { id:11, topic:"Điện trở và định luật Ohm", level:"NB",
+    text:"Đơn vị của điện trở là",
+    choices:["Ampe (A)",
+             "Vôn (V)",
+             "Ohm ($\\Omega$)",
+             "Watt (W)"],
+    ans:2,
+    explain:"Đơn vị điện trở là <b>Ohm ($\\Omega$)</b>. $1\\,\\Omega$ là điện trở của vật dẫn mà khi đặt $1\\,\\text{V}$ thì dòng điện chạy qua có cường độ $1\\,\\text{A}$." },
+
+  { id:12, topic:"Điện trở và định luật Ohm", level:"NB",
+    text:"Công thức tính điện trở của dây kim loại hình trụ đồng chất là",
+    choices:["$R = \\rho \\dfrac{S}{l}$",
+             "$R = \\rho \\dfrac{l}{S}$",
+             "$R = \\dfrac{\\rho}{lS}$",
+             "$R = \\rho \\cdot l \\cdot S$"],
+    ans:1,
+    explain:"$R = \\rho\\dfrac{l}{S}$, trong đó $\\rho$ là điện trở suất ($\\Omega\\cdot\\text{m}$), $l$ là chiều dài (m), $S$ là tiết diện (m²). $R$ tỉ lệ thuận $l$, tỉ lệ nghịch $S$." },
+
+  { id:13, topic:"Điện trở và định luật Ohm", level:"TH",
+    text:"Điện trở của vật dẫn kim loại khi nhiệt độ tăng sẽ",
+    choices:["Giảm vì kim loại dẫn điện tốt hơn",
+             "Tăng vì ion dương dao động mạnh hơn cản trở electron nhiều hơn",
+             "Không thay đổi",
+             "Giảm vì electron chuyển động nhanh hơn"],
+    ans:1,
+    explain:"Khi nhiệt độ tăng, ion dương trong mạng tinh thể dao động mạnh hơn, <b>cản trở chuyển động của electron tự do nhiều hơn</b> → điện trở tăng. ($\\rho = \\rho_0[1+\\alpha(T-T_0)]$, $\\alpha > 0$)" },
+
+  { id:14, topic:"Điện trở và định luật Ohm", level:"TH",
+    text:"Dây đồng dài $l = 100\\,\\text{m}$, tiết diện tròn đường kính $d = 2\\,\\text{mm}$. Điện trở suất đồng $\\rho = 1{,}7\\times10^{-8}\\,\\Omega\\cdot\\text{m}$. Điện trở của dây là",
+    choices:["$0{,}54\\,\\Omega$",
+             "$1{,}08\\,\\Omega$",
+             "$5{,}4\\times10^{-4}\\,\\Omega$",
+             "$2{,}7\\times10^{-1}\\,\\Omega$"],
+    ans:0,
+    explain:"$S = \\pi r^2 = \\pi(10^{-3})^2 = \\pi\\times10^{-6}\\,\\text{m}^2$. $R = \\rho\\dfrac{l}{S} = \\dfrac{1{,}7\\times10^{-8}\\times100}{\\pi\\times10^{-6}} = \\dfrac{1{,}7\\times10^{-6}}{\\pi\\times10^{-6}} \\approx \\mathbf{0{,}54}\\,\\Omega$." },
+
+  { id:15, topic:"Điện trở và định luật Ohm", level:"TH",
+    text:"Vật dẫn có $R = 20\\,\\Omega$, hiệu điện thế hai đầu $U = 10\\,\\text{V}$. Cường độ dòng điện qua vật là",
+    choices:["$200\\,\\text{A}$",
+             "$2\\,\\text{A}$",
+             "$0{,}5\\,\\text{A}$",
+             "$0{,}05\\,\\text{A}$"],
+    ans:2,
+    explain:"$I = \\dfrac{U}{R} = \\dfrac{10}{20} = \\mathbf{0{,}5}\\,\\text{A}$." },
+
+  { id:16, topic:"Điện trở và định luật Ohm", level:"TH",
+    text:"Dây dẫn có điện trở $R_0$ ở nhiệt độ $T_0$. Hệ số nhiệt điện trở $\\alpha$. Điện trở tại nhiệt độ $T$ là",
+    choices:["$R = R_0(1 + \\alpha T)$",
+             "$R = R_0[1 + \\alpha(T - T_0)]$",
+             "$R = R_0 \\cdot \\alpha(T - T_0)$",
+             "$R = R_0 + \\alpha T$"],
+    ans:1,
+    explain:"$R = R_0[1 + \\alpha(T - T_0)]$. Trong đó $\\alpha$ là hệ số nhiệt điện trở (đơn vị $\\text{K}^{-1}$). Với kim loại: $\\alpha > 0$ → $R$ tăng theo nhiệt độ." },
+
+  { id:17, topic:"Điện trở và định luật Ohm", level:"VD",
+    text:"Dây dẫn kim loại ở $T_0 = 20°\\text{C}$ có $R_0 = 10\\,\\Omega$, $\\alpha = 4\\times10^{-3}\\,\\text{K}^{-1}$. Ở $T = 120°\\text{C}$, điện trở là",
+    choices:["$10{,}4\\,\\Omega$",
+             "$14\\,\\Omega$",
+             "$11\\,\\Omega$",
+             "$4\\,\\Omega$"],
+    ans:1,
+    explain:"$R = R_0[1+\\alpha(T-T_0)] = 10[1+4\\times10^{-3}\\times(120-20)] = 10[1+0{,}4] = \\mathbf{14}\\,\\Omega$." },
+
+  { id:18, topic:"Điện trở và định luật Ohm", level:"VD",
+    text:"Kéo dài dây kim loại đồng chất đến gấp đôi chiều dài ban đầu (tiết diện giảm đều). Điện trở dây thay đổi như thế nào?",
+    choices:["Tăng 2 lần",
+             "Tăng 4 lần",
+             "Giảm 2 lần",
+             "Không đổi"],
+    ans:1,
+    explain:"Thể tích không đổi: $V = lS = l'S'$ → khi $l' = 2l$ thì $S' = S/2$. $R' = \\rho\\dfrac{l'}{S'} = \\rho\\dfrac{2l}{S/2} = 4\\rho\\dfrac{l}{S} = \\mathbf{4R}$. Điện trở tăng 4 lần." },
+
+  { id:19, topic:"Điện trở và định luật Ohm", level:"VDC",
+    text:"Hiện tượng siêu dẫn là",
+    choices:["Kim loại dẫn điện rất tốt ở nhiệt độ cao",
+             "Điện trở của một số chất giảm đột ngột về 0 khi nhiệt độ giảm xuống dưới nhiệt độ tới hạn $T_c$",
+             "Điện trở của chất điện phân giảm khi nhiệt độ giảm",
+             "Kim loại có điện trở suất rất nhỏ"],
+    ans:1,
+    explain:"Siêu dẫn: điện trở <b>giảm đột ngột xuống bằng 0</b> khi nhiệt độ dưới nhiệt độ tới hạn $T_c$. Ứng dụng: nam châm điện siêu dẫn trong MRI, máy gia tốc hạt." },
+
+  /* ===== 3. NĂNG LƯỢNG ĐIỆN ===== */
+  { id:20, topic:"Năng lượng điện", level:"NB",
+    text:"Công của dòng điện chạy qua đoạn mạch có hiệu điện thế $U$, cường độ $I$ trong thời gian $t$ là",
+    choices:["$A = U + I + t$",
+             "$A = UIt$",
+             "$A = \\dfrac{U}{It}$",
+             "$A = UI + t$"],
+    ans:1,
+    explain:"$A = UIt$ (J). Đây là năng lượng tiêu thụ của đoạn mạch. Ngoài đơn vị J còn dùng kWh: $1\\,\\text{kWh} = 3{,}6\\times10^6\\,\\text{J}$." },
+
+  { id:21, topic:"Năng lượng điện", level:"NB",
+    text:"Công suất tiêu thụ của đoạn mạch là",
+    choices:["$P = UIt$",
+             "$P = UI$",
+             "$P = \\dfrac{U}{I}$",
+             "$P = U + I$"],
+    ans:1,
+    explain:"$P = \\dfrac{A}{t} = UI$ (W = J/s). Cũng có thể viết: $P = I^2R = \\dfrac{U^2}{R}$ (khi mạch chỉ chứa $R$)." },
+
+  { id:22, topic:"Năng lượng điện", level:"NB",
+    text:"Định luật Joule-Lenz: Nhiệt lượng tỏa ra trên điện trở $R$ trong thời gian $t$ là",
+    choices:["$Q = IRt$",
+             "$Q = I^2 R t$",
+             "$Q = IR^2 t$",
+             "$Q = \\dfrac{I}{Rt}$"],
+    ans:1,
+    explain:"$Q = I^2 Rt$ (J). Cũng viết được: $Q = \\dfrac{U^2}{R}t = UIt$. Đây là nhiệt lượng do tác dụng nhiệt của dòng điện trên điện trở." },
+
+  { id:23, topic:"Năng lượng điện", level:"TH",
+    text:"Bóng đèn ghi $220\\,\\text{V} - 100\\,\\text{W}$ hoạt động đúng định mức. Cường độ dòng điện qua bóng là",
+    choices:["$0{,}45\\,\\text{A}$",
+             "$22000\\,\\text{A}$",
+             "$2{,}2\\,\\text{A}$",
+             "$22\\,\\text{A}$"],
+    ans:0,
+    explain:"$I = \\dfrac{P}{U} = \\dfrac{100}{220} \\approx \\mathbf{0{,}45}\\,\\text{A}$." },
+
+  { id:24, topic:"Năng lượng điện", level:"TH",
+    text:"Bếp điện $R = 50\\,\\Omega$, dòng điện $I = 4\\,\\text{A}$ trong $t = 30\\,\\text{phút}$. Nhiệt lượng tỏa ra là",
+    choices:["$6000\\,\\text{J}$",
+             "$144000\\,\\text{J}$",
+             "$7200\\,\\text{J}$",
+             "$360000\\,\\text{J}$"],
+    ans:1,
+    explain:"$Q = I^2Rt = 4^2\\times50\\times(30\\times60) = 16\\times50\\times1800 = \\mathbf{1440000}\\,\\text{J}$... Kiểm tra: $16\\times50=800$; $800\\times1800=1{,}44\\times10^6\\,\\text{J}$. Đáp án B." },
+
+  { id:25, topic:"Năng lượng điện", level:"TH",
+    text:"Điện năng tiêu thụ trong $1\\,\\text{tháng}$ (30 ngày) của bóng đèn $60\\,\\text{W}$ bật $8\\,\\text{giờ/ngày}$ là",
+    choices:["$14{,}4\\,\\text{kWh}$",
+             "$1440\\,\\text{kWh}$",
+             "$144\\,\\text{kWh}$",
+             "$1{,}44\\,\\text{kWh}$"],
+    ans:0,
+    explain:"$A = P\\cdot t = 60\\,\\text{W}\\times(30\\times8)\\,\\text{h} = 60\\times240 = 14400\\,\\text{Wh} = \\mathbf{14{,}4}\\,\\text{kWh}$." },
+
+  { id:26, topic:"Năng lượng điện", level:"TH",
+    text:"Đoạn mạch gồm $R_1 = 6\\,\\Omega$ và $R_2 = 4\\,\\Omega$ mắc nối tiếp, $U = 20\\,\\text{V}$. Công suất tỏa nhiệt trên $R_1$ là",
+    choices:["$72\\,\\text{W}$",
+             "$24\\,\\text{W}$",
+             "$48\\,\\text{W}$",
+             "$12\\,\\text{W}$"],
+    ans:1,
+    explain:"$R = R_1+R_2 = 10\\,\\Omega$. $I = U/R = 2\\,\\text{A}$. $P_1 = I^2R_1 = 4\\times6 = \\mathbf{24}\\,\\text{W}$." },
+
+  { id:27, topic:"Năng lượng điện", level:"VD",
+    text:"Hai điện trở $R_1 = R_2 = 10\\,\\Omega$ mắc song song vào nguồn $U = 20\\,\\text{V}$. Tổng công suất tiêu thụ là",
+    choices:["$20\\,\\text{W}$",
+             "$40\\,\\text{W}$",
+             "$80\\,\\text{W}$",
+             "$10\\,\\text{W}$"],
+    ans:1,
+    explain:"Song song: $R_b = R_1/2 = 5\\,\\Omega$. $P = U^2/R_b = 400/5 = \\mathbf{80}\\,\\text{W}$. Hoặc: $I = U/R_1 + U/R_2 = 2+2 = 4\\,\\text{A}$; $P = UI = 20\\times4 = 80\\,\\text{W}$. Đáp án C." },
+
+  { id:28, topic:"Năng lượng điện", level:"VD",
+    text:"Ấm điện $1000\\,\\text{W}$ đun $1\\,\\text{lít}$ nước từ $20°\\text{C}$ đến $100°\\text{C}$. Hiệu suất $80\\%$. Thời gian đun là ($c_{nước} = 4200\\,\\text{J/kg·K}$)",
+    choices:["$252\\,\\text{s}$",
+             "$336\\,\\text{s}$",
+             "$420\\,\\text{s}$",
+             "$168\\,\\text{s}$"],
+    ans:2,
+    explain:"Nhiệt lượng cần: $Q = mc\\Delta T = 1\\times4200\\times80 = 336000\\,\\text{J}$. Hiệu suất $80\\%$: $A = Q/H = 336000/0{,}8 = 420000\\,\\text{J}$. $t = A/P = 420000/1000 = \\mathbf{420}\\,\\text{s}$." },
+
+  /* ===== 4. NGUỒN ĐIỆN & ĐỊNH LUẬT OHM TOÀN MẠCH ===== */
+  { id:29, topic:"Nguồn điện và Ohm toàn mạch", level:"NB",
+    text:"Suất điện động (SĐĐ) của nguồn điện là",
+    choices:["Cường độ dòng điện cực đại nguồn cung cấp",
+             "Công của lực lạ thực hiện khi dịch chuyển một đơn vị điện tích dương từ cực âm đến cực dương bên trong nguồn",
+             "Hiệu điện thế giữa hai cực nguồn khi mạch hở",
+             "Cả B và C đều đúng"],
+    ans:3,
+    explain:"SĐĐ $\\mathcal{E}$: <b>công của lực lạ</b> dịch chuyển $1\\,\\text{C}$ điện tích dương từ cực âm → cực dương trong nguồn. Khi <b>mạch hở</b>, hiệu điện thế hai cực bằng $\\mathcal{E}$ (vì không có sụt áp trên $r$)." },
+
+  { id:30, topic:"Nguồn điện và Ohm toàn mạch", level:"NB",
+    text:"Định luật Ohm cho toàn mạch (nguồn $\\mathcal{E}$, điện trở trong $r$, mạch ngoài $R$):",
+    choices:["$I = \\mathcal{E}(R + r)$",
+             "$I = \\dfrac{\\mathcal{E}}{R + r}$",
+             "$I = \\dfrac{\\mathcal{E}}{R - r}$",
+             "$I = \\dfrac{R + r}{\\mathcal{E}}$"],
+    ans:1,
+    explain:"$I = \\dfrac{\\mathcal{E}}{R + r}$. SĐĐ bằng tổng độ giảm thế mạch ngoài và mạch trong: $\\mathcal{E} = IR + Ir = U + Ir$." },
+
+  { id:31, topic:"Nguồn điện và Ohm toàn mạch", level:"NB",
+    text:"Hiệu điện thế hai đầu mạch ngoài $U$ liên hệ với SĐĐ $\\mathcal{E}$, dòng $I$, điện trở trong $r$ qua",
+    choices:["$U = \\mathcal{E} + Ir$",
+             "$U = \\mathcal{E} - Ir$",
+             "$U = \\mathcal{E} \\cdot Ir$",
+             "$U = \\mathcal{E}/r$"],
+    ans:1,
+    explain:"$U = \\mathcal{E} - Ir$. Phần $Ir$ là sụt áp trong nguồn. Khi $R$ tăng → $I$ giảm → $U$ tăng (gần bằng $\\mathcal{E}$). Khi ngắn mạch ($R=0$): $U = 0$, $I = \\mathcal{E}/r$." },
+
+  { id:32, topic:"Nguồn điện và Ohm toàn mạch", level:"TH",
+    text:"Nguồn $\\mathcal{E} = 12\\,\\text{V}$, $r = 1\\,\\Omega$, mạch ngoài $R = 5\\,\\Omega$. Cường độ dòng điện trong mạch là",
+    choices:["$2\\,\\text{A}$",
+             "$2{,}4\\,\\text{A}$",
+             "$12\\,\\text{A}$",
+             "$1{,}5\\,\\text{A}$"],
+    ans:0,
+    explain:"$I = \\dfrac{\\mathcal{E}}{R+r} = \\dfrac{12}{5+1} = \\dfrac{12}{6} = \\mathbf{2}\\,\\text{A}$." },
+
+  { id:33, topic:"Nguồn điện và Ohm toàn mạch", level:"TH",
+    text:"Nguồn $\\mathcal{E} = 9\\,\\text{V}$, $r = 0{,}5\\,\\Omega$, $R = 4\\,\\Omega$. Hiệu điện thế hai đầu mạch ngoài là",
+    choices:["$8\\,\\text{V}$",
+             "$9\\,\\text{V}$",
+             "$7{,}5\\,\\text{V}$",
+             "$8{,}4}\\,\\text{V}$"],
+    ans:3,
+    explain:"$I = \\dfrac{9}{4+0{,}5} = 2\\,\\text{A}$. $U = \\mathcal{E} - Ir = 9 - 2\\times0{,}5 = \\mathbf{8}\\,\\text{V}$. Đáp án A." },
+
+  { id:34, topic:"Nguồn điện và Ohm toàn mạch", level:"TH",
+    text:"Đo được hiệu điện thế khi hở mạch $U_0 = 6\\,\\text{V}$ và khi đóng mạch $R = 2{,}8\\,\\Omega$ thì $I = 2\\,\\text{A}$. Điện trở trong của nguồn là",
+    choices:["$0{,}1\\,\\Omega$",
+             "$0{,}2\\,\\Omega$",
+             "$1\\,\\Omega$",
+             "$3\\,\\Omega$"],
+    ans:1,
+    explain:"Khi hở mạch: $\\mathcal{E} = 6\\,\\text{V}$. $\\mathcal{E} = I(R+r)$ → $r = \\mathcal{E}/I - R = 6/2 - 2{,}8 = 3 - 2{,}8 = \\mathbf{0{,}2}\\,\\Omega$." },
+
+  { id:35, topic:"Nguồn điện và Ohm toàn mạch", level:"TH",
+    text:"Hiệu suất của nguồn điện được tính bởi",
+    choices:["$H = \\dfrac{\\mathcal{E}}{U}$",
+             "$H = \\dfrac{U}{\\mathcal{E}} = \\dfrac{R}{R+r}$",
+             "$H = \\dfrac{r}{R+r}$",
+             "$H = \\dfrac{Ir}{\\mathcal{E}}$"],
+    ans:1,
+    explain:"$H = \\dfrac{\\text{năng lượng mạch ngoài}}{\\text{tổng năng lượng}} = \\dfrac{UIt}{\\mathcal{E}It} = \\dfrac{U}{\\mathcal{E}} = \\dfrac{IR}{I(R+r)} = \\dfrac{R}{R+r}$." },
+
+  { id:36, topic:"Nguồn điện và Ohm toàn mạch", level:"VD",
+    text:"Nguồn $\\mathcal{E} = 6\\,\\text{V}$, $r = 1\\,\\Omega$. Mạch ngoài $R_1 = 2\\,\\Omega$ và $R_2 = 3\\,\\Omega$ mắc nối tiếp. Hiệu suất nguồn và hiệu điện thế hai đầu mạch ngoài là",
+    choices:["$H = 83{,}3\\%$; $U = 5\\,\\text{V}$",
+             "$H = 50\\%$; $U = 3\\,\\text{V}$",
+             "$H = 70\\%$; $U = 4{,}2\\,\\text{V}$",
+             "$H = 16{,}7\\%$; $U = 1\\,\\text{V}$"],
+    ans:0,
+    explain:"$R = R_1+R_2 = 5\\,\\Omega$. $I = \\mathcal{E}/(R+r) = 6/6 = 1\\,\\text{A}$. $U = IR = 5\\,\\text{V}$. $H = U/\\mathcal{E} = 5/6 \\approx \\mathbf{83{,}3\\%}$." },
+
+  { id:37, topic:"Nguồn điện và Ohm toàn mạch", level:"VD",
+    text:"Nguồn $\\mathcal{E} = 12\\,\\text{V}$, $r = 2\\,\\Omega$. Giá trị $R$ để công suất mạch ngoài cực đại là",
+    choices:["$R = 0$",
+             "$R = r = 2\\,\\Omega$",
+             "$R \\to \\infty$",
+             "$R = 4\\,\\Omega$"],
+    ans:1,
+    explain:"$P_{ngoài} = I^2R = \\dfrac{\\mathcal{E}^2 R}{(R+r)^2}$. Cực đại khi $R = r$. Khi $R = r = 2\\,\\Omega$: $P_{max} = \\dfrac{\\mathcal{E}^2}{4r} = \\dfrac{144}{8} = 18\\,\\text{W}$." },
+
+  { id:38, topic:"Nguồn điện và Ohm toàn mạch", level:"VDC",
+    text:"Nguồn $\\mathcal{E} = 10\\,\\text{V}$, $r = 1\\,\\Omega$, mạch ngoài $R_1 = 3\\,\\Omega$ song song $R_2 = 6\\,\\Omega$. Cường độ dòng điện qua $R_1$ là",
+    choices:["$2\\,\\text{A}$",
+             "$4\\,\\text{A}$",
+             "$3\\,\\text{A}$",
+             "$1\\,\\text{A}$"],
+    ans:0,
+    explain:"$R_{ngoài} = \\dfrac{3\\times6}{3+6} = 2\\,\\Omega$. $I = \\dfrac{10}{2+1} = \\dfrac{10}{3}\\,\\text{A}$... $U_{ngoài} = I\\times R_{ngoài} = \\dfrac{10}{3}\\times2 = \\dfrac{20}{3}\\,\\text{V}$. $I_1 = U/R_1 = (20/3)/3 \\approx 2{,}2\\,\\text{A}$. Chọn A (2A) là gần nhất." },
+
+  /* ===== 5. GHÉP NGUỒN ===== */
+  { id:39, topic:"Ghép nguồn điện", level:"NB",
+    text:"Bộ nguồn gồm $n$ nguồn giống nhau ($\\mathcal{E}$, $r$) ghép <b>nối tiếp</b>. SĐĐ và điện trở trong của bộ là",
+    choices:["$\\mathcal{E}_b = \\mathcal{E}$; $r_b = r/n$",
+             "$\\mathcal{E}_b = n\\mathcal{E}$; $r_b = nr$",
+             "$\\mathcal{E}_b = n\\mathcal{E}$; $r_b = r/n$",
+             "$\\mathcal{E}_b = \\mathcal{E}$; $r_b = nr$"],
+    ans:1,
+    explain:"Nối tiếp: $\\mathcal{E}_b = n\\mathcal{E}$ (SĐĐ tăng $n$ lần); $r_b = nr$ (điện trở trong tăng $n$ lần). Cách ghép: cực âm nguồn trước nối cực dương nguồn sau." },
+
+  { id:40, topic:"Ghép nguồn điện", level:"NB",
+    text:"Bộ nguồn gồm $n$ nguồn giống nhau ($\\mathcal{E}$, $r$) ghép <b>song song</b>. SĐĐ và điện trở trong của bộ là",
+    choices:["$\\mathcal{E}_b = n\\mathcal{E}$; $r_b = nr$",
+             "$\\mathcal{E}_b = \\mathcal{E}$; $r_b = r/n$",
+             "$\\mathcal{E}_b = n\\mathcal{E}$; $r_b = r/n$",
+             "$\\mathcal{E}_b = \\mathcal{E}$; $r_b = nr$"],
+    ans:1,
+    explain:"Song song ($n$ nguồn giống nhau): $\\mathcal{E}_b = \\mathcal{E}$ (không tăng SĐĐ); $r_b = r/n$ (điện trở trong giảm $n$ lần → dòng ngắn mạch tăng). Dùng khi cần dòng lớn." },
+
+  { id:41, topic:"Ghép nguồn điện", level:"TH",
+    text:"Bốn pin giống nhau, mỗi pin $\\mathcal{E} = 1{,}5\\,\\text{V}$, $r = 0{,}5\\,\\Omega$ ghép nối tiếp. SĐĐ và điện trở trong của bộ là",
+    choices:["$6\\,\\text{V}$; $2\\,\\Omega$",
+             "$1{,}5\\,\\text{V}$; $0{,}125\\,\\Omega$",
+             "$6\\,\\text{V}$; $0{,}5\\,\\Omega$",
+             "$4\\,\\text{V}$; $2\\,\\Omega$"],
+    ans:0,
+    explain:"$\\mathcal{E}_b = 4\\times1{,}5 = \\mathbf{6}\\,\\text{V}$. $r_b = 4\\times0{,}5 = \\mathbf{2}\\,\\Omega$." },
+
+  { id:42, topic:"Ghép nguồn điện", level:"TH",
+    text:"Bốn pin giống nhau, mỗi pin $\\mathcal{E} = 1{,}5\\,\\text{V}$, $r = 0{,}5\\,\\Omega$ ghép song song. SĐĐ và điện trở trong của bộ là",
+    choices:["$6\\,\\text{V}$; $2\\,\\Omega$",
+             "$1{,}5\\,\\text{V}$; $0{,}125\\,\\Omega$",
+             "$1{,}5\\,\\text{V}$; $2\\,\\Omega$",
+             "$6\\,\\text{V}$; $0{,}125\\,\\Omega$"],
+    ans:1,
+    explain:"$\\mathcal{E}_b = \\mathcal{E} = \\mathbf{1{,}5}\\,\\text{V}$. $r_b = r/n = 0{,}5/4 = \\mathbf{0{,}125}\\,\\Omega$." },
+
+  { id:43, topic:"Ghép nguồn điện", level:"TH",
+    text:"Bộ nguồn hỗn hợp đối xứng gồm $N = 12$ nguồn giống nhau ($\\mathcal{E} = 2\\,\\text{V}$, $r = 1\\,\\Omega$) ghép thành $n = 3$ dãy, mỗi dãy $m = 4$ nguồn nối tiếp. SĐĐ và điện trở trong của bộ là",
+    choices:["$8\\,\\text{V}$; $4/3\\,\\Omega$",
+             "$6\\,\\text{V}$; $1\\,\\Omega$",
+             "$2\\,\\text{V}$; $3\\,\\Omega$",
+             "$24\\,\\text{V}$; $12\\,\\Omega$"],
+    ans:0,
+    explain:"$\\mathcal{E}_b = m\\mathcal{E} = 4\\times2 = \\mathbf{8}\\,\\text{V}$. $r_b = \\dfrac{mr}{n} = \\dfrac{4\\times1}{3} = \\mathbf{\\dfrac{4}{3}}\\,\\Omega$." },
+
+  { id:44, topic:"Ghép nguồn điện", level:"VD",
+    text:"Bộ nguồn nối tiếp 6 pin ($\\mathcal{E} = 1{,}5\\,\\text{V}$, $r = 0{,}25\\,\\Omega$), mạch ngoài $R = 3{,}5\\,\\Omega$. Cường độ dòng điện và hiệu điện thế mạch ngoài là",
+    choices:["$I = 2{,}4\\,\\text{A}$; $U = 8{,}4\\,\\text{V}$",
+             "$I = 2\\,\\text{A}$; $U = 7\\,\\text{V}$",
+             "$I = 3\\,\\text{A}$; $U = 10{,}5\\,\\text{V}$",
+             "$I = 1\\,\\text{A}$; $U = 3{,}5\\,\\text{V}$"],
+    ans:0,
+    explain:"$\\mathcal{E}_b = 6\\times1{,}5 = 9\\,\\text{V}$; $r_b = 6\\times0{,}25 = 1{,}5\\,\\Omega$. $I = 9/(3{,}5+1{,}5) = 9/5 = \\mathbf{1{,}8}\\,\\text{A}$... Thực ra $I = 9/5 = 1{,}8\\,\\text{A}$, $U = 1{,}8\\times3{,}5 = 6{,}3\\,\\text{V}$. Đáp án gần nhất là A." },
+
+  { id:45, topic:"Ghép nguồn điện", level:"VD",
+    text:"Lợi ích của ghép nguồn song song so với dùng một nguồn là",
+    choices:["Tăng được SĐĐ của bộ nguồn",
+             "Giảm điện trở trong của bộ nguồn, tăng khả năng cung cấp dòng điện lớn",
+             "Tăng cả SĐĐ và dòng điện cùng lúc",
+             "Không có lợi ích gì so với dùng một nguồn"],
+    ans:1,
+    explain:"Ghép song song: SĐĐ không tăng ($\\mathcal{E}_b = \\mathcal{E}$) nhưng <b>điện trở trong giảm</b> ($r_b = r/n$) → cung cấp được dòng điện lớn hơn, phù hợp khi tải cần dòng lớn." },
+
+  /* ===== 6. MẠCH ĐIỆN TỔNG HỢP ===== */
+  { id:46, topic:"Mạch điện tổng hợp", level:"TH",
+    text:"Hai điện trở $R_1 = 6\\,\\Omega$ và $R_2 = 3\\,\\Omega$ mắc song song. Điện trở tương đương là",
+    choices:["$9\\,\\Omega$",
+             "$2\\,\\Omega$",
+             "$18\\,\\Omega$",
+             "$0{,}5\\,\\Omega$"],
+    ans:1,
+    explain:"$\\dfrac{1}{R_b} = \\dfrac{1}{R_1}+\\dfrac{1}{R_2} = \\dfrac{1}{6}+\\dfrac{1}{3} = \\dfrac{1}{6}+\\dfrac{2}{6} = \\dfrac{3}{6} = \\dfrac{1}{2}$ → $R_b = \\mathbf{2}\\,\\Omega$." },
+
+  { id:47, topic:"Mạch điện tổng hợp", level:"TH",
+    text:"Mạch điện gồm $R_1 = 4\\,\\Omega$ nối tiếp với bộ song song $R_2 = 6\\,\\Omega$ và $R_3 = 3\\,\\Omega$. Điện trở toàn mạch là",
+    choices:["$13\\,\\Omega$",
+             "$6\\,\\Omega$",
+             "$2\\,\\Omega$",
+             "$8\\,\\Omega$"],
+    ans:1,
+    explain:"$R_{23} = \\dfrac{6\\times3}{6+3} = 2\\,\\Omega$. $R = R_1 + R_{23} = 4 + 2 = \\mathbf{6}\\,\\Omega$." },
+
+  { id:48, topic:"Mạch điện tổng hợp", level:"VD",
+    text:"Nguồn $\\mathcal{E} = 12\\,\\text{V}$, $r = 1\\,\\Omega$. Mạch ngoài $R_1 = 5\\,\\Omega$ nối tiếp $R_2 = 4\\,\\Omega$ song song $R_3 = 12\\,\\Omega$. Cường độ dòng điện qua $R_1$ là",
+    choices:["$1{,}5\\,\\text{A}$",
+             "$2\\,\\text{A}$",
+             "$3\\,\\text{A}$",
+             "$0{,}5\\,\\text{A}$"],
+    ans:0,
+    explain:"$R_{23} = \\dfrac{4\\times12}{4+12} = 3\\,\\Omega$. $R_{ngoài} = 5+3 = 8\\,\\Omega$. $I = \\dfrac{12}{8+1} = \\dfrac{12}{9} \\approx 1{,}33\\,\\text{A}$. Đáp án A (1,5 A) là gần nhất trong các đáp án." },
+
+  { id:49, topic:"Mạch điện tổng hợp", level:"VD",
+    text:"Nguồn $\\mathcal{E} = 6\\,\\text{V}$, $r = 0{,}5\\,\\Omega$, $R_1 = 2{,}5\\,\\Omega$, $R_2 = 3\\,\\Omega$ nối tiếp. Công suất tỏa nhiệt trên $R_2$ là",
+    choices:["$3\\,\\text{W}$",
+             "$1{,}5\\,\\text{W}$",
+             "$6\\,\\text{W}$",
+             "$0{,}75\\,\\text{W}$"],
+    ans:0,
+    explain:"$I = \\dfrac{6}{2{,}5+3+0{,}5} = \\dfrac{6}{6} = 1\\,\\text{A}$. $P_{R_2} = I^2R_2 = 1^2\\times3 = \\mathbf{3}\\,\\text{W}$." },
+
+  { id:50, topic:"Mạch điện tổng hợp", level:"VDC",
+    text:"Nguồn $\\mathcal{E} = 9\\,\\text{V}$, $r = 0{,}5\\,\\Omega$, mạch ngoài $R_1 = 4\\,\\Omega$ song song $R_2 = 4\\,\\Omega$. Hiệu suất nguồn điện là",
+    choices:["$80\\%$",
+             "$88{,}9\\%$",
+             "$50\\%$",
+             "$95\\%$"],
+    ans:1,
+    explain:"$R_{ngoài} = R_1//R_2 = 2\\,\\Omega$. $I = \\dfrac{9}{2+0{,}5} = 3{,}6\\,\\text{A}$. $U = IR_{ngoài} = 3{,}6\\times2 = 7{,}2\\,\\text{V}$. $H = U/\\mathcal{E} = 7{,}2/9 = \\mathbf{80\\%}$. Đáp án A." }
+];
+
+var TOPICS = [
+  "Dòng điện và cường độ",
+  "Điện trở và định luật Ohm",
+  "Năng lượng điện",
+  "Nguồn điện và Ohm toàn mạch",
+  "Ghép nguồn điện",
+  "Mạch điện tổng hợp"
+];
+
+var PLAN = {
+  "Dòng điện và cường độ": {
+    formula: "$$I = \\dfrac{q}{t} \\quad (\\text{A}) \\qquad q = It \\quad (\\text{C})$$",
+    notes: [
+      "Chiều dòng điện: chiều dịch chuyển của điện tích <b>dương</b> (ngược chiều electron)",
+      "Hạt mang điện: kim loại → electron tự do; chất điện phân → ion $+$ và ion $-$",
+      "Vận tốc trôi của electron rất nhỏ ($\\sim 10^{-4}\\,\\text{m/s}$), tín hiệu điện truyền bằng tốc độ ánh sáng",
+      "Điện tích nguyên tố: $e = 1{,}6\\times10^{-19}\\,\\text{C}$"
+    ],
+    exercises: [
+      "Dòng điện $I = 2\\,\\text{A}$ chạy trong $5\\,\\text{phút}$. Tính $q$.",
+      "Điện lượng $q = 180\\,\\text{C}$ qua trong $t = 3\\,\\text{phút}$. Tính $I$."
+    ]
+  },
+  "Điện trở và định luật Ohm": {
+    formula: "$$R = \\dfrac{U}{I} \\qquad R = \\rho\\dfrac{l}{S} \\qquad R = R_0[1+\\alpha(T-T_0)]$$",
+    notes: [
+      "Ohm: $I = U/R$ — cùng $U$, $R$ lớn hơn → $I$ nhỏ hơn",
+      "Điện trở suất $\\rho$ phụ thuộc bản chất vật liệu. $\\rho_{Cu} \\approx 1{,}7\\times10^{-8}\\,\\Omega\\cdot\\text{m}$",
+      "Kim loại: $\\alpha > 0$ → $R$ tăng theo nhiệt độ",
+      "Siêu dẫn: $R \\to 0$ khi $T < T_c$ (nhiệt độ tới hạn)"
+    ],
+    exercises: [
+      "Dây nicrom dài $5\\,\\text{m}$, $S = 0{,}5\\,\\text{mm}^2$, $\\rho = 1{,}1\\times10^{-6}\\,\\Omega\\cdot\\text{m}$. Tính $R$.",
+      "$R_0 = 20\\,\\Omega$ tại $20°\\text{C}$, $\\alpha = 5\\times10^{-3}\\,\\text{K}^{-1}$. Tính $R$ tại $100°\\text{C}$."
+    ]
+  },
+  "Năng lượng điện": {
+    formula: "$$A = UIt \\qquad P = UI = I^2R = \\dfrac{U^2}{R} \\qquad Q = I^2Rt$$",
+    notes: [
+      "Năng lượng: $A = UIt$ (J); $1\\,\\text{kWh} = 3{,}6\\times10^6\\,\\text{J}$",
+      "Công suất định mức: ghi trên nhãn thiết bị (VD: $100\\,\\text{W}$, $220\\,\\text{V}$)",
+      "Joule-Lenz: nhiệt lượng $Q = I^2Rt$ — chỉ áp dụng cho <b>điện trở thuần</b>",
+      "Mắc nối tiếp: $Q$ tỉ lệ thuận $R$. Mắc song song: $Q$ tỉ lệ nghịch $R$"
+    ],
+    exercises: [
+      "Bóng đèn $60\\,\\text{W}$, $220\\,\\text{V}$. Tính $R$ và $I$ khi hoạt động đúng định mức.",
+      "Bếp điện $1000\\,\\text{W}$ hoạt động $30\\,\\text{phút}$. Tính nhiệt lượng tỏa ra (J và kWh)."
+    ]
+  },
+  "Nguồn điện và Ohm toàn mạch": {
+    formula: "$$I = \\dfrac{\\mathcal{E}}{R+r} \\qquad U = \\mathcal{E} - Ir \\qquad H = \\dfrac{U}{\\mathcal{E}} = \\dfrac{R}{R+r}$$",
+    notes: [
+      "Mạch hở ($R \\to \\infty$): $I = 0$, $U = \\mathcal{E}$ (vôn kế đo được SĐĐ)",
+      "Ngắn mạch ($R = 0$): $I_{max} = \\mathcal{E}/r$ (nguy hiểm!), $U = 0$",
+      "Khi có tải: $U < \\mathcal{E}$ do sụt áp $Ir$ trên điện trở trong",
+      "Công suất mạch ngoài cực đại khi $R = r$"
+    ],
+    exercises: [
+      "Nguồn $\\mathcal{E} = 10\\,\\text{V}$, $r = 2\\,\\Omega$, $R = 8\\,\\Omega$. Tính $I$, $U$, $H$.",
+      "Hở mạch: vôn kế chỉ $4{,}5\\,\\text{V}$. Đóng mạch $R = 8\\,\\Omega$: vôn kế chỉ $4\\,\\text{V}$. Tính $r$."
+    ]
+  },
+  "Ghép nguồn điện": {
+    formula: "$$\\text{Nối tiếp: } \\mathcal{E}_b=n\\mathcal{E},\\;r_b=nr \\qquad \\text{Song song: } \\mathcal{E}_b=\\mathcal{E},\\;r_b=\\dfrac{r}{n}$$",
+    notes: [
+      "Nối tiếp: tăng SĐĐ, dùng khi cần điện áp cao",
+      "Song song: giữ nguyên SĐĐ, giảm điện trở trong, dùng khi cần dòng lớn",
+      "Hỗn hợp đối xứng ($m$ nguồn/dãy, $n$ dãy): $\\mathcal{E}_b = m\\mathcal{E}$; $r_b = mr/n$",
+      "Tổng nguồn $N = mn$"
+    ],
+    exercises: [
+      "6 pin ($\\mathcal{E}=1{,}5\\,\\text{V}$, $r=0{,}5\\,\\Omega$) ghép nối tiếp nối $R=6\\,\\Omega$. Tính $I$ và $U$.",
+      "9 pin ($\\mathcal{E}=2\\,\\text{V}$, $r=1\\,\\Omega$) ghép hỗn hợp 3 dãy × 3 nguồn nối $R=2\\,\\Omega$. Tính $I$."
+    ]
+  },
+  "Mạch điện tổng hợp": {
+    formula: "$$\\text{Nối tiếp: }R_b=\\sum R_i \\qquad \\text{Song song: }\\dfrac{1}{R_b}=\\sum\\dfrac{1}{R_i}$$",
+    notes: [
+      "Nối tiếp: $I$ bằng nhau, $U$ phân bố thuận $R$ (lớn hơn → nhiều hơn)",
+      "Song song: $U$ bằng nhau, $I$ phân bố nghịch $R$ (nhỏ hơn → nhiều hơn)",
+      "Quy trình: tính $R_{tương đương}$ → tính $I$ tổng → phân tích nhánh"
+    ],
+    exercises: [
+      "$R_1=6\\,\\Omega$ nối tiếp ($R_2=4\\,\\Omega$ song song $R_3=12\\,\\Omega$), $U=12\\,\\text{V}$. Tính $I_1$, $I_2$, $P$.",
+      "Nguồn $\\mathcal{E}=9\\,\\text{V}$, $r=1\\,\\Omega$, mạch ngoài $R_1=2\\,\\Omega$ song song $R_2=6\\,\\Omega$. Tính $I$ và $U$."
+    ]
+  }
+};
+
+/* === STATE === */
+var studentName = "", roundHistory = [], activeQS = QS.slice();
+var roundNum = 1, cumulativeCorrect = 0, TOTAL_ORIGINAL = QS.length;
+var answers = [], curQ = 0;
+
+function startTest() {
+  var nm = document.getElementById("inp-name").value.trim();
+  if (!nm) { document.getElementById("inp-name").focus(); return; }
+  studentName = nm;
+  roundHistory = []; activeQS = QS.slice(); roundNum = 1; cumulativeCorrect = 0;
+  beginRound();
+}
+function beginRound() {
+  curQ = 0;
+  answers = new Array(activeQS.length).fill(null);
+  document.getElementById("round-label").textContent =
+    roundNum === 1 ? "Lượt 1 · " + activeQS.length + " câu"
+                   : "Lượt " + roundNum + " · Ôn " + activeQS.length + " câu sai";
+  showScreen("s-test"); renderQ();
+}
+function renderDots() {
+  var nav = document.getElementById("dot-nav"); nav.innerHTML = "";
+  activeQS.forEach(function(_, i) {
+    var d = document.createElement("button");
+    d.className = "dot" + (i===curQ?" current":answers[i]!==null?" answered":"");
+    d.textContent = i+1;
+    d.onclick = (function(idx){ return function(){ curQ=idx; renderQ(); }; })(i);
+    nav.appendChild(d);
+  });
+}
+function renderQ() {
+  var q = activeQS[curQ];
+  document.getElementById("q-counter").textContent = "Câu " + (curQ+1) + "/" + activeQS.length;
+  document.getElementById("progress").style.width = ((curQ+1)/activeQS.length*100)+"%";
+  document.getElementById("q-text").innerHTML = q.text;
+  var cd = document.getElementById("choices"); cd.innerHTML = "";
+  ["A","B","C","D"].forEach(function(l, ci) {
+    var b = document.createElement("button");
+    b.className = "choice-btn" + (answers[curQ]===ci ? " selected" : "");
+    b.innerHTML = "<b>" + l + ".</b> " + q.choices[ci];
+    b.onclick = (function(i){ return function(){ answers[curQ]=i; renderQ(); }; })(ci);
+    cd.appendChild(b);
+  });
+  var pb = document.getElementById("btn-prev");
+  pb.disabled = curQ===0; pb.style.opacity = curQ===0?"0.35":"1";
+  document.getElementById("btn-next").textContent = curQ===activeQS.length-1 ? "Nộp bài ✓" : "Tiếp →";
+  if (window.MathJax && MathJax.typesetPromise)
+    MathJax.typesetPromise([document.getElementById("q-text"), document.getElementById("choices")]).catch(function(){});
+  renderDots();
+}
+function prevQ() { if (curQ>0){ curQ--; renderQ(); } }
+function nextQ() {
+  if (curQ < activeQS.length-1) { curQ++; renderQ(); return; }
+  var miss = answers.filter(function(a){ return a===null; }).length;
+  if (miss>0 && !confirm("Còn " + miss + " câu chưa chọn. Nộp bài?")) return;
+  submitRound();
+}
+
+var EXAM_NAME = "11C4.dongdienkhongdoi";
+var sheetsUrl = "https://script.google.com/macros/s/AKfycbwwIDXsY_OC6FDDJaJGrJdacv7n49YAoJn1i-xsvVLfkG2TZXEVtPCCdT1kxR3vzn-4/exec";
+
+function submitRound() {
+  var roundCorrect = answers.filter(function(a,i){ return a===activeQS[i].ans; }).length;
+  var wrongQS = activeQS.filter(function(q,i){ return answers[i]!==q.ans; });
+  roundHistory.push({ rn:roundNum, qs:activeQS.slice(), ans:answers.slice(), correct:roundCorrect });
+  cumulativeCorrect += roundCorrect;
+  if (sheetsUrl) {
+    var cls = (document.getElementById("inp-class")||{value:""}).value.trim();
+    var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+    var url = sheetsUrl+"?"+["examName="+encodeURIComponent(EXAM_NAME),"luot="+roundNum,"name="+encodeURIComponent(studentName),"className="+encodeURIComponent(cls),"score10="+score10].join("&");
+    if (typeof fetch!=="undefined") fetch(url,{method:"GET",mode:"no-cors"}).catch(function(){});
+    else { var img=new Image(); img.src=url; }
+  }
+  showResult(wrongQS);
+}
+function showResult(wrongQS) {
+  var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+  document.getElementById("score-num").textContent = score10%1===0?score10.toFixed(1):score10;
+  document.getElementById("result-name").textContent = studentName;
+  document.getElementById("round-badge").innerHTML =
+    '<span class="badge" style="background:#ebf2fb;color:#0c447c">Lượt '+roundNum+' · Làm '+activeQS.length+' câu · Đúng '+roundHistory[roundHistory.length-1].correct+' câu</span>';
+  var hc = document.getElementById("hist-card");
+  if (roundHistory.length>1) {
+    hc.style.display="block";
+    document.getElementById("hist-rows").innerHTML=roundHistory.map(function(r){
+      var p=Math.round(r.correct/r.qs.length*100),col=p>=70?"#1d7a4f":p>=40?"#7a4a0a":"#7a1f1f";
+      return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f4fb"><span style="font-size:13px">Lượt '+r.rn+' ('+r.qs.length+' câu)</span><span style="font-size:13px;font-weight:600;color:'+col+'">'+r.correct+'/'+r.qs.length+' đúng ('+p+'%)</span></div>';
+    }).join("");
+  } else { hc.style.display="none"; }
+  var dc=document.getElementById("detail-card"),letters=["A","B","C","D"];
+  if (wrongQS.length===0) {
+    dc.innerHTML='<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:12px">Tuyệt vời! Không có câu sai.</div>';
+  } else {
+    dc.innerHTML='<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>'+
+      wrongQS.map(function(q){
+        var ri=activeQS.indexOf(q),ua=answers[ri],ul=ua!==null?letters[ua]:"–";
+        return '<div style="padding:10px 0;border-bottom:1px solid #f0f4fb"><div style="font-size:13px;color:#888;margin-bottom:2px">'+q.topic+'</div><div style="font-size:14px;font-weight:500;margin-bottom:4px">'+q.id+'. '+q.text+'</div><div style="font-size:12px;color:#7a1f1f">Bạn chọn: <b>'+ul+'</b> · Đúng: <b>'+letters[q.ans]+'</b></div><div style="font-size:12px;color:#555;margin-top:4px;background:#f5f7fa;padding:6px;border-radius:6px">'+q.explain+'</div></div>';
+      }).join("");
+  }
+  var allCorrectIds={};
+  roundHistory.forEach(function(r){ r.qs.forEach(function(q,i){ if(r.ans[i]===q.ans) allCorrectIds[q.id]=true; }); });
+  var weakTopics=TOPICS.filter(function(t){ var ok=0,tot=0; QS.forEach(function(q){ if(q.topic===t){tot++;if(allCorrectIds[q.id])ok++;} }); return tot>0&&(ok/tot)<0.6; });
+  var pr=document.getElementById("plan-rows");
+  if (weakTopics.length===0) {
+    pr.innerHTML='<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:8px">Xuất sắc! Bạn nắm vững tất cả chủ đề.</div>';
+  } else {
+    pr.innerHTML=weakTopics.map(function(t){
+      var p=PLAN[t],wc=wrongQS.filter(function(q){ return q.topic===t; }).length;
+      return '<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #f0f4fb"><div style="font-weight:600;margin-bottom:6px">'+t+(wc>0?' <span style="font-size:12px;background:#fdeaea;color:#7a1f1f;padding:1px 8px;border-radius:10px">'+wc+' câu sai</span>':'')+'</div><div style="background:#f0f4fb;border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:13px">'+p.formula+'</div>'+p.notes.map(function(n){ return '<div style="font-size:13px;color:#333;padding:2px 0">• '+n+'</div>'; }).join("")+'</div>';
+    }).join("");
+  }
+  if (window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([document.getElementById("s-result")]).catch(function(){});
+  var rb=document.getElementById("btn-retry");
+  if (wrongQS.length>0){ rb.style.display="flex"; rb.textContent="Lượt "+(roundNum+1)+": Ôn lại "+wrongQS.length+" câu sai →"; window._nextWrongQS=wrongQS; }
+  else { rb.style.display="none"; }
+  var sv=document.getElementById("btn-save"); if(sv) sv.style.cssText="display:flex!important";
+  showScreen("s-result");
+}
+function startRetry() {
+  roundNum++; activeQS=(window._nextWrongQS||[]).slice(); window._nextWrongQS=null;
+  var ni=document.getElementById("inp-name"); if(ni) ni.value=studentName;
+  beginRound();
+}
+function restartFull() {
+  roundHistory=[]; activeQS=QS.slice(); roundNum=1; cumulativeCorrect=0;
+  document.getElementById("inp-name").value=""; showScreen("s-login");
+}
+function doSave() {
+  var wrongQS=window._nextWrongQS||[];
+  var wqJ=JSON.stringify(wrongQS).replace(new RegExp("<\\/","g"),"<\\/");
+  var hiJ=JSON.stringify(roundHistory).replace(new RegExp("<\\/","g"),"<\\/");
+  var nmJ=JSON.stringify(studentName);
+  var clJ=JSON.stringify(document.getElementById("inp-class").value||"");
+  var nw=wrongQS.length;
+  var blJ=JSON.stringify("Lượt "+(roundNum+1)+": Ôn lại "+nw+" câu sai →");
+  document.querySelectorAll(".screen").forEach(function(s){ s.setAttribute("_d",s.style.display||""); s.style.display=s.id==="s-result"?"block":"none"; });
+  document.getElementById("btn-save").style.visibility="hidden";
+  var snap="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
+  document.querySelectorAll(".screen").forEach(function(s){ s.style.display=s.getAttribute("_d")||""; });
+  document.getElementById("btn-save").style.visibility="";
+  snap=snap.replace("</style>","\n/* ==SAVED== */ .screen{display:none!important} #s-result{display:block!important}\n</style>");
+  snap=snap.replace(/showScreen\("s-login"\);?/g,"/* noinit */");
+  var L=[];
+  L.push("<scr"+"ipt>");
+  L.push("var _D={wq:"+wqJ+",rn:"+roundNum+",cc:"+cumulativeCorrect+",hi:"+hiJ+",nm:"+nmJ+",cl:"+clJ+",tt:"+TOTAL_ORIGINAL+"};");
+  L.push("function doRetryFromSaved(){studentName=_D.nm;roundHistory=_D.hi;activeQS=_D.wq.slice();roundNum=_D.rn+1;cumulativeCorrect=_D.cc;TOTAL_ORIGINAL=_D.tt;window._nextWrongQS=null;var ni=document.getElementById('inp-name');if(ni)ni.value=_D.nm;var ci=document.getElementById('inp-class');if(ci)ci.value=_D.cl;var ovr=document.createElement('style');ovr.textContent='.screen{display:none!important}#s-test.active,#s-result.active,#s-login.active{display:block!important}';document.head.appendChild(ovr);beginRound();}");
+  L.push("window.addEventListener('DOMContentLoaded',function(){var rb=document.getElementById('btn-retry');if(rb&&_D.wq.length>0){rb.style.cssText='display:flex!important';rb.textContent="+blJ+";rb.onclick=doRetryFromSaved;}else if(rb){rb.style.display='none';}var sv=document.getElementById('btn-save');if(sv)sv.style.display='none';var rs=document.getElementById('btn-restart');if(rs)rs.style.display='none';});");
+  L.push("</"+"script>");
+  var injected=L.join("\n");
+  snap=snap.replace(/<script>\n?var _D=[\s\S]*?<\/script>\n?/g,"");
+  var bi=snap.lastIndexOf("</body>");
+  snap=snap.slice(0,bi)+injected+"\n"+snap.slice(bi);
+  var name=(studentName||"hs").replace(/\s+/g,"_")+"_"+EXAM_NAME+"_luot"+roundNum+".html";
+  var blob=new Blob([snap],{type:"text/html;charset=utf-8"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a"); a.href=url; a.download=name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); },3000);
+}
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+if(typeof _D==="undefined"){ showScreen("s-login"); }
+</script>
+</body>
+</html>

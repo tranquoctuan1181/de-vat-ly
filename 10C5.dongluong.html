@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10c5.dongluong — 60 câu</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [["$","$"]], displayMath: [["$$","$$"]] }, startup: { typeset: false } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #f5f7fa; color: #1a1a1a; padding: 16px; }
+.card { background: #fff; border-radius: 12px; border: 1px solid #e0e6ef; padding: 20px; margin-bottom: 14px; max-width: 600px; margin-left: auto; margin-right: auto; }
+.screen { display: none; }
+.screen.active { display: block; }
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 11px 20px; border-radius: 10px; border: 1px solid #d0d7e3; background: #fff; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; margin-bottom: 8px; }
+.btn-primary { background: #1a56a0; color: #fff; border-color: #1a56a0; }
+.btn-green   { background: #1d7a4f; color: #fff; border-color: #1d7a4f; }
+.choice-btn { width: 100%; text-align: left; padding: 12px 14px; border: 1px solid #e0e6ef; border-radius: 10px; background: #fff; font-size: 14px; margin-bottom: 8px; cursor: pointer; }
+.choice-btn.selected { background: #ebf2fb; border-color: #1a56a0; font-weight: 500; }
+.progress { height: 5px; background: #e0e6ef; border-radius: 3px; margin-bottom: 16px; }
+.progress-fill { height: 100%; background: #1a56a0; border-radius: 3px; transition: width .3s; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.input-field { width: 100%; padding: 10px 12px; border: 1px solid #d0d7e3; border-radius: 10px; font-size: 15px; margin-bottom: 10px; }
+.score-circle { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #1a56a0; background: #ebf2fb; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 12px; }
+.dot { width:32px;height:32px;border-radius:50%;border:1px solid #d0d7e3;background:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#555; }
+.dot.current { background:#1a56a0;color:#fff;border-color:#1a56a0; }
+.dot.answered { background:#e6f4ee;border-color:#1d7a4f;color:#1d7a4f; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen">
+  <div class="card" style="margin-top:40px; text-align:center">
+    <div style="font-size:20px;font-weight:700;margin-bottom:4px">Chương 5: Động lượng</div>
+    <div style="font-size:13px;color:#888;margin-bottom:16px">Vật lý 10 · 60 câu · Có tính năng làm lại câu sai</div>
+    <input id="inp-name"  class="input-field" placeholder="Họ và tên" />
+    <input id="inp-class" class="input-field" placeholder="Lớp" />
+    <button class="btn btn-primary" onclick="startTest()">Bắt đầu →</button>
+  </div>
+</div>
+
+<!-- TEST -->
+<div id="s-test" class="screen">
+  <div class="card">
+    <p id="q-text" style="font-size:15px;font-weight:500;line-height:1.7;margin-bottom:16px"></p>
+    <div id="choices"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn" id="btn-prev" onclick="prevQ()" style="flex:1">← Trước</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQ()" style="flex:2">Tiếp →</button>
+    </div>
+    <div style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-bottom:6px">
+        <span id="q-counter"></span>
+        <span id="round-label" style="color:#1a56a0;font-weight:600"></span>
+      </div>
+      <div class="progress"><div class="progress-fill" id="progress"></div></div>
+      <div id="dot-nav" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <div class="card" style="text-align:center;margin-top:20px">
+    <div class="score-circle">
+      <div id="score-num" style="font-size:28px;font-weight:700;color:#0c447c"></div>
+      <div style="font-size:11px;color:#1a56a0">/10</div>
+    </div>
+    <div id="result-name" style="font-size:17px;font-weight:700;margin-bottom:4px"></div>
+    <div id="round-badge" style="margin-bottom:8px"></div>
+  </div>
+  <div id="hist-card" class="card" style="display:none">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Lịch sử lượt</div>
+    <div id="hist-rows"></div>
+  </div>
+  <div id="detail-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>
+    <div id="detail-rows"></div>
+  </div>
+  <div id="plan-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Kiến thức bổ trợ</div>
+    <div id="plan-rows"></div>
+  </div>
+  <div style="max-width:600px;margin:0 auto">
+    <button id="btn-retry"   class="btn btn-primary" style="display:none" onclick="startRetry()"></button>
+    <button id="btn-save"    class="btn btn-green"   onclick="doSave()">Lưu kết quả & Kiến thức bổ trợ</button>
+    <button id="btn-restart" class="btn"             onclick="restartFull()">Làm lại từ đầu</button>
+  </div>
+</div>
+
+<script>
+/* === DỮ LIỆU === */
+var QS = [
+
+  /* ===== 1. ĐỘNG LƯỢNG ===== */
+  { id:1, topic:"Động lượng", level:"NB",
+    text:"Động lượng của một vật được xác định bởi công thức",
+    choices:["$p = mv^2$","$\\vec{p} = m\\vec{v}$","$p = F\\Delta t$","$p = \\dfrac{F}{m}$"],
+    ans:1,
+    explain:"$\\vec{p} = m\\vec{v}$ (kg·m/s). Động lượng là đại lượng <b>vectơ</b>, cùng hướng với vận tốc $\\vec{v}$ của vật." },
+
+  { id:2, topic:"Động lượng", level:"NB",
+    text:"Đơn vị của động lượng trong hệ SI là",
+    choices:["N","J","kg·m/s","N·s/m"],
+    ans:2,
+    explain:"Đơn vị động lượng: <b>kg·m/s</b> (hoặc tương đương N·s). Từ $[p] = [m][v] = \\text{kg}\\cdot\\text{m/s}$." },
+
+  { id:3, topic:"Động lượng", level:"NB",
+    text:"Động lượng là đại lượng",
+    choices:["Vô hướng, luôn dương","Vectơ, cùng hướng với gia tốc","Vectơ, cùng hướng với vận tốc","Vô hướng, phụ thuộc khối lượng"],
+    ans:2,
+    explain:"Động lượng là <b>đại lượng vectơ</b>, cùng hướng với $\\vec{v}$ của vật. Phụ thuộc vào hệ quy chiếu vì vận tốc phụ thuộc hệ quy chiếu." },
+
+  { id:4, topic:"Động lượng", level:"NB",
+    text:"Vật nào sau đây có động lượng bằng 0?",
+    choices:["Xe tải lao xuống dốc","Viên đạn đang bay","Tàu ngầm đang lặn","Chiếc ghế đứng yên trên sàn nhà"],
+    ans:3,
+    explain:"Vật <b>đứng yên</b> ($v = 0$) có $p = mv = 0$. Các vật chuyển động đều có $p \\neq 0$ kể cả chuyển động chậm nhưng khối lượng lớn." },
+
+  { id:5, topic:"Động lượng", level:"TH",
+    text:"Ôtô $m = 1200\\,\\text{kg}$ chạy với $v = 20\\,\\text{m/s}$. Động lượng của ôtô là",
+    choices:["$24\\,\\text{kg·m/s}$","$60\\,\\text{kg·m/s}$","$24000\\,\\text{kg·m/s}$","$240000\\,\\text{kg·m/s}$"],
+    ans:2,
+    explain:"$p = mv = 1200\\times20 = \\mathbf{24000}\\,\\text{kg·m/s}$." },
+
+  { id:6, topic:"Động lượng", level:"TH",
+    text:"Viên đạn $m = 10\\,\\text{g}$ bay với $v = 400\\,\\text{m/s}$. Xe tải $M = 4000\\,\\text{kg}$ chạy với $V = 10\\,\\text{m/s}$. So sánh động lượng:",
+    choices:["Viên đạn lớn hơn","Xe tải lớn hơn","Bằng nhau","Không so sánh được"],
+    ans:2,
+    explain:"$p_{đạn} = 0{,}01\\times400 = 4\\,\\text{kg·m/s}$. $p_{xe} = 4000\\times10 = 40000\\,\\text{kg·m/s}$. <b>Xe tải lớn hơn nhiều</b>. Đáp án B." },
+
+  { id:7, topic:"Động lượng", level:"TH",
+    text:"Vật $m = 2\\,\\text{kg}$ đang chuyển động với $v = 3\\,\\text{m/s}$. Động lượng của vật bằng",
+    choices:["$1{,}5\\,\\text{kg·m/s}$","$5\\,\\text{kg·m/s}$","$6\\,\\text{kg·m/s}$","$18\\,\\text{kg·m/s}$"],
+    ans:2,
+    explain:"$p = mv = 2\\times3 = \\mathbf{6}\\,\\text{kg·m/s}$." },
+
+  { id:8, topic:"Động lượng", level:"TH",
+    text:"Hai vật có cùng động lượng. Vật 1 có $m_1 = 0{,}5\\,\\text{kg}$, $v_1 = 12\\,\\text{m/s}$. Nếu $m_2 = 2\\,\\text{kg}$ thì $v_2$ là",
+    choices:["$48\\,\\text{m/s}$","$3\\,\\text{m/s}$","$6\\,\\text{m/s}$","$24\\,\\text{m/s}$"],
+    ans:1,
+    explain:"$p_1 = p_2$ → $m_1 v_1 = m_2 v_2$ → $v_2 = \\dfrac{m_1 v_1}{m_2} = \\dfrac{0{,}5\\times12}{2} = \\mathbf{3}\\,\\text{m/s}$." },
+
+  { id:9, topic:"Động lượng", level:"VD",
+    text:"Vật $m = 0{,}5\\,\\text{kg}$ ném lên thẳng đứng với $v_0 = 10\\,\\text{m/s}$. Động lượng của vật tại độ cao cực đại là ($g = 10\\,\\text{m/s}^2$)",
+    choices:["$5\\,\\text{kg·m/s}$ hướng lên","$5\\,\\text{kg·m/s}$ hướng xuống","$0\\,\\text{kg·m/s}$","$-5\\,\\text{kg·m/s}$"],
+    ans:2,
+    explain:"Tại độ cao cực đại, vận tốc $v = 0$ → $p = mv = \\mathbf{0}$." },
+
+  /* ===== 2. ĐỘNG LƯỢNG HỆ VẬT ===== */
+  { id:10, topic:"Động lượng hệ vật", level:"NB",
+    text:"Động lượng của một hệ nhiều vật được tính bằng",
+    choices:["Tổng đại số các động lượng thành phần","Tổng vectơ các động lượng thành phần","Tích của các động lượng thành phần","Hiệu động lượng lớn nhất và nhỏ nhất"],
+    ans:1,
+    explain:"$\\vec{p} = \\vec{p}_1 + \\vec{p}_2 + \\cdots = m_1\\vec{v}_1 + m_2\\vec{v}_2 + \\cdots$. Đây là <b>tổng vectơ</b>, phải chú ý phương và chiều của từng động lượng thành phần." },
+
+  { id:11, topic:"Động lượng hệ vật", level:"TH",
+    text:"Hai vật cùng $m = 2\\,\\text{kg}$ chuyển động <b>cùng chiều</b>, $v_1 = 3\\,\\text{m/s}$ và $v_2 = 5\\,\\text{m/s}$. Động lượng của hệ là",
+    choices:["$4\\,\\text{kg·m/s}$","$8\\,\\text{kg·m/s}$","$16\\,\\text{kg·m/s}$","$2\\,\\text{kg·m/s}$"],
+    ans:2,
+    explain:"Cùng chiều: $p = p_1 + p_2 = mv_1 + mv_2 = 2\\times3 + 2\\times5 = 6+10 = \\mathbf{16}\\,\\text{kg·m/s}$." },
+
+  { id:12, topic:"Động lượng hệ vật", level:"TH",
+    text:"Hai vật $m_1 = 3\\,\\text{kg}$, $v_1 = 4\\,\\text{m/s}$ và $m_2 = 4\\,\\text{kg}$, $v_2 = 3\\,\\text{m/s}$ chuyển động <b>ngược chiều</b>. Động lượng của hệ là",
+    choices:["$0\\,\\text{kg·m/s}$","$24\\,\\text{kg·m/s}$","$12\\,\\text{kg·m/s}$","$6\\,\\text{kg·m/s}$"],
+    ans:0,
+    explain:"$p_1 = 3\\times4 = 12\\,\\text{kg·m/s}$; $p_2 = 4\\times3 = 12\\,\\text{kg·m/s}$ ngược chiều. $p = |p_1 - p_2| = \\mathbf{0}$." },
+
+  { id:13, topic:"Động lượng hệ vật", level:"TH",
+    text:"Hai vật $m_1 = 1\\,\\text{kg}$, $v_1 = 3\\,\\text{m/s}$ và $m_2 = 2\\,\\text{kg}$, $v_2 = 4\\,\\text{m/s}$ chuyển động <b>vuông góc</b> nhau. Độ lớn động lượng hệ là",
+    choices:["$7\\,\\text{kg·m/s}$","$5\\,\\text{kg·m/s}$","$\\sqrt{73}\\,\\text{kg·m/s}$","$25\\,\\text{kg·m/s}$"],
+    ans:2,
+    explain:"$p_1 = 1\\times3 = 3$; $p_2 = 2\\times4 = 8$. Vuông góc: $p = \\sqrt{3^2+8^2} = \\sqrt{9+64} = \\sqrt{73} \\approx \\mathbf{8{,}54}\\,\\text{kg·m/s}$." },
+
+  { id:14, topic:"Động lượng hệ vật", level:"VD",
+    text:"Hai vật giống nhau $m = 2\\,\\text{kg}$, $v_1 = v_2 = 5\\,\\text{m/s}$, chuyển động theo hai hướng hợp nhau góc $120°$. Độ lớn động lượng hệ là",
+    choices:["$10\\,\\text{kg·m/s}$","$20\\,\\text{kg·m/s}$","$0\\,\\text{kg·m/s}$","$5\\sqrt{3}\\,\\text{kg·m/s}$"],
+    ans:0,
+    explain:"$p_1 = p_2 = 2\\times5 = 10$. Góc $\\alpha = 120°$: $p = 2p_1\\cos\\dfrac{\\alpha}{2} = 2\\times10\\times\\cos60° = 20\\times0{,}5 = \\mathbf{10}\\,\\text{kg·m/s}$." },
+
+  /* ===== 3. XUNG LƯỢNG & ĐỘ BIẾN THIÊN ĐỘNG LƯỢNG ===== */
+  { id:15, topic:"Xung lượng và độ biến thiên động lượng", level:"NB",
+    text:"Xung lượng của lực $\\vec{F}$ tác dụng trong thời gian $\\Delta t$ được định nghĩa là",
+    choices:["$\\vec{F}/\\Delta t$","$\\vec{F}\\cdot\\Delta t$","$\\vec{F}\\cdot\\Delta t^2$","$\\vec{F}+\\Delta t$"],
+    ans:1,
+    explain:"Xung lượng của lực: $\\vec{J} = \\vec{F}\\cdot\\Delta t$ (N·s = kg·m/s). Xung lượng đặc trưng cho tác động của lực theo thời gian lên vật." },
+
+  { id:16, topic:"Xung lượng và độ biến thiên động lượng", level:"NB",
+    text:"Mối liên hệ giữa xung lượng của lực và độ biến thiên động lượng:",
+    choices:["$\\vec{F}\\Delta t = \\vec{p}_1 + \\vec{p}_2$","$\\vec{F}\\Delta t = \\Delta\\vec{p} = \\vec{p}_2 - \\vec{p}_1$","$\\vec{F} = \\Delta\\vec{p}\\cdot\\Delta t$","$\\Delta\\vec{p} = \\vec{F}/\\Delta t$"],
+    ans:1,
+    explain:"$\\vec{F}\\Delta t = \\Delta\\vec{p} = \\vec{p}_2 - \\vec{p}_1$. Đây là <b>dạng thứ hai của định luật II Newton</b>. Xung lượng bằng độ biến thiên động lượng." },
+
+  { id:17, topic:"Xung lượng và độ biến thiên động lượng", level:"NB",
+    text:"Súng trường có nòng dài hơn súng ngắn, đạn bắn ra nhanh hơn vì",
+    choices:["Lực đẩy lớn hơn","Thời gian lực tác dụng dài hơn → xung lượng lớn hơn → vận tốc lớn hơn","Khối lượng đạn nhỏ hơn","Ma sát trong nòng nhỏ hơn"],
+    ans:1,
+    explain:"Nòng dài → thời gian $\\Delta t$ khí thuốc đẩy đạn dài hơn → xung lượng $F\\Delta t$ lớn hơn → $\\Delta p = m\\Delta v$ lớn hơn → vận tốc đạn lớn hơn." },
+
+  { id:18, topic:"Xung lượng và độ biến thiên động lượng", level:"TH",
+    text:"Lực $F = 100\\,\\text{N}$ tác dụng lên vật trong $\\Delta t = 0{,}05\\,\\text{s}$. Xung lượng của lực là",
+    choices:["$2000\\,\\text{N·s}$","$5\\,\\text{N·s}$","$0{,}5\\,\\text{N·s}$","$2\\,\\text{N·s}$"],
+    ans:1,
+    explain:"Xung lượng $= F\\Delta t = 100\\times0{,}05 = \\mathbf{5}\\,\\text{N·s}$." },
+
+  { id:19, topic:"Xung lượng và độ biến thiên động lượng", level:"TH",
+    text:"Vật $m = 0{,}2\\,\\text{kg}$ từ trạng thái nghỉ, sau $\\Delta t = 0{,}4\\,\\text{s}$ đạt $v = 6\\,\\text{m/s}$. Lực trung bình tác dụng lên vật là",
+    choices:["$0{,}48\\,\\text{N}$","$3\\,\\text{N}$","$1{,}2\\,\\text{N}$","$12\\,\\text{N}$"],
+    ans:1,
+    explain:"$\\Delta p = mv - 0 = 0{,}2\\times6 = 1{,}2\\,\\text{kg·m/s}$. $F = \\Delta p/\\Delta t = 1{,}2/0{,}4 = \\mathbf{3}\\,\\text{N}$." },
+
+  { id:20, topic:"Xung lượng và độ biến thiên động lượng", level:"TH",
+    text:"Bóng $m = 0{,}4\\,\\text{kg}$ đang bay với $v_1 = 20\\,\\text{m/s}$ đến đập vào tường rồi bật ngược lại với $v_2 = 15\\,\\text{m/s}$ (cùng phương). Độ biến thiên động lượng của bóng là",
+    choices:["$2\\,\\text{kg·m/s}$","$-2\\,\\text{kg·m/s}$","$-14\\,\\text{kg·m/s}$","$14\\,\\text{kg·m/s}$"],
+    ans:2,
+    explain:"Chọn chiều dương là chiều $v_1$. $v_2 = -15\\,\\text{m/s}$. $\\Delta p = m(v_2-v_1) = 0{,}4\\times(-15-20) = 0{,}4\\times(-35) = \\mathbf{-14}\\,\\text{kg·m/s}$. Độ lớn: $14\\,\\text{kg·m/s}$." },
+
+  { id:21, topic:"Xung lượng và độ biến thiên động lượng", level:"TH",
+    text:"Bóng $m = 0{,}3\\,\\text{kg}$ đập vào tường với $v_1 = 10\\,\\text{m/s}$, bật ngược lại $v_2 = 8\\,\\text{m/s}$, thời gian tiếp xúc $\\Delta t = 0{,}02\\,\\text{s}$. Lực tường tác dụng lên bóng là",
+    choices:["$30\\,\\text{N}$","$120\\,\\text{N}$","$270\\,\\text{N}$","$60\\,\\text{N}$"],
+    ans:2,
+    explain:"$|\\Delta p| = m(v_1+v_2) = 0{,}3\\times(10+8) = 5{,}4\\,\\text{kg·m/s}$. $F = |\\Delta p|/\\Delta t = 5{,}4/0{,}02 = \\mathbf{270}\\,\\text{N}$." },
+
+  { id:22, topic:"Xung lượng và độ biến thiên động lượng", level:"VD",
+    text:"Vật $m = 1\\,\\text{kg}$ chuyển động với $v_1 = 5\\,\\text{m/s}$ theo chiều dương. Lực $F = 20\\,\\text{N}$ ngược chiều tác dụng trong $t = 0{,}5\\,\\text{s}$. Vận tốc sau đó là",
+    choices:["$15\\,\\text{m/s}$","$-5\\,\\text{m/s}$","$5\\,\\text{m/s}$ ngược chiều","$B$ và $C$ cùng đúng"],
+    ans:3,
+    explain:"$\\Delta p = F\\Delta t = -20\\times0{,}5 = -10$. $v_2 = v_1 + \\Delta p/m = 5 + (-10)/1 = \\mathbf{-5}\\,\\text{m/s}}$. Âm nghĩa là ngược chiều ban đầu. B và C đều đúng." },
+
+  { id:23, topic:"Xung lượng và độ biến thiên động lượng", level:"VD",
+    text:"Giải thích tại sao khi nhảy từ trên cao xuống, ta nên <b>gập gối</b> khi tiếp đất:",
+    choices:["Tăng lực tiếp đất","Gập gối làm tăng thời gian tiếp đất → lực tiếp đất giảm","Giảm động lượng trước khi tiếp đất","Tăng gia tốc khi tiếp đất"],
+    ans:1,
+    explain:"$F\\Delta t = \\Delta p = \\text{const}$. Gập gối tăng $\\Delta t$ → <b>giảm lực $F$</b>. Đây là ứng dụng của hệ thức xung lượng-động lượng để bảo vệ xương khớp." },
+
+  { id:24, topic:"Xung lượng và độ biến thiên động lượng", level:"VD",
+    text:"Một quả trứng và một viên đá có cùng động lượng va vào tường và dừng lại. Nếu thời gian va chạm của trứng dài hơn đá, thì",
+    choices:["Lực tác dụng lên trứng lớn hơn","Lực tác dụng lên trứng nhỏ hơn","Lực tác dụng lên cả hai bằng nhau","Không so sánh được"],
+    ans:1,
+    explain:"$F = \\Delta p/\\Delta t$. Cùng $\\Delta p$, trứng có $\\Delta t$ dài hơn → <b>lực tác dụng nhỏ hơn</b>. Ví dụ thực tế: đứng trên đệm mềm thay vì sàn cứng." },
+
+  { id:25, topic:"Xung lượng và độ biến thiên động lượng", level:"VDC",
+    text:"Vật $m = 2\\,\\text{kg}$ từ đứng yên, chịu lực $F_1 = 10\\,\\text{N}$ trong $t_1 = 4\\,\\text{s}$, rồi lực $F_2 = 20\\,\\text{N}$ cùng chiều trong $t_2 = 2\\,\\text{s}$. Vận tốc cuối là",
+    choices:["$20\\,\\text{m/s}$","$40\\,\\text{m/s}$","$60\\,\\text{m/s}$","$30\\,\\text{m/s}$"],
+    ans:3,
+    explain:"$\\Delta p = F_1 t_1 + F_2 t_2 = 10\\times4 + 20\\times2 = 40+40 = 80\\,\\text{kg·m/s}$. $v = \\Delta p/m = 80/2 = \\mathbf{40}\\,\\text{m/s}$. Đáp án B." },
+
+  /* ===== 4. HỆ KÍN & BẢO TOÀN ĐỘNG LƯỢNG ===== */
+  { id:26, topic:"Bảo toàn động lượng", level:"NB",
+    text:"Hệ kín (hệ cô lập) là hệ",
+    choices:["Có khối lượng không đổi","Không có tương tác với vật bên ngoài hệ","Có tốc độ không đổi","Chỉ có ngoại lực tác dụng"],
+    ans:1,
+    explain:"Hệ kín: <b>không có tương tác với các vật bên ngoài</b> (hoặc ngoại lực bằng 0, hoặc ngoại lực cân bằng nhau). Thực tế không có hệ kín lý tưởng." },
+
+  { id:27, topic:"Bảo toàn động lượng", level:"NB",
+    text:"Định luật bảo toàn động lượng phát biểu:",
+    choices:["Động lượng của mỗi vật trong hệ không đổi","Tổng động lượng của hệ kín được bảo toàn: $\\vec{p}_{trước} = \\vec{p}_{sau}$","Động lượng luôn tăng theo thời gian","Động lượng tỉ lệ với gia tốc"],
+    ans:1,
+    explain:"$\\vec{p}_{trước} = \\vec{p}_{sau}$ hay $\\sum m_i\\vec{v}_i = \\sum m_i\\vec{v}'_i$. Đây là <b>định luật bảo toàn động lượng</b> — áp dụng cho hệ kín." },
+
+  { id:28, topic:"Bảo toàn động lượng", level:"NB",
+    text:"Trong trường hợp nào sau đây có thể coi gần đúng là hệ kín?",
+    choices:["Vật đang rơi tự do","Va chạm giữa hai xe (nội lực rất lớn hơn ngoại lực)","Xe đạp đang lăn trên đường","Vật trượt trên dốc có ma sát"],
+    ans:1,
+    explain:"Trong va chạm, nội lực lớn hơn ngoại lực (trọng lực, ma sát) rất nhiều → có thể bỏ qua ngoại lực → <b>coi gần đúng là hệ kín</b>. Đạn nổ, súng bắn cũng tương tự." },
+
+  { id:29, topic:"Bảo toàn động lượng", level:"TH",
+    text:"Người $M = 60\\,\\text{kg}$ đứng yên trên ván $m = 20\\,\\text{kg}$ đặt trên mặt hồ đóng băng (bỏ qua ma sát). Người ném ngang hòn đá $m_0 = 2\\,\\text{kg}$ với $v_0 = 5\\,\\text{m/s}$. Vận tốc của hệ người+ván sau đó là",
+    choices:["$0{,}125\\,\\text{m/s}$","$0{,}25\\,\\text{m/s}$","$0{,}5\\,\\text{m/s}$","$1\\,\\text{m/s}$"],
+    ans:0,
+    explain:"Bảo toàn ĐL: $0 = m_0 v_0 + (M+m)v'$. $v' = -\\dfrac{m_0 v_0}{M+m} = -\\dfrac{2\\times5}{60+20} = -\\dfrac{10}{80} = \\mathbf{-0{,}125}\\,\\text{m/s}$. Độ lớn: $0{,}125\\,\\text{m/s}$ ngược chiều." },
+
+  { id:30, topic:"Bảo toàn động lượng", level:"TH",
+    text:"Toa xe $M = 10000\\,\\text{kg}$ chạy với $v = 2\\,\\text{m/s}$. Vật $m = 500\\,\\text{kg}$ từ trên thả thẳng đứng xuống toa. Vận tốc mới của toa là",
+    choices:["$2\\,\\text{m/s}$","$1{,}9\\,\\text{m/s}$","$2{,}1\\,\\text{m/s}$","$0\\,\\text{m/s}$"],
+    ans:1,
+    explain:"Vật thả thẳng đứng không có động lượng theo phương ngang. Bảo toàn động lượng ngang: $Mv = (M+m)v'$. $v' = \\dfrac{10000\\times2}{10500} \\approx \\mathbf{1{,}9}\\,\\text{m/s}$." },
+
+  { id:31, topic:"Bảo toàn động lượng", level:"TH",
+    text:"Xe $m_1 = 300\\,\\text{kg}$ chạy $v_1 = 5\\,\\text{m/s}$ đuổi theo xe $m_2 = 200\\,\\text{kg}$ chạy $v_2 = 2\\,\\text{m/s}$ cùng chiều. Hai xe móc dính vào nhau. Vận tốc của cả hai là",
+    choices:["$3{,}5\\,\\text{m/s}$","$3{,}8\\,\\text{m/s}$","$4\\,\\text{m/s}$","$7\\,\\text{m/s}$"],
+    ans:1,
+    explain:"$m_1 v_1 + m_2 v_2 = (m_1+m_2)v$. $v = \\dfrac{300\\times5 + 200\\times2}{500} = \\dfrac{1500+400}{500} = \\dfrac{1900}{500} = \\mathbf{3{,}8}\\,\\text{m/s}$." },
+
+  { id:32, topic:"Bảo toàn động lượng", level:"TH",
+    text:"Hai vật $m_1 = m_2 = 3\\,\\text{kg}$ chuyển động ngược chiều với $v_1 = v_2 = 4\\,\\text{m/s}$ đến va chạm mềm. Vận tốc sau va chạm là",
+    choices:["$4\\,\\text{m/s}$","$0\\,\\text{m/s}$","$8\\,\\text{m/s}$","$-4\\,\\text{m/s}$"],
+    ans:1,
+    explain:"$m_1 v_1 - m_2 v_2 = (m_1+m_2)v$ (ngược chiều). $3\\times4 - 3\\times4 = 6v$ → $v = \\mathbf{0}$. Hai vật dừng lại." },
+
+  { id:33, topic:"Bảo toàn động lượng", level:"VD",
+    text:"Xe 1: $m_1 = 600\\,\\text{kg}$, $v_1 = 10\\,\\text{m/s}$. Xe 2: $m_2 = 400\\,\\text{kg}$, đứng yên. Sau va chạm xe 2 chạy với $v_2' = 12\\,\\text{m/s}$ cùng chiều ban đầu. Vận tốc xe 1 sau va chạm là",
+    choices:["$2\\,\\text{m/s}$","$-2\\,\\text{m/s}$","$-4\\,\\text{m/s}$","$2\\,\\text{m/s}$ ngược chiều"],
+    ans:0,
+    explain:"$m_1 v_1 = m_1 v_1' + m_2 v_2'$. $600\\times10 = 600 v_1' + 400\\times12$. $6000 = 600v_1' + 4800$. $v_1' = \\dfrac{1200}{600} = \\mathbf{2}\\,\\text{m/s}$ (cùng chiều)." },
+
+  { id:34, topic:"Bảo toàn động lượng", level:"VD",
+    text:"Con bọ $m = 1\\,\\text{g}$ va trực diện với xe buýt $M = 5000\\,\\text{kg}$ đang chạy $V = 20\\,\\text{m/s}$. Cả hai dừng lại sau va chạm. Vận tốc con bọ trước va chạm là",
+    choices:["$10^5\\,\\text{m/s}$","$10^8\\,\\text{m/s}$","$20\\,\\text{m/s}$","$10^6\\,\\text{m/s}$"],
+    ans:0,
+    explain:"$mv - MV = 0$ → $v = \\dfrac{MV}{m} = \\dfrac{5000\\times20}{10^{-3}} = \\dfrac{10^5}{1} = \\mathbf{10^5}\\,\\text{m/s}$. Vận tốc phi lý → trên thực tế, xe buýt không dừng lại!" },
+
+  { id:35, topic:"Bảo toàn động lượng", level:"VDC",
+    text:"Hạt nhân Radium đứng yên phân rã thành hạt $\\alpha$ ($m_1 = 4\\,u$, $v_1 = 1{,}5\\times10^7\\,\\text{m/s}$) và hạt Radon ($m_2 = 222\\,u$). Vận tốc Radon là",
+    choices:["$2{,}7\\times10^5\\,\\text{m/s}$","$2{,}7\\times10^6\\,\\text{m/s}$","$1{,}5\\times10^7\\,\\text{m/s}$","$3{,}3\\times10^5\\,\\text{m/s}$"],
+    ans:0,
+    explain:"Hệ đứng yên: $0 = m_1 v_1 + m_2 v_2$. $v_2 = -\\dfrac{m_1 v_1}{m_2} = -\\dfrac{4\\times1{,}5\\times10^7}{222} \\approx \\mathbf{2{,}7\\times10^5}\\,\\text{m/s}$ (ngược chiều)." },
+
+  /* ===== 5. CHUYỂN ĐỘNG PHẢN LỰC ===== */
+  { id:36, topic:"Chuyển động phản lực", level:"NB",
+    text:"Chuyển động phản lực hoạt động theo nguyên tắc nào?",
+    choices:["Định luật 1 Newton","Định luật 2 Newton","Bảo toàn động lượng: khi một phần của hệ chuyển động theo chiều này, phần còn lại chuyển động ngược chiều","Bảo toàn cơ năng"],
+    ans:2,
+    explain:"Chuyển động phản lực: hệ đứng yên, một phần chuyển động theo hướng nào → phần còn lại chuyển động <b>ngược chiều</b> để bảo toàn động lượng ($\\vec{p}_{tổng} = 0$)." },
+
+  { id:37, topic:"Chuyển động phản lực", level:"NB",
+    text:"Ví dụ nào sau đây KHÔNG phải là chuyển động phản lực?",
+    choices:["Tên lửa phụt khí ra phía sau để bay về phía trước","Cá mực phụt nước ra phía sau để tiến về phía trước","Máy bay cánh quạt kéo không khí về phía trước","Người nhảy bắn vật về phía trước rồi giật lùi"],
+    ans:2,
+    explain:"Máy bay cánh quạt tạo lực kéo từ cánh quạt chứ không phải phụt khí/chất ra. Còn tên lửa, cá mực, người nhảy ném vật đều dùng nguyên lý phản lực." },
+
+  { id:38, topic:"Chuyển động phản lực", level:"TH",
+    text:"Súng $M = 5\\,\\text{kg}$ bắn đạn $m = 50\\,\\text{g}$ với $v = 300\\,\\text{m/s}$. Vận tốc giật của súng là",
+    choices:["$30\\,\\text{m/s}$","$3\\,\\text{m/s}$","$0{,}3\\,\\text{m/s}$","$300\\,\\text{m/s}$"],
+    ans:1,
+    explain:"Bảo toàn ĐL: $0 = mv + MV$ → $V = -\\dfrac{mv}{M} = -\\dfrac{0{,}05\\times300}{5} = \\mathbf{-3}\\,\\text{m/s}$. Súng giật ngược chiều đạn với tốc độ $3\\,\\text{m/s}$." },
+
+  { id:39, topic:"Chuyển động phản lực", level:"TH",
+    text:"Phi hành gia $M = 80\\,\\text{kg}$ (gồm cả đồ nghề) đang lơ lửng trong không gian. Ông ném bình oxy $m = 5\\,\\text{kg}$ với $v = 8\\,\\text{m/s}$ ra xa trạm. Vận tốc phi hành gia sau đó về phía trạm là",
+    choices:["$0{,}5\\,\\text{m/s}$","$0{,}4\\,\\text{m/s}$","$1\\,\\text{m/s}$","$8\\,\\text{m/s}$"],
+    ans:0,
+    explain:"$0 = mv + MV$. $V = -\\dfrac{mv}{M} = -\\dfrac{5\\times8}{80} = -\\dfrac{40}{80} = \\mathbf{-0{,}5}\\,\\text{m/s}$. Hướng về phía trạm (ngược với chiều ném bình)." },
+
+  { id:40, topic:"Chuyển động phản lực", level:"VD",
+    text:"Xe $M = 10\\,\\text{kg}$ gắn lò xo đứng yên trên mặt phẳng nhẵn. Lò xo nén dẫn đến vật $m = 2\\,\\text{kg}$ bắn ra với $v = 5\\,\\text{m/s}$. Xe chuyển động với vận tốc",
+    choices:["$1\\,\\text{m/s}$ ngược chiều vật","$2{,}5\\,\\text{m/s}$ ngược chiều vật","$5\\,\\text{m/s}$ ngược chiều vật","$0{,}5\\,\\text{m/s}$ ngược chiều vật"],
+    ans:0,
+    explain:"$0 = mv + MV$ → $V = -\\dfrac{mv}{M} = -\\dfrac{2\\times5}{10} = \\mathbf{-1}\\,\\text{m/s}$. Xe chuyển động $1\\,\\text{m/s}$ ngược chiều vật." },
+
+  /* ===== 6. VA CHẠM MỀM ===== */
+  { id:41, topic:"Va chạm mềm", level:"NB",
+    text:"Va chạm mềm (va chạm hoàn toàn không đàn hồi) là va chạm trong đó",
+    choices:["Cơ năng bảo toàn","Hai vật dính vào nhau sau va chạm và chuyển động cùng vận tốc","Hai vật bật ngược trở lại","Động lượng không bảo toàn"],
+    ans:1,
+    explain:"Va chạm mềm: <b>hai vật dính vào nhau</b>, sau va chạm cùng vận tốc $v'$. Động lượng vẫn bảo toàn nhưng cơ năng không bảo toàn (một phần biến thành nhiệt)." },
+
+  { id:42, topic:"Va chạm mềm", level:"TH",
+    text:"Vật $m_1 = 2\\,\\text{kg}$, $v_1 = 6\\,\\text{m/s}$ va chạm mềm với vật $m_2 = 4\\,\\text{kg}$ đứng yên. Vận tốc sau va chạm là",
+    choices:["$6\\,\\text{m/s}$","$3\\,\\text{m/s}$","$2\\,\\text{m/s}$","$4\\,\\text{m/s}$"],
+    ans:2,
+    explain:"$m_1 v_1 = (m_1+m_2)v'$. $v' = \\dfrac{2\\times6}{2+4} = \\dfrac{12}{6} = \\mathbf{2}\\,\\text{m/s}$." },
+
+  { id:43, topic:"Va chạm mềm", level:"TH",
+    text:"Viên đạn $m = 10\\,\\text{g}$ bay với $v = 500\\,\\text{m/s}$ xuyên vào túi cát $M = 5\\,\\text{kg}$ treo trên dây (va chạm mềm). Vận tốc túi cát (có đạn) sau va chạm là",
+    choices:["$1\\,\\text{m/s}$","$0{,}99\\,\\text{m/s}$","$10\\,\\text{m/s}$","$0{,}1\\,\\text{m/s}$"],
+    ans:0,
+    explain:"$mv = (m+M)v'$. $v' = \\dfrac{0{,}01\\times500}{0{,}01+5} = \\dfrac{5}{5{,}01} \\approx \\mathbf{1}\\,\\text{m/s}$." },
+
+  { id:44, topic:"Va chạm mềm", level:"TH",
+    text:"Va chạm mềm — cơ năng có bảo toàn không?",
+    choices:["Có, cơ năng bảo toàn","Không, một phần cơ năng biến thành nhiệt và dạng năng lượng khác","Chỉ động năng bảo toàn","Chỉ thế năng không bảo toàn"],
+    ans:1,
+    explain:"Va chạm mềm: động lượng bảo toàn nhưng <b>cơ năng không bảo toàn</b>. Phần cơ năng mất đi biến thành nhiệt, âm thanh, biến dạng... Chỉ va chạm đàn hồi mới bảo toàn cơ năng." },
+
+  { id:45, topic:"Va chạm mềm", level:"VD",
+    text:"Vật $m_1 = 3\\,\\text{kg}$, $v_1 = 4\\,\\text{m/s}$ va chạm mềm với vật $m_2 = 1\\,\\text{kg}$, $v_2 = -4\\,\\text{m/s}$ (ngược chiều). Vận tốc sau va chạm và hướng chuyển động là",
+    choices:["$2\\,\\text{m/s}$ cùng chiều $v_1$","$0\\,\\text{m/s}$","$4\\,\\text{m/s}$ cùng chiều $v_2$","$-2\\,\\text{m/s}$ ngược chiều $v_1$"],
+    ans:0,
+    explain:"$m_1 v_1 + m_2 v_2 = (m_1+m_2)v'$. $3\\times4 + 1\\times(-4) = 4 v'$. $12-4 = 4v'$. $v' = \\dfrac{8}{4} = \\mathbf{2}\\,\\text{m/s}$ (cùng chiều $v_1$)." },
+
+  { id:46, topic:"Va chạm mềm", level:"VD",
+    text:"Trong va chạm mềm, năng lượng cơ học bị mất là",
+    choices:["$\\Delta W = \\dfrac{1}{2}(m_1+m_2)v'^2 - \\dfrac{1}{2}m_1 v_1^2$",
+             "$\\Delta W = \\dfrac{1}{2}m_1 v_1^2 - \\dfrac{1}{2}(m_1+m_2)v'^2$",
+             "$\\Delta W = 0$",
+             "$\\Delta W = m_1 v_1 - (m_1+m_2)v'$"],
+    ans:1,
+    explain:"$\\Delta W = W_{đ,trước} - W_{đ,sau} = \\dfrac{1}{2}m_1 v_1^2 - \\dfrac{1}{2}(m_1+m_2)v'^2 \\geq 0$. Năng lượng mất = chênh lệch động năng trước và sau va chạm." },
+
+  /* ===== 7. VA CHẠM ĐÀN HỒI ===== */
+  { id:47, topic:"Va chạm đàn hồi", level:"NB",
+    text:"Va chạm đàn hồi (hoàn toàn) là va chạm trong đó",
+    choices:["Hai vật dính vào nhau","Vật không bị biến dạng vĩnh viễn, cơ năng bảo toàn","Động lượng không bảo toàn","Chỉ thế năng bảo toàn"],
+    ans:1,
+    explain:"Va chạm đàn hồi: <b>không biến dạng vĩnh viễn, không sinh nhiệt</b>. Cả <b>động lượng và cơ năng đều bảo toàn</b>. Ví dụ: bi-a (gần đúng)." },
+
+  { id:48, topic:"Va chạm đàn hồi", level:"TH",
+    text:"Bi-a 1 ($m$, $v_0$) va chạm đàn hồi trực diện với bi-a 2 giống hệt ($m$, đứng yên). Sau va chạm:",
+    choices:["Cả hai chuyển động với $v_0/2$","Bi 1 dừng lại, bi 2 chuyển động với $v_0$","Cả hai dừng lại","Bi 1 bay ngược lại, bi 2 đứng yên"],
+    ans:1,
+    explain:"Va chạm đàn hồi giữa hai vật bằng nhau: bi 1 dừng lại hoàn toàn, bi 2 chuyển động với đúng vận tốc $v_0$ ban đầu của bi 1. Đây là đặc tính nổi bật của bi-a." },
+
+  { id:49, topic:"Va chạm đàn hồi", level:"TH",
+    text:"Trong va chạm đàn hồi, so với va chạm mềm, năng lượng mất đi là",
+    choices:["Nhiều hơn","Ít hơn (bằng 0 trong va chạm đàn hồi hoàn toàn)","Bằng nhau","Phụ thuộc khối lượng"],
+    ans:1,
+    explain:"Va chạm đàn hồi: cơ năng bảo toàn → <b>không mất năng lượng</b> ($\\Delta W = 0$). Va chạm mềm: $\\Delta W > 0$ (mất nhiều nhất). Thực tế nằm giữa hai thái cực này." },
+
+  { id:50, topic:"Va chạm đàn hồi", level:"VD",
+    text:"Vật 1 ($m_1 = 2\\,\\text{kg}$, $v_1 = 6\\,\\text{m/s}$) va chạm đàn hồi trực diện với vật 2 ($m_2 = 2\\,\\text{kg}$, $v_2 = -3\\,\\text{m/s}$). Tổng động năng trước và sau va chạm",
+    choices:["Trước: $45\\,\\text{J}$; Sau: khác","Trước $= $ Sau (bảo toàn)","Trước $> $ Sau","Trước $< $ Sau"],
+    ans:1,
+    explain:"$W_{đ,trước} = \\dfrac{1}{2}\\times2\\times36 + \\dfrac{1}{2}\\times2\\times9 = 36+9 = 45\\,\\text{J}$. Va chạm đàn hồi: $W_{đ,sau} = W_{đ,trước} = \\mathbf{45}\\,\\text{J}$ (bảo toàn)." },
+
+  /* ===== 8. TỔNG HỢP & ỨNG DỤNG ===== */
+  { id:51, topic:"Tổng hợp và ứng dụng", level:"TH",
+    text:"Bong bóng bay ra khỏi miệng người thổi theo nguyên lý nào?",
+    choices:["Lực đàn hồi","Chuyển động phản lực: khí phụt ra sau đẩy bong bóng tiến","Lực từ","Lực hấp dẫn"],
+    ans:1,
+    explain:"Khi khí phụt ra phía sau, theo bảo toàn động lượng, bong bóng bị đẩy về phía trước. Đây là nguyên lý <b>phản lực</b>, tương tự tên lửa." },
+
+  { id:52, topic:"Tổng hợp và ứng dụng", level:"TH",
+    text:"Tại sao khi bắt bóng đang bay, ta nên thu tay về phía sau?",
+    choices:["Tăng lực tác dụng lên tay","Kéo dài thời gian tiếp xúc → giảm lực → tay ít đau hơn","Tăng động lượng của bóng","Giảm vận tốc bóng trước khi bắt"],
+    ans:1,
+    explain:"Thu tay về phía sau tăng $\\Delta t$ tiếp xúc. Từ $F = \\Delta p/\\Delta t$: cùng $\\Delta p$ nhưng $\\Delta t$ lớn hơn → <b>lực nhỏ hơn</b> → tay ít đau." },
+
+  { id:53, topic:"Tổng hợp và ứng dụng", level:"VD",
+    text:"Người $M = 70\\,\\text{kg}$ nhảy từ bờ lên tàu $m = 200\\,\\text{kg}$ đang đứng yên với $v = 3\\,\\text{m/s}$ theo phương ngang. Sau khi người lên tàu, tàu chuyển động với vận tốc",
+    choices:["$0{,}77\\,\\text{m/s}$","$1{,}05\\,\\text{m/s}$","$3\\,\\text{m/s}$","$0{,}35\\,\\text{m/s}$"],
+    ans:0,
+    explain:"$Mv = (M+m)v'$. $v' = \\dfrac{70\\times3}{70+200} = \\dfrac{210}{270} \\approx \\mathbf{0{,}78}\\,\\text{m/s}$. Chọn A ($\\approx 0{,}77$)." },
+
+  { id:54, topic:"Tổng hợp và ứng dụng", level:"VD",
+    text:"Quả bom $m = 200\\,\\text{kg}$ đang bay ngang với $v = 100\\,\\text{m/s}$ thì nổ thành hai mảnh. Mảnh 1: $m_1 = 80\\,\\text{kg}$, $v_1' = 200\\,\\text{m/s}$ (cùng chiều ban đầu). Mảnh 2 có vận tốc",
+    choices:["$-33{,}3\\,\\text{m/s}$","$33{,}3\\,\\text{m/s}$ ngược chiều","$0\\,\\text{m/s}$","$-100\\,\\text{m/s}$"],
+    ans:0,
+    explain:"$mv = m_1 v_1' + m_2 v_2'$. $200\\times100 = 80\\times200 + 120\\times v_2'$. $20000 = 16000 + 120v_2'$. $v_2' = \\dfrac{4000}{120} \\approx \\mathbf{33{,}3}\\,\\text{m/s}$ cùng chiều. Đáp án B." },
+
+  { id:55, topic:"Tổng hợp và ứng dụng", level:"VD",
+    text:"Trong một vụ tai nạn, xe A ($m_1 = 800\\,\\text{kg}$, $v_1 = 15\\,\\text{m/s}$) đâm vào xe B ($m_2 = 1200\\,\\text{kg}$, $v_2 = -10\\,\\text{m/s}$, ngược chiều). Hai xe móc dính nhau. Vận tốc và hướng sau va chạm:",
+    choices:["$0\\,\\text{m/s}$","$1\\,\\text{m/s}$ cùng chiều xe A","$1\\,\\text{m/s}$ cùng chiều xe B","$2\\,\\text{m/s}$ cùng chiều xe A"],
+    ans:0,
+    explain:"$m_1 v_1 + m_2 v_2 = (m_1+m_2)v'$. $800\\times15 + 1200\\times(-10) = 2000 v'$. $12000 - 12000 = 2000v'$. $v' = \\mathbf{0}$. Hai xe dừng lại." },
+
+  { id:56, topic:"Tổng hợp và ứng dụng", level:"VD",
+    text:"Đạn $m = 20\\,\\text{g}$ bắn vào gỗ $M = 4\\,\\text{kg}$ treo bằng dây. Cả hai chuyển động $v' = 0{,}5\\,\\text{m/s}$. Vận tốc đạn ban đầu là",
+    choices:["$100\\,\\text{m/s}$","$101\\,\\text{m/s}$","$200\\,\\text{m/s}$","$400\\,\\text{m/s}$"],
+    ans:1,
+    explain:"$mv = (m+M)v'$. $0{,}02\\times v = (0{,}02+4)\\times0{,}5 = 4{,}02\\times0{,}5 = 2{,}01$. $v = \\dfrac{2{,}01}{0{,}02} = \\mathbf{100{,}5} \\approx 101\\,\\text{m/s}$." },
+
+  { id:57, topic:"Tổng hợp và ứng dụng", level:"VDC",
+    text:"Xe A ($m_1=500\\,\\text{kg}$, $v_1=20\\,\\text{m/s}$) và xe B ($m_2=1000\\,\\text{kg}$, $v_2=5\\,\\text{m/s}$) cùng chiều. Va chạm mềm. Động năng mất đi trong va chạm là",
+    choices:["$25000\\,\\text{J}$","$62500\\,\\text{J}$","$12500\\,\\text{J}$","$37500\\,\\text{J}$"],
+    ans:3,
+    explain:"$v' = \\dfrac{500\\times20+1000\\times5}{1500} = \\dfrac{15000}{1500} = 10\\,\\text{m/s}$. $W_{trước} = \\frac{1}{2}\\times500\\times400 + \\frac{1}{2}\\times1000\\times25 = 100000+12500 = 112500\\,\\text{J}$. $W_{sau} = \\frac{1}{2}\\times1500\\times100 = 75000\\,\\text{J}$. $\\Delta W = 112500-75000 = \\mathbf{37500}\\,\\text{J}$." },
+
+  { id:58, topic:"Tổng hợp và ứng dụng", level:"VDC",
+    text:"Vật A ($3\\,\\text{kg}$, $4\\,\\text{m/s}$) và vật B ($1\\,\\text{kg}$, $-8\\,\\text{m/s}$) va chạm đàn hồi trực diện. Sau va chạm vận tốc của A và B lần lượt là",
+    choices:["$v_A = -4\\,\\text{m/s}$; $v_B = 8\\,\\text{m/s}$","$v_A = -2\\,\\text{m/s}$; $v_B = 6\\,\\text{m/s}$","$v_A = 0$; $v_B = 4\\,\\text{m/s}$","$v_A = 2\\,\\text{m/s}$; $v_B = 10\\,\\text{m/s}$"],
+    ans:1,
+    explain:"Va chạm đàn hồi: $v_A' = \\dfrac{(m_A-m_B)v_A + 2m_B v_B}{m_A+m_B} = \\dfrac{(3-1)\\times4+2\\times1\\times(-8)}{4} = \\dfrac{8-16}{4} = \\mathbf{-2}\\,\\text{m/s}$. $v_B' = \\dfrac{(m_B-m_A)v_B + 2m_A v_A}{m_A+m_B} = \\dfrac{-2\\times(-8)+6\\times4}{4} = \\dfrac{16+24}{4} = \\mathbf{10}\\,\\text{m/s}$." },
+
+  { id:59, topic:"Tổng hợp và ứng dụng", level:"VDC",
+    text:"Tên lửa $M = 500\\,\\text{kg}$ (gồm nhiên liệu $m = 100\\,\\text{kg}$) ban đầu đứng yên. Phụt nhiên liệu ra phía sau với $v_{khi} = 600\\,\\text{m/s}$. Vận tốc tên lửa (vỏ 400 kg) sau đó là",
+    choices:["$100\\,\\text{m/s}$","$120\\,\\text{m/s}$","$150\\,\\text{m/s}$","$200\\,\\text{m/s}$"],
+    ans:2,
+    explain:"$0 = -mv_{khi} + (M-m)v_{tên lửa}$. $v = \\dfrac{mv_{khi}}{M-m} = \\dfrac{100\\times600}{400} = \\mathbf{150}\\,\\text{m/s}$." },
+
+  { id:60, topic:"Tổng hợp và ứng dụng", level:"VDC",
+    text:"Xe điện $M = 2000\\,\\text{kg}$ chạy $v = 10\\,\\text{m/s}$ (bỏ qua ma sát). Người $m = 70\\,\\text{kg}$ đi từ đầu này sang đầu kia (dài $L = 20\\,\\text{m}$, đi với $u = 2\\,\\text{m/s}$ so với xe). Khi người đi đến đầu kia, xe dịch chuyển thêm so với mặt đất một đoạn",
+    choices:["$0{,}67\\,\\text{m}$ về sau","$20\\,\\text{m}$ về trước","Không dịch chuyển thêm","$0{,}65\\,\\text{m}$ về sau"],
+    ans:3,
+    explain:"Tham chiếu vào xe: người đi $L=20\\,\\text{m}$ mất $t=L/u=10\\,\\text{s}$. Bảo toàn ĐL ngang: $(M+m)v = Mv_0 + mv_0$... Người dịch chuyển so với đất = xe dịch = $\\Delta x_{xe} = -\\dfrac{m}{M+m}L \\approx -\\dfrac{70\\times20}{2070} \\approx \\mathbf{-0{,}68}\\,\\text{m}$. Chọn D." }
+];
+
+var TOPICS = [
+  "Động lượng",
+  "Động lượng hệ vật",
+  "Xung lượng và độ biến thiên động lượng",
+  "Bảo toàn động lượng",
+  "Chuyển động phản lực",
+  "Va chạm mềm",
+  "Va chạm đàn hồi",
+  "Tổng hợp và ứng dụng"
+];
+
+var PLAN = {
+  "Động lượng": {
+    formula: "$$\\vec{p} = m\\vec{v} \\quad (\\text{kg·m/s})$$",
+    notes: [
+      "Vectơ, cùng hướng với $\\vec{v}$. Đơn vị: kg·m/s = N·s",
+      "Vật đứng yên: $p = 0$. Vật có khối lượng lớn hoặc tốc độ lớn → $p$ lớn",
+      "Phụ thuộc hệ quy chiếu (vì $v$ phụ thuộc hệ quy chiếu)",
+      "Tăng $m$ hoặc $v$ → tăng $p$"
+    ],
+    exercises: [
+      "Ôtô $m=1500\\,\\text{kg}$, $v=72\\,\\text{km/h}$. Tính $p$.",
+      "Vật có $p=12\\,\\text{kg·m/s}$, $m=3\\,\\text{kg}$. Tính $v$."
+    ]
+  },
+  "Động lượng hệ vật": {
+    formula: "$$\\vec{p}_{hệ} = m_1\\vec{v}_1 + m_2\\vec{v}_2 + \\cdots \\quad (\\text{tổng vectơ})$$",
+    notes: [
+      "Cùng chiều: $p = p_1 + p_2$",
+      "Ngược chiều: $p = |p_1 - p_2|$",
+      "Vuông góc: $p = \\sqrt{p_1^2 + p_2^2}$",
+      "Tổng quát: $p^2 = p_1^2 + p_2^2 + 2p_1 p_2\\cos\\alpha$; khi $p_1=p_2$: $p = 2p_1\\cos(\\alpha/2)$"
+    ],
+    exercises: [
+      "Hai vật $p_1=6\\,\\text{kg·m/s}$, $p_2=8\\,\\text{kg·m/s}$ vuông góc nhau. Tính $p_{hệ}$.",
+      "Hai vật bằng nhau $p_1=p_2=5\\,\\text{kg·m/s}$, góc $60°$. Tính $p_{hệ}$."
+    ]
+  },
+  "Xung lượng và độ biến thiên động lượng": {
+    formula: "$$\\vec{F}\\Delta t = \\Delta\\vec{p} = \\vec{p}_2 - \\vec{p}_1$$",
+    notes: [
+      "Xung lượng $\\vec{J} = \\vec{F}\\Delta t$ (N·s = kg·m/s)",
+      "$\\Delta t$ lớn → $F$ nhỏ (giảm chấn thương): gập gối tiếp đất, bắt trứng, sàn thảm...",
+      "$\\Delta t$ nhỏ → $F$ lớn: cú đấm karate, đập bóng nhanh...",
+      "Xung lượng như nhau ≠ lực như nhau (có thể thời gian khác nhau)"
+    ],
+    exercises: [
+      "Bóng $m=0{,}5\\,\\text{kg}$, $v_1=10\\,\\text{m/s}$ đập tường bật lại $v_2=8\\,\\text{m/s}$, $\\Delta t=0{,}05\\,\\text{s}$. Tính $F$.",
+      "Lực $F=200\\,\\text{N}$ tác dụng $\\Delta t=0{,}1\\,\\text{s}$ lên vật $m=2\\,\\text{kg}$ đứng yên. Tính $v$ sau đó."
+    ]
+  },
+  "Bảo toàn động lượng": {
+    formula: "$$\\vec{p}_{trước} = \\vec{p}_{sau} \\quad (\\text{hệ kín})$$",
+    notes: [
+      "Hệ kín: không có ngoại lực, hoặc ngoại lực cân bằng, hoặc nội lực >> ngoại lực",
+      "Áp dụng được cho cả va chạm mềm và va chạm đàn hồi",
+      "Chú ý chiều: chọn chiều dương trước khi áp dụng"
+    ],
+    exercises: [
+      "Xe $m_1=600\\,\\text{kg}$, $v_1=8\\,\\text{m/s}$ đâm vào xe $m_2=400\\,\\text{kg}$ đứng yên, dính nhau. Tính $v'$.",
+      "Người $M=60\\,\\text{kg}$ trên thuyền $m=40\\,\\text{kg}$ đứng yên ném vật $m_0=2\\,\\text{kg}$ với $v_0=6\\,\\text{m/s}$. Tính $v'_{thuyền+người}$."
+    ]
+  },
+  "Chuyển động phản lực": {
+    formula: "$$0 = m\\vec{v}_{khí} + M\\vec{v}_{tên lửa} \\Rightarrow v = \\dfrac{m}{M}v_{khí}$$",
+    notes: [
+      "Hệ ban đầu đứng yên → tổng động lượng = 0 → phần này tiến, phần kia lùi",
+      "Ứng dụng: tên lửa, cá mực, súng bắn, bong bóng bay...",
+      "Khối lượng lớn → vận tốc nhỏ; khối lượng nhỏ → vận tốc lớn"
+    ],
+    exercises: [
+      "Súng $M=4\\,\\text{kg}$ bắn đạn $m=40\\,\\text{g}$ với $v=500\\,\\text{m/s}$. Tính vận tốc giật súng.",
+      "Phi hành gia $70\\,\\text{kg}$ ném bình $5\\,\\text{kg}$ với $v=10\\,\\text{m/s}$. Tính vận tốc phi hành gia."
+    ]
+  },
+  "Va chạm mềm": {
+    formula: "$$m_1\\vec{v}_1 + m_2\\vec{v}_2 = (m_1+m_2)\\vec{v}' \\quad (\\text{dính vào nhau})$$",
+    notes: [
+      "Hai vật sau va chạm chuyển động cùng vận tốc $v'$",
+      "Động lượng bảo toàn, cơ năng <b>không</b> bảo toàn",
+      "Năng lượng mất: $\\Delta W = W_{đ,trước} - W_{đ,sau} > 0$",
+      "Ứng dụng: phân tích tai nạn giao thông, đạn bắn vào gỗ..."
+    ],
+    exercises: [
+      "Vật $m_1=4\\,\\text{kg}$, $v_1=6\\,\\text{m/s}$ va chạm mềm với vật $m_2=2\\,\\text{kg}$, $v_2=0$. Tính $v'$ và $\\Delta W$.",
+      "Đạn $10\\,\\text{g}$ bắn vào khối gỗ $2\\,\\text{kg}$, cả hai cùng chuyển động $1\\,\\text{m/s}$. Tính $v_{đạn}$."
+    ]
+  },
+  "Va chạm đàn hồi": {
+    formula: "$$\\text{Bảo toàn: } \\vec{p}_{trước}=\\vec{p}_{sau} \\text{ và } W_{đ,trước}=W_{đ,sau}$$",
+    notes: [
+      "Không biến dạng vĩnh viễn, không sinh nhiệt — cả động lượng lẫn cơ năng đều bảo toàn",
+      "Hai vật bằng nhau: vật 1 dừng, vật 2 chuyển động với vận tốc ban đầu của vật 1",
+      "Công thức: $v_1' = \\dfrac{(m_1-m_2)v_1+2m_2 v_2}{m_1+m_2}$; $v_2' = \\dfrac{(m_2-m_1)v_2+2m_1 v_1}{m_1+m_2}$"
+    ],
+    exercises: [
+      "Bi 1 ($0{,}1\\,\\text{kg}$, $5\\,\\text{m/s}$) đàn hồi với bi 2 ($0{,}1\\,\\text{kg}$, đứng yên). Vận tốc sau?",
+      "Vật A ($2\\,\\text{kg}$, $6\\,\\text{m/s}$) đàn hồi với vật B ($4\\,\\text{kg}$, đứng yên). Tính $v_A'$ và $v_B'$."
+    ]
+  },
+  "Tổng hợp và ứng dụng": {
+    formula: "$$\\vec{p}_{trước} = \\vec{p}_{sau} \\quad F\\Delta t = \\Delta p$$",
+    notes: [
+      "Xác định hệ kín trước khi áp dụng bảo toàn động lượng",
+      "Chọn chiều dương rõ ràng — vectơ ngược chiều mang dấu âm",
+      "Va chạm mềm: cơ năng không bảo toàn. Va chạm đàn hồi: cả hai bảo toàn",
+      "Phản lực: hệ ban đầu đứng yên → $\\vec{p}_{sau} = 0$"
+    ],
+    exercises: [
+      "Ôtô A ($1000\\,\\text{kg}$, $12\\,\\text{m/s}$) đâm B ($1500\\,\\text{kg}$, đứng yên), dính nhau. Tính $v'$ và $\\Delta W$.",
+      "Bom $100\\,\\text{kg}$ bay $50\\,\\text{m/s}$ nổ thành 2 mảnh: $30\\,\\text{kg}$, $100\\,\\text{m/s}$ cùng chiều. Tính $v'$ mảnh kia."
+    ]
+  }
+};
+
+/* === STATE === */
+var studentName = "", roundHistory = [], activeQS = QS.slice();
+var roundNum = 1, cumulativeCorrect = 0, TOTAL_ORIGINAL = QS.length;
+var answers = [], curQ = 0;
+
+function startTest() {
+  var nm = document.getElementById("inp-name").value.trim();
+  if (!nm) { document.getElementById("inp-name").focus(); return; }
+  studentName = nm;
+  roundHistory = []; activeQS = QS.slice(); roundNum = 1; cumulativeCorrect = 0;
+  beginRound();
+}
+function beginRound() {
+  curQ = 0;
+  answers = new Array(activeQS.length).fill(null);
+  document.getElementById("round-label").textContent =
+    roundNum === 1 ? "Lượt 1 · " + activeQS.length + " câu"
+                   : "Lượt " + roundNum + " · Ôn " + activeQS.length + " câu sai";
+  showScreen("s-test"); renderQ();
+}
+function renderDots() {
+  var nav = document.getElementById("dot-nav"); nav.innerHTML = "";
+  activeQS.forEach(function(_, i) {
+    var d = document.createElement("button");
+    d.className = "dot" + (i===curQ?" current":answers[i]!==null?" answered":"");
+    d.textContent = i+1;
+    d.onclick = (function(idx){ return function(){ curQ=idx; renderQ(); }; })(i);
+    nav.appendChild(d);
+  });
+}
+function renderQ() {
+  var q = activeQS[curQ];
+  document.getElementById("q-counter").textContent = "Câu " + (curQ+1) + "/" + activeQS.length;
+  document.getElementById("progress").style.width = ((curQ+1)/activeQS.length*100)+"%";
+  document.getElementById("q-text").innerHTML = q.text;
+  var cd = document.getElementById("choices"); cd.innerHTML = "";
+  ["A","B","C","D"].forEach(function(l, ci) {
+    var b = document.createElement("button");
+    b.className = "choice-btn" + (answers[curQ]===ci ? " selected" : "");
+    b.innerHTML = "<b>" + l + ".</b> " + q.choices[ci];
+    b.onclick = (function(i){ return function(){ answers[curQ]=i; renderQ(); }; })(ci);
+    cd.appendChild(b);
+  });
+  var pb = document.getElementById("btn-prev");
+  pb.disabled = curQ===0; pb.style.opacity = curQ===0?"0.35":"1";
+  document.getElementById("btn-next").textContent = curQ===activeQS.length-1 ? "Nộp bài ✓" : "Tiếp →";
+  if (window.MathJax && MathJax.typesetPromise)
+    MathJax.typesetPromise([document.getElementById("q-text"), document.getElementById("choices")]).catch(function(){});
+  renderDots();
+}
+function prevQ() { if (curQ>0){ curQ--; renderQ(); } }
+function nextQ() {
+  if (curQ < activeQS.length-1) { curQ++; renderQ(); return; }
+  var miss = answers.filter(function(a){ return a===null; }).length;
+  if (miss>0 && !confirm("Còn " + miss + " câu chưa chọn. Nộp bài?")) return;
+  submitRound();
+}
+
+var EXAM_NAME = "10c5.dongluong";
+var sheetsUrl = "https://script.google.com/macros/s/AKfycbwwIDXsY_OC6FDDJaJGrJdacv7n49YAoJn1i-xsvVLfkG2TZXEVtPCCdT1kxR3vzn-4/exec";
+
+function submitRound() {
+  var roundCorrect = answers.filter(function(a,i){ return a===activeQS[i].ans; }).length;
+  var wrongQS = activeQS.filter(function(q,i){ return answers[i]!==q.ans; });
+  roundHistory.push({ rn:roundNum, qs:activeQS.slice(), ans:answers.slice(), correct:roundCorrect });
+  cumulativeCorrect += roundCorrect;
+  if (sheetsUrl) {
+    var cls = (document.getElementById("inp-class")||{value:""}).value.trim();
+    var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+    var url = sheetsUrl+"?"+["examName="+encodeURIComponent(EXAM_NAME),"luot="+roundNum,"name="+encodeURIComponent(studentName),"className="+encodeURIComponent(cls),"score10="+score10].join("&");
+    if (typeof fetch!=="undefined") fetch(url,{method:"GET",mode:"no-cors"}).catch(function(){});
+    else { var img=new Image(); img.src=url; }
+  }
+  showResult(wrongQS);
+}
+function showResult(wrongQS) {
+  var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+  document.getElementById("score-num").textContent = score10%1===0?score10.toFixed(1):score10;
+  document.getElementById("result-name").textContent = studentName;
+  document.getElementById("round-badge").innerHTML =
+    '<span class="badge" style="background:#ebf2fb;color:#0c447c">Lượt '+roundNum+' · Làm '+activeQS.length+' câu · Đúng '+roundHistory[roundHistory.length-1].correct+' câu</span>';
+  var hc=document.getElementById("hist-card");
+  if (roundHistory.length>1) {
+    hc.style.display="block";
+    document.getElementById("hist-rows").innerHTML=roundHistory.map(function(r){
+      var p=Math.round(r.correct/r.qs.length*100),col=p>=70?"#1d7a4f":p>=40?"#7a4a0a":"#7a1f1f";
+      return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f4fb"><span style="font-size:13px">Lượt '+r.rn+' ('+r.qs.length+' câu)</span><span style="font-size:13px;font-weight:600;color:'+col+'">'+r.correct+'/'+r.qs.length+' đúng ('+p+'%)</span></div>';
+    }).join("");
+  } else { hc.style.display="none"; }
+  var dc=document.getElementById("detail-card"),letters=["A","B","C","D"];
+  if (wrongQS.length===0) {
+    dc.innerHTML='<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:12px">Tuyệt vời! Không có câu sai.</div>';
+  } else {
+    dc.innerHTML='<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>'+
+      wrongQS.map(function(q){
+        var ri=activeQS.indexOf(q),ua=answers[ri],ul=ua!==null?letters[ua]:"–";
+        return '<div style="padding:10px 0;border-bottom:1px solid #f0f4fb"><div style="font-size:13px;color:#888;margin-bottom:2px">'+q.topic+'</div><div style="font-size:14px;font-weight:500;margin-bottom:4px">'+q.id+'. '+q.text+'</div><div style="font-size:12px;color:#7a1f1f">Bạn chọn: <b>'+ul+'</b> · Đúng: <b>'+letters[q.ans]+'</b></div><div style="font-size:12px;color:#555;margin-top:4px;background:#f5f7fa;padding:6px;border-radius:6px">'+q.explain+'</div></div>';
+      }).join("");
+  }
+  var allCorrectIds={};
+  roundHistory.forEach(function(r){ r.qs.forEach(function(q,i){ if(r.ans[i]===q.ans) allCorrectIds[q.id]=true; }); });
+  var weakTopics=TOPICS.filter(function(t){ var ok=0,tot=0; QS.forEach(function(q){ if(q.topic===t){tot++;if(allCorrectIds[q.id])ok++;} }); return tot>0&&(ok/tot)<0.6; });
+  var pr=document.getElementById("plan-rows");
+  if (weakTopics.length===0) {
+    pr.innerHTML='<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:8px">Xuất sắc! Bạn nắm vững tất cả chủ đề.</div>';
+  } else {
+    pr.innerHTML=weakTopics.map(function(t){
+      var p=PLAN[t],wc=wrongQS.filter(function(q){ return q.topic===t; }).length;
+      return '<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #f0f4fb"><div style="font-weight:600;margin-bottom:6px">'+t+(wc>0?' <span style="font-size:12px;background:#fdeaea;color:#7a1f1f;padding:1px 8px;border-radius:10px">'+wc+' câu sai</span>':'')+'</div><div style="background:#f0f4fb;border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:13px">'+p.formula+'</div>'+p.notes.map(function(n){ return '<div style="font-size:13px;color:#333;padding:2px 0">• '+n+'</div>'; }).join("")+'</div>';
+    }).join("");
+  }
+  if (window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([document.getElementById("s-result")]).catch(function(){});
+  var rb=document.getElementById("btn-retry");
+  if (wrongQS.length>0){ rb.style.display="flex"; rb.textContent="Lượt "+(roundNum+1)+": Ôn lại "+wrongQS.length+" câu sai →"; window._nextWrongQS=wrongQS; }
+  else { rb.style.display="none"; }
+  var sv=document.getElementById("btn-save"); if(sv) sv.style.cssText="display:flex!important";
+  showScreen("s-result");
+}
+function startRetry() {
+  roundNum++; activeQS=(window._nextWrongQS||[]).slice(); window._nextWrongQS=null;
+  var ni=document.getElementById("inp-name"); if(ni) ni.value=studentName;
+  beginRound();
+}
+function restartFull() {
+  roundHistory=[]; activeQS=QS.slice(); roundNum=1; cumulativeCorrect=0;
+  document.getElementById("inp-name").value=""; showScreen("s-login");
+}
+function doSave() {
+  var wrongQS=window._nextWrongQS||[];
+  var wqJ=JSON.stringify(wrongQS).replace(new RegExp("<\\/","g"),"<\\/");
+  var hiJ=JSON.stringify(roundHistory).replace(new RegExp("<\\/","g"),"<\\/");
+  var nmJ=JSON.stringify(studentName);
+  var clJ=JSON.stringify(document.getElementById("inp-class").value||"");
+  var nw=wrongQS.length;
+  var blJ=JSON.stringify("Lượt "+(roundNum+1)+": Ôn lại "+nw+" câu sai →");
+  document.querySelectorAll(".screen").forEach(function(s){ s.setAttribute("_d",s.style.display||""); s.style.display=s.id==="s-result"?"block":"none"; });
+  document.getElementById("btn-save").style.visibility="hidden";
+  var snap="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
+  document.querySelectorAll(".screen").forEach(function(s){ s.style.display=s.getAttribute("_d")||""; });
+  document.getElementById("btn-save").style.visibility="";
+  snap=snap.replace("</style>","\n/* ==SAVED== */ .screen{display:none!important} #s-result{display:block!important}\n</style>");
+  snap=snap.replace(/showScreen\("s-login"\);?/g,"/* noinit */");
+  var L=[];
+  L.push("<scr"+"ipt>");
+  L.push("var _D={wq:"+wqJ+",rn:"+roundNum+",cc:"+cumulativeCorrect+",hi:"+hiJ+",nm:"+nmJ+",cl:"+clJ+",tt:"+TOTAL_ORIGINAL+"};");
+  L.push("function doRetryFromSaved(){studentName=_D.nm;roundHistory=_D.hi;activeQS=_D.wq.slice();roundNum=_D.rn+1;cumulativeCorrect=_D.cc;TOTAL_ORIGINAL=_D.tt;window._nextWrongQS=null;var ni=document.getElementById('inp-name');if(ni)ni.value=_D.nm;var ci=document.getElementById('inp-class');if(ci)ci.value=_D.cl;var ovr=document.createElement('style');ovr.textContent='.screen{display:none!important}#s-test.active,#s-result.active,#s-login.active{display:block!important}';document.head.appendChild(ovr);beginRound();}");
+  L.push("window.addEventListener('DOMContentLoaded',function(){var rb=document.getElementById('btn-retry');if(rb&&_D.wq.length>0){rb.style.cssText='display:flex!important';rb.textContent="+blJ+";rb.onclick=doRetryFromSaved;}else if(rb){rb.style.display='none';}var sv=document.getElementById('btn-save');if(sv)sv.style.display='none';var rs=document.getElementById('btn-restart');if(rs)rs.style.display='none';});");
+  L.push("</"+"script>");
+  var injected=L.join("\n");
+  snap=snap.replace(/<script>\n?var _D=[\s\S]*?<\/script>\n?/g,"");
+  var bi=snap.lastIndexOf("</body>");
+  snap=snap.slice(0,bi)+injected+"\n"+snap.slice(bi);
+  var name=(studentName||"hs").replace(/\s+/g,"_")+"_"+EXAM_NAME+"_luot"+roundNum+".html";
+  var blob=new Blob([snap],{type:"text/html;charset=utf-8"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a"); a.href=url; a.download=name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); },3000);
+}
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+if(typeof _D==="undefined"){ showScreen("s-login"); }
+</script>
+</body>
+</html>

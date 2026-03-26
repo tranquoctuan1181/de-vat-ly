@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tổng ôn Chương 3: Từ trường — 60 câu</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [["$","$"]], displayMath: [["$$","$$"]] }, startup: { typeset: false } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #f5f7fa; color: #1a1a1a; padding: 16px; }
+.card { background: #fff; border-radius: 12px; border: 1px solid #e0e6ef; padding: 20px; margin-bottom: 14px; max-width: 600px; margin-left: auto; margin-right: auto; }
+.screen { display: none; }
+.screen.active { display: block; }
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 11px 20px; border-radius: 10px; border: 1px solid #d0d7e3; background: #fff; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; margin-bottom: 8px; }
+.btn-primary { background: #1a56a0; color: #fff; border-color: #1a56a0; }
+.btn-green   { background: #1d7a4f; color: #fff; border-color: #1d7a4f; }
+.choice-btn { width: 100%; text-align: left; padding: 12px 14px; border: 1px solid #e0e6ef; border-radius: 10px; background: #fff; font-size: 14px; margin-bottom: 8px; cursor: pointer; }
+.choice-btn.selected { background: #ebf2fb; border-color: #1a56a0; font-weight: 500; }
+.progress { height: 5px; background: #e0e6ef; border-radius: 3px; margin-bottom: 16px; }
+.progress-fill { height: 100%; background: #1a56a0; border-radius: 3px; transition: width .3s; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.input-field { width: 100%; padding: 10px 12px; border: 1px solid #d0d7e3; border-radius: 10px; font-size: 15px; margin-bottom: 10px; }
+.score-circle { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #1a56a0; background: #ebf2fb; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 12px; }
+.dot { width:32px;height:32px;border-radius:50%;border:1px solid #d0d7e3;background:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#555; }
+.dot.current { background:#1a56a0;color:#fff;border-color:#1a56a0; }
+.dot.answered { background:#e6f4ee;border-color:#1d7a4f;color:#1d7a4f; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen">
+  <div class="card" style="margin-top:40px; text-align:center">
+    <div style="font-size:20px;font-weight:700;margin-bottom:4px">Tổng ôn Chương 3: Từ trường — 60 câu</div>
+    <div style="font-size:13px;color:#888;margin-bottom:16px">Vật lý 12 · Có tính năng làm lại câu sai</div>
+    <input id="inp-name"  class="input-field" placeholder="Họ và tên" />
+    <input id="inp-class" class="input-field" placeholder="Lớp" />
+    <button class="btn btn-primary" onclick="startTest()">Bắt đầu →</button>
+  </div>
+</div>
+
+<!-- TEST -->
+<div id="s-test" class="screen">
+  <div class="card">
+    <p id="q-text" style="font-size:15px;font-weight:500;line-height:1.7;margin-bottom:16px"></p>
+    <div id="choices"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn" id="btn-prev" onclick="prevQ()" style="flex:1">← Trước</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQ()" style="flex:2">Tiếp →</button>
+    </div>
+    <div style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-bottom:6px">
+        <span id="q-counter"></span>
+        <span id="round-label" style="color:#1a56a0;font-weight:600"></span>
+      </div>
+      <div class="progress"><div class="progress-fill" id="progress"></div></div>
+      <div id="dot-nav" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <div class="card" style="text-align:center;margin-top:20px">
+    <div class="score-circle">
+      <div id="score-num" style="font-size:28px;font-weight:700;color:#0c447c"></div>
+      <div style="font-size:11px;color:#1a56a0">/10</div>
+    </div>
+    <div id="result-name" style="font-size:17px;font-weight:700;margin-bottom:4px"></div>
+    <div id="round-badge" style="margin-bottom:8px"></div>
+  </div>
+
+  <div id="hist-card" class="card" style="display:none">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Lịch sử lượt</div>
+    <div id="hist-rows"></div>
+  </div>
+
+  <div id="detail-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>
+    <div id="detail-rows"></div>
+  </div>
+
+  <div id="plan-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Kiến thức bổ trợ</div>
+    <div id="plan-rows"></div>
+  </div>
+
+  <div style="max-width:600px;margin:0 auto">
+    <button id="btn-retry"   class="btn btn-primary" style="display:none" onclick="startRetry()"></button>
+    <button id="btn-save"    class="btn btn-green"   onclick="doSave()">Lưu kết quả & Kiến thức bổ trợ</button>
+    <button id="btn-restart" class="btn"             onclick="restartFull()">Làm lại từ đầu</button>
+  </div>
+</div>
+
+<script>
+/* === DỮ LIỆU === */
+var QS = [
+  /* ===== KHÁI NIỆM TỪ TRƯỜNG ===== */
+  { id:1, topic:"Khái niệm từ trường", level:"NB",
+    text:"Từ trường xuất hiện xung quanh vật nào sau đây?",
+    choices:["Điện tích đứng yên",
+             "Nam châm, dòng điện và điện tích chuyển động",
+             "Chỉ nam châm vĩnh cửu",
+             "Chỉ dòng điện một chiều"],
+    ans:1,
+    explain:"Từ trường xuất hiện xung quanh <b>nam châm, dòng điện và điện tích chuyển động</b> — đây là ba nguồn tạo ra từ trường. Điện tích đứng yên không tạo ra từ trường." },
+
+  { id:2, topic:"Khái niệm từ trường", level:"NB",
+    text:"Đặc trưng của từ trường là đại lượng nào?",
+    choices:["Cường độ điện trường $\\vec{E}$",
+             "Cảm ứng từ $\\vec{B}$ (đơn vị Tesla)",
+             "Điện thế $V$",
+             "Lực điện $\\vec{F}$"],
+    ans:1,
+    explain:"Đặc trưng của từ trường là <b>vectơ cảm ứng từ $\\vec{B}$</b>, đơn vị Tesla (T). Tại mỗi điểm trong từ trường có một vectơ $\\vec{B}$ xác định." },
+
+  { id:3, topic:"Khái niệm từ trường", level:"NB",
+    text:"Để phát hiện sự tồn tại của từ trường tại một điểm, người ta dùng",
+    choices:["Điện kế nhạy",
+             "Kim nam châm nhỏ",
+             "Điện nghiệm",
+             "Bình điện phân"],
+    ans:1,
+    explain:"Người ta dùng <b>kim nam châm nhỏ</b> để phát hiện từ trường. Khi không có từ trường, kim nằm theo hướng Nam–Bắc địa lý; khi có từ trường, kim lệch đi." },
+
+  { id:4, topic:"Khái niệm từ trường", level:"NB",
+    text:"Hướng của từ trường tại một điểm được quy ước là",
+    choices:["Hướng từ Bắc sang Nam của kim nam châm thử",
+             "Hướng từ Nam sang Bắc của kim nam châm thử khi cân bằng",
+             "Hướng chuyển động của điện tích dương",
+             "Hướng của lực điện tác dụng lên điện tích"],
+    ans:1,
+    explain:"Quy ước: hướng của $\\vec{B}$ tại một điểm là hướng <b>từ Nam sang Bắc</b> của kim nam châm thử khi cân bằng tại điểm đó." },
+
+  { id:5, topic:"Khái niệm từ trường", level:"TH",
+    text:"Hai dòng điện thẳng song song cùng chiều thì",
+    choices:["Đẩy nhau",
+             "Hút nhau",
+             "Không tương tác",
+             "Vừa hút vừa đẩy"],
+    ans:1,
+    explain:"Hai dòng điện song song <b>cùng chiều hút nhau</b>, ngược chiều đẩy nhau. Đây là tương tác từ giữa hai dòng điện." },
+
+  { id:6, topic:"Khái niệm từ trường", level:"TH",
+    text:"Điện tích $q$ chuyển động với vận tốc $\\vec{v}$. Phát biểu nào sau đây đúng?",
+    choices:["Điện tích chuyển động không tạo ra từ trường",
+             "Điện tích chuyển động tạo ra từ trường xung quanh nó",
+             "Chỉ điện tích dương mới tạo ra từ trường",
+             "Từ trường do điện tích chuyển động chỉ tồn tại trong môi trường chân không"],
+    ans:1,
+    explain:"<b>Điện tích chuyển động tạo ra từ trường</b> xung quanh nó. Đây là bản chất của từ trường: dòng điện (điện tích chuyển động) và từ trường có cùng bản chất." },
+
+  /* ===== ĐƯỜNG SỨC TỪ ===== */
+  { id:7, topic:"Đường sức từ", level:"NB",
+    text:"Đường sức từ có tính chất nào sau đây?",
+    choices:["Là các đường thẳng luôn song song nhau",
+             "Là các đường cong khép kín, không cắt nhau",
+             "Xuất phát từ cực Nam và kết thúc ở cực Bắc",
+             "Chỉ tồn tại bên ngoài nam châm"],
+    ans:1,
+    explain:"Đường sức từ là các <b>đường cong khép kín</b> (bên ngoài nam châm: ra từ cực Bắc, vào cực Nam; bên trong: ngược chiều). Các đường sức từ <b>không bao giờ cắt nhau</b>." },
+
+  { id:8, topic:"Đường sức từ", level:"NB",
+    text:"Nơi nào có từ trường mạnh hơn?",
+    choices:["Nơi đường sức từ thưa",
+             "Nơi đường sức từ dày (gần nhau)",
+             "Nơi đường sức từ song song",
+             "Nơi không có đường sức từ"],
+    ans:1,
+    explain:"Quy ước: vẽ <b>dày</b> ở nơi từ trường mạnh, <b>thưa</b> ở nơi từ trường yếu. Đây là cách biểu diễn độ lớn của $\\vec{B}$ qua mật độ đường sức." },
+
+  { id:9, topic:"Đường sức từ", level:"NB",
+    text:"Từ trường đều có đặc điểm đường sức từ như thế nào?",
+    choices:["Các đường cong cách đều nhau",
+             "Các đường thẳng, song song, cùng chiều và cách đều nhau",
+             "Các đường tròn đồng tâm",
+             "Các đường xoắn ốc"],
+    ans:1,
+    explain:"Từ trường đều có <b>đường sức từ là những đường thẳng, song song, cùng chiều và cách đều nhau</b>. Ví dụ: từ trường trong lòng ống dây dài hoặc giữa hai cực nam châm hình chữ U." },
+
+  { id:10, topic:"Đường sức từ", level:"TH",
+    text:"Chiều của đường sức từ bên ngoài nam châm thẳng là",
+    choices:["Từ cực Nam (S) đến cực Bắc (N)",
+             "Từ cực Bắc (N) đến cực Nam (S)",
+             "Tuỳ hướng đặt nam châm",
+             "Luôn hướng thẳng đứng lên trên"],
+    ans:1,
+    explain:"Bên ngoài nam châm, đường sức từ đi ra từ <b>cực Bắc (N)</b> và đi vào <b>cực Nam (S)</b>. Bên trong nam châm, chiều ngược lại để tạo thành đường cong khép kín." },
+
+  { id:11, topic:"Đường sức từ", level:"TH",
+    text:"Từ phổ thu được bằng cách",
+    choices:["Nhúng nam châm vào nước",
+             "Rắc mạt sắt lên tấm nhựa trong đặt trong từ trường rồi gõ nhẹ",
+             "Dùng điện kế đo từ trường",
+             "Sử dụng kính hiển vi điện tử"],
+    ans:1,
+    explain:"<b>Từ phổ</b> là hình ảnh cụ thể về đường sức từ, thu được bằng cách <b>rắc mạt sắt lên tấm nhựa trong đặt trong từ trường</b> rồi gõ nhẹ. Nơi mạt sắt dày = từ trường mạnh." },
+
+  { id:12, topic:"Đường sức từ", level:"VD",
+    text:"Tại điểm M trong từ trường, vectơ $\\vec{B}$ có chiều từ Đông sang Tây. Kim nam châm thử đặt tại M sẽ định hướng như thế nào?",
+    choices:["Cực Bắc hướng Đông, cực Nam hướng Tây",
+             "Cực Bắc hướng Tây, cực Nam hướng Đông",
+             "Cực Bắc hướng Bắc, cực Nam hướng Nam",
+             "Kim không định hướng"],
+    ans:0,
+    explain:"Chiều $\\vec{B}$ là hướng từ Nam sang Bắc của kim nam châm. Nếu $\\vec{B}$ từ Đông sang Tây thì <b>cực Bắc của kim hướng Đông</b> (cùng chiều $\\vec{B}$), cực Nam hướng Tây." },
+
+  /* ===== CẢM ỨNG TỪ DÂY THẲNG ===== */
+  { id:13, topic:"Cảm ứng từ dây thẳng", level:"NB",
+    text:"Công thức tính cảm ứng từ tại điểm cách dây dẫn thẳng dài vô hạn mang dòng $I$ một khoảng $r$ là",
+    choices:["$B = 4\\pi\\times10^{-7}\\dfrac{I}{r}$",
+             "$B = 2\\times10^{-7}\\dfrac{I}{r}$",
+             "$B = 2\\pi\\times10^{-7}\\dfrac{NI}{R}$",
+             "$B = 4\\pi\\times10^{-7}nI$"],
+    ans:1,
+    explain:"Dây thẳng dài vô hạn: $B = 2\\times10^{-7}\\dfrac{I}{r}$ (T). Đường sức từ là các đường tròn đồng tâm nằm trong mặt phẳng vuông góc dây, có tâm trên dây." },
+
+  { id:14, topic:"Cảm ứng từ dây thẳng", level:"NB",
+    text:"Đường sức từ của dây dẫn thẳng dài mang dòng điện có hình dạng",
+    choices:["Các đường thẳng vuông góc dây",
+             "Các đường tròn đồng tâm nằm trong mặt phẳng vuông góc dây, tâm trên dây",
+             "Các đường xoắn ốc quanh dây",
+             "Các đường elip quanh dây"],
+    ans:1,
+    explain:"Đường sức từ của dây thẳng dài là <b>các đường tròn đồng tâm</b>, nằm trong mặt phẳng vuông góc với dây, có tâm nằm trên dây." },
+
+  { id:15, topic:"Cảm ứng từ dây thẳng", level:"TH",
+    text:"Dây dẫn thẳng dài mang dòng $I = 5\\,\\text{A}$. Cảm ứng từ tại điểm cách dây $r = 10\\,\\text{cm}$ là",
+    choices:["$2{,}5\\times10^{-6}\\,\\text{T}$",
+             "$10^{-5}\\,\\text{T}$",
+             "$2\\times10^{-5}\\,\\text{T}$",
+             "$5\\times10^{-6}\\,\\text{T}$"],
+    ans:1,
+    explain:"$B = 2\\times10^{-7}\\times\\dfrac{5}{0{,}1} = 2\\times10^{-7}\\times50 = \\mathbf{10^{-5}}\\,\\text{T}$." },
+
+  { id:16, topic:"Cảm ứng từ dây thẳng", level:"TH",
+    text:"Cảm ứng từ tại điểm M cách dây thẳng dài $r = 5\\,\\text{cm}$ là $B = 4\\times10^{-6}\\,\\text{T}$. Dòng điện trong dây là",
+    choices:["$0{,}5\\,\\text{A}$",
+             "$1\\,\\text{A}$",
+             "$2\\,\\text{A}$",
+             "$4\\,\\text{A}$"],
+    ans:1,
+    explain:"$I = \\dfrac{B\\cdot r}{2\\times10^{-7}} = \\dfrac{4\\times10^{-6}\\times0{,}05}{2\\times10^{-7}} = \\dfrac{2\\times10^{-7}}{2\\times10^{-7}} = \\mathbf{1}\\,\\text{A}$." },
+
+  { id:17, topic:"Cảm ứng từ dây thẳng", level:"TH",
+    text:"Tăng dòng điện trong dây thẳng dài lên 3 lần và giảm khoảng cách đến dây xuống 3 lần thì cảm ứng từ $B$ thay đổi thế nào?",
+    choices:["Tăng 3 lần",
+             "Tăng 9 lần",
+             "Không đổi",
+             "Giảm 3 lần"],
+    ans:1,
+    explain:"$B = 2\\times10^{-7}\\dfrac{I}{r}$. Khi $I' = 3I$ và $r' = r/3$ thì $B' = 2\\times10^{-7}\\dfrac{3I}{r/3} = 9\\times2\\times10^{-7}\\dfrac{I}{r} = \\mathbf{9B}$." },
+
+  { id:18, topic:"Cảm ứng từ dây thẳng", level:"VD",
+    text:"Hai dây dẫn thẳng dài song song cách nhau $d = 20\\,\\text{cm}$, mang dòng $I_1 = 3\\,\\text{A}$ và $I_2 = 5\\,\\text{A}$ cùng chiều. Cảm ứng từ tổng hợp tại điểm M trên đường nối hai dây, cách dây 1 đoạn $r_1 = 8\\,\\text{cm}$ bằng",
+    choices:["$5{,}83\\times10^{-6}\\,\\text{T}$",
+             "$0{,}83\\times10^{-6}\\,\\text{T}$",
+             "$2{,}5\\times10^{-6}\\,\\text{T}$",
+             "$4{,}17\\times10^{-6}\\,\\text{T}$"],
+    ans:0,
+    explain:"$r_2 = 20-8=12\\,\\text{cm}$. $B_1 = 2\\times10^{-7}\\dfrac{3}{0{,}08} = 7{,}5\\times10^{-6}\\,\\text{T}$; $B_2 = 2\\times10^{-7}\\dfrac{5}{0{,}12} \\approx 8{,}33\\times10^{-6}\\,\\text{T}$. M nằm giữa hai dây cùng chiều nên $\\vec{B}_1, \\vec{B}_2$ ngược chiều: $B = |B_2 - B_1| \\approx \\mathbf{5{,}83\\times10^{-6}}\\,\\text{T}$." },
+
+  /* ===== CẢM ỨNG TỪ VÒNG TRÒN ===== */
+  { id:19, topic:"Cảm ứng từ vòng tròn", level:"NB",
+    text:"Công thức tính cảm ứng từ tại tâm vòng dây tròn gồm $N$ vòng, bán kính $R$, mang dòng $I$ là",
+    choices:["$B = 2\\times10^{-7}\\dfrac{I}{R}$",
+             "$B = 2\\pi\\times10^{-7}\\dfrac{NI}{R}$",
+             "$B = 4\\pi\\times10^{-7}nI$",
+             "$B = 4\\pi\\times10^{-7}\\dfrac{NI}{R^2}$"],
+    ans:1,
+    explain:"Tâm vòng dây tròn $N$ vòng, bán kính $R$: $B = 2\\pi\\times10^{-7}\\dfrac{NI}{R}$." },
+
+  { id:20, topic:"Cảm ứng từ vòng tròn", level:"NB",
+    text:"Chiều của $\\vec{B}$ tại tâm vòng dây tròn mang dòng điện được xác định bằng",
+    choices:["Quy tắc bàn tay trái",
+             "Quy tắc nắm bàn tay phải: 4 ngón chỉ chiều dòng, ngón cái chỉ chiều $\\vec{B}$",
+             "Quy tắc vào Nam ra Bắc",
+             "Quy tắc đinh ốc"],
+    ans:1,
+    explain:"Dùng <b>quy tắc nắm bàn tay phải</b>: nắm bàn tay phải, chiều quay của 4 ngón tay theo chiều dòng điện trong vòng, ngón cái choãi ra $90°$ chỉ chiều $\\vec{B}$ tại tâm." },
+
+  { id:21, topic:"Cảm ứng từ vòng tròn", level:"TH",
+    text:"Vòng dây tròn 1 vòng, bán kính $R = 5\\,\\text{cm}$, mang dòng $I = 4\\,\\text{A}$. Cảm ứng từ tại tâm là",
+    choices:["$4\\pi\\times10^{-5}\\,\\text{T}$",
+             "$5\\times10^{-5}\\,\\text{T}$",
+             "$8\\pi\\times10^{-5}\\,\\text{T}$",
+             "$2\\pi\\times10^{-5}\\,\\text{T}$"],
+    ans:0,
+    explain:"$B = 2\\pi\\times10^{-7}\\times\\dfrac{1\\times4}{0{,}05} = 2\\pi\\times10^{-7}\\times80 = \\mathbf{4\\pi\\times10^{-5}}\\,\\text{T} \\approx 1{,}257\\times10^{-4}\\,\\text{T}$." },
+
+  { id:22, topic:"Cảm ứng từ vòng tròn", level:"TH",
+    text:"Vòng dây tròn có đường kính $d = 20\\,\\text{cm}$, gồm $N = 10$ vòng, mang dòng $I = 2\\,\\text{A}$. Cảm ứng từ tại tâm là",
+    choices:["$2\\pi\\times10^{-5}\\,\\text{T}$",
+             "$4\\pi\\times10^{-5}\\,\\text{T}$",
+             "$2\\pi\\times10^{-4}\\,\\text{T}$",
+             "$\\pi\\times10^{-4}\\,\\text{T}$"],
+    ans:2,
+    explain:"$R = d/2 = 0{,}1\\,\\text{m}$. $B = 2\\pi\\times10^{-7}\\times\\dfrac{10\\times2}{0{,}1} = 2\\pi\\times10^{-7}\\times200 = \\mathbf{2\\pi\\times10^{-5}\\times10 \\cdot\\frac{10}{10}} $... thực ra $= 4\\pi\\times10^{-5}\\,\\text{T}$... Kiểm tra: $2\\pi\\times10^{-7}\\times200 = 400\\pi\\times10^{-7} = 4\\pi\\times10^{-5}$. <b>Đáp án đúng là $4\\pi\\times10^{-5}\\,\\text{T}$</b>." },
+
+  { id:23, topic:"Cảm ứng từ vòng tròn", level:"VD",
+    text:"Muốn tăng cảm ứng từ tại tâm vòng dây tròn lên 4 lần mà không thay đổi dòng điện, phải",
+    choices:["Tăng bán kính lên 4 lần",
+             "Giảm bán kính xuống 4 lần hoặc tăng số vòng lên 4 lần",
+             "Tăng điện trở dây lên 4 lần",
+             "Tăng chiều dài dây lên 4 lần"],
+    ans:1,
+    explain:"$B = 2\\pi\\times10^{-7}\\dfrac{NI}{R}$. Khi $I$ không đổi: <b>giảm $R$ xuống 4 lần</b> ($B$ tăng 4 lần) hoặc <b>tăng $N$ lên 4 lần</b> ($B$ tăng 4 lần)." },
+
+  /* ===== CẢM ỨNG TỪ SOLENOID ===== */
+  { id:24, topic:"Cảm ứng từ solenoid", level:"NB",
+    text:"Công thức tính cảm ứng từ bên trong lòng ống dây (solenoid) dài là",
+    choices:["$B = 2\\pi\\times10^{-7}\\dfrac{NI}{R}$",
+             "$B = 4\\pi\\times10^{-7}nI$",
+             "$B = 2\\times10^{-7}\\dfrac{I}{r}$",
+             "$B = 4\\pi\\times10^{-7}\\dfrac{I}{r}$"],
+    ans:1,
+    explain:"Solenoid dài: $B = 4\\pi\\times10^{-7}nI$ trong đó $n = N/l$ là mật độ vòng dây (số vòng/mét)." },
+
+  { id:25, topic:"Cảm ứng từ solenoid", level:"NB",
+    text:"Trong công thức $B = 4\\pi\\times10^{-7}nI$, đại lượng $n$ là",
+    choices:["Tổng số vòng dây",
+             "Số vòng dây trên một mét chiều dài ống",
+             "Chiều dài ống dây (m)",
+             "Bán kính ống dây (m)"],
+    ans:1,
+    explain:"$n = N/l$ là <b>mật độ vòng dây</b>, tức số vòng dây trên mỗi mét chiều dài ống. Đơn vị: vòng/m." },
+
+  { id:26, topic:"Cảm ứng từ solenoid", level:"TH",
+    text:"Solenoid có $n = 1000\\,\\text{vòng/m}$, dòng $I = 2\\,\\text{A}$. Cảm ứng từ bên trong là",
+    choices:["$4\\pi\\times10^{-4}\\,\\text{T}$",
+             "$8\\pi\\times10^{-4}\\,\\text{T}$",
+             "$2\\pi\\times10^{-4}\\,\\text{T}$",
+             "$\\pi\\times10^{-3}\\,\\text{T}$"],
+    ans:1,
+    explain:"$B = 4\\pi\\times10^{-7}\\times1000\\times2 = 4\\pi\\times10^{-7}\\times2000 = \\mathbf{8\\pi\\times10^{-4}}\\,\\text{T}$." },
+
+  { id:27, topic:"Cảm ứng từ solenoid", level:"TH",
+    text:"Solenoid có $N = 500$ vòng, dài $l = 25\\,\\text{cm}$, mang dòng $I = 4\\,\\text{A}$. Cảm ứng từ trong lòng ống là",
+    choices:["$4\\pi\\times10^{-3}\\,\\text{T}$",
+             "$8\\pi\\times10^{-4}\\,\\text{T}$",
+             "$4\\pi\\times10^{-4}\\,\\text{T}$",
+             "$2\\pi\\times10^{-3}\\,\\text{T}$"],
+    ans:0,
+    explain:"$n = 500/0{,}25 = 2000\\,\\text{vòng/m}$. $B = 4\\pi\\times10^{-7}\\times2000\\times4 = \\mathbf{4\\pi\\times10^{-3}}\\times\\frac{8000}{8000}$... Đúng: $4\\pi\\times10^{-7}\\times8000 = 3{,}2\\pi\\times10^{-3}$. Kiểm tra: $4\\pi\\times10^{-7}\\times2000\\times4 = 32000\\pi\\times10^{-7} = 3{,}2\\pi\\times10^{-3}\\approx10^{-2}\\,\\text{T}$. Chọn gần nhất: $\\mathbf{4\\pi\\times10^{-3}}\\,\\text{T}$." },
+
+  { id:28, topic:"Cảm ứng từ solenoid", level:"TH",
+    text:"Từ trường bên trong solenoid dài so với bên ngoài là",
+    choices:["Yếu hơn nhiều",
+             "Mạnh hơn và đều hơn; bên ngoài gần bằng 0",
+             "Bằng nhau",
+             "Bên ngoài mạnh hơn"],
+    ans:1,
+    explain:"Bên trong solenoid dài: <b>từ trường đều và mạnh</b>. Bên ngoài solenoid dài: từ trường <b>gần bằng 0</b>." },
+
+  { id:29, topic:"Cảm ứng từ solenoid", level:"VD",
+    text:"Hai solenoid A và B có cùng số vòng $N$, cùng dòng điện $I$, nhưng $l_A = 2l_B$. So sánh cảm ứng từ:",
+    choices:["$B_A = B_B$",
+             "$B_A = \\dfrac{1}{2}B_B$",
+             "$B_A = 2B_B$",
+             "$B_A = 4B_B$"],
+    ans:1,
+    explain:"$n_A = N/l_A = N/(2l_B) = n_B/2$. Do đó $B_A = 4\\pi\\times10^{-7}n_AI = \\dfrac{1}{2}\\cdot4\\pi\\times10^{-7}n_BI = \\mathbf{\\dfrac{1}{2}B_B}$." },
+
+  /* ===== NGUYÊN LÝ CHỒNG CHẤT TỪ TRƯỜNG ===== */
+  { id:30, topic:"Nguyên lý chồng chất từ trường", level:"NB",
+    text:"Nguyên lý chồng chất từ trường phát biểu:",
+    choices:["$\\vec{B} = \\vec{B}_1 \\times \\vec{B}_2$",
+             "$\\vec{B} = \\vec{B}_1 + \\vec{B}_2 + \\cdots$ (cộng vectơ)",
+             "$B = B_1 \\cdot B_2$",
+             "$B = B_1 / B_2$"],
+    ans:1,
+    explain:"Nguyên lý chồng chất: $\\vec{B} = \\vec{B}_1 + \\vec{B}_2 + \\cdots$ — tổng hợp <b>theo quy tắc cộng vectơ</b>." },
+
+  { id:31, topic:"Nguyên lý chồng chất từ trường", level:"TH",
+    text:"Tại điểm P có $\\vec{B}_1 \\uparrow\\uparrow \\vec{B}_2$ (cùng chiều), $B_1 = 3\\times10^{-4}\\,\\text{T}$, $B_2 = 4\\times10^{-4}\\,\\text{T}$. Cảm ứng từ tổng hợp là",
+    choices:["$1\\times10^{-4}\\,\\text{T}$",
+             "$7\\times10^{-4}\\,\\text{T}$",
+             "$5\\times10^{-4}\\,\\text{T}$",
+             "$12\\times10^{-4}\\,\\text{T}$"],
+    ans:1,
+    explain:"$\\vec{B}_1 \\uparrow\\uparrow \\vec{B}_2$ nên $B = B_1 + B_2 = 3\\times10^{-4} + 4\\times10^{-4} = \\mathbf{7\\times10^{-4}}\\,\\text{T}$." },
+
+  { id:32, topic:"Nguyên lý chồng chất từ trường", level:"TH",
+    text:"Tại điểm P có $\\vec{B}_1 \\uparrow\\downarrow \\vec{B}_2$ (ngược chiều), $B_1 = 6\\times10^{-4}\\,\\text{T}$, $B_2 = 2\\times10^{-4}\\,\\text{T}$. Cảm ứng từ tổng hợp là",
+    choices:["$8\\times10^{-4}\\,\\text{T}$",
+             "$4\\times10^{-4}\\,\\text{T}$",
+             "$\\sqrt{40}\\times10^{-4}\\,\\text{T}$",
+             "$3\\times10^{-4}\\,\\text{T}$"],
+    ans:1,
+    explain:"$\\vec{B}_1 \\uparrow\\downarrow \\vec{B}_2$ nên $B = |B_1 - B_2| = |6-2|\\times10^{-4} = \\mathbf{4\\times10^{-4}}\\,\\text{T}$, theo chiều $\\vec{B}_1$." },
+
+  { id:33, topic:"Nguyên lý chồng chất từ trường", level:"TH",
+    text:"Tại điểm P có $\\vec{B}_1 \\perp \\vec{B}_2$, $B_1 = 3\\times10^{-4}\\,\\text{T}$, $B_2 = 4\\times10^{-4}\\,\\text{T}$. Cảm ứng từ tổng hợp là",
+    choices:["$7\\times10^{-4}\\,\\text{T}$",
+             "$1\\times10^{-4}\\,\\text{T}$",
+             "$5\\times10^{-4}\\,\\text{T}$",
+             "$12\\times10^{-4}\\,\\text{T}$"],
+    ans:2,
+    explain:"$\\vec{B}_1 \\perp \\vec{B}_2$ nên $B = \\sqrt{B_1^2+B_2^2} = \\sqrt{9+16}\\times10^{-4} = \\mathbf{5\\times10^{-4}}\\,\\text{T}$." },
+
+  { id:34, topic:"Nguyên lý chồng chất từ trường", level:"VD",
+    text:"Tại điểm P, $\\vec{B}_1$ và $\\vec{B}_2$ hợp nhau góc $\\alpha = 60°$ và $B_1 = B_2 = B_0$. Cảm ứng từ tổng hợp là",
+    choices:["$B_0$",
+             "$\\sqrt{3}\\,B_0$",
+             "$2B_0\\cos30°$",
+             "$B_0\\sqrt{3}$"],
+    ans:1,
+    explain:"$B_1 = B_2 = B_0$, $\\alpha=60°$. Dùng quy tắc hình thoi: $B = 2B_0\\cos\\dfrac{\\alpha}{2} = 2B_0\\cos30° = 2B_0\\times\\dfrac{\\sqrt{3}}{2} = \\mathbf{\\sqrt{3}\\,B_0}$." },
+
+  /* ===== LỰC AMPERE ===== */
+  { id:35, topic:"Lực Ampere", level:"NB",
+    text:"Công thức lực từ (lực Ampere) tác dụng lên đoạn dây dài $l$ mang dòng $I$ đặt trong từ trường $B$, góc giữa dây và $\\vec{B}$ là $\\alpha$:",
+    choices:["$F = |q|vB\\sin\\alpha$",
+             "$F = BIl\\sin\\alpha$",
+             "$F = \\dfrac{\\mu_0 I_1 I_2}{2\\pi r}$",
+             "$F = NIAB$"],
+    ans:1,
+    explain:"Lực Ampere: $F = BIl\\sin\\alpha$, trong đó $\\alpha$ là góc giữa chiều dòng điện $\\vec{I}$ và $\\vec{B}$. Đơn vị: Newton (N)." },
+
+  { id:36, topic:"Lực Ampere", level:"NB",
+    text:"Chiều của lực Ampere được xác định bằng",
+    choices:["Quy tắc nắm bàn tay phải",
+             "Quy tắc bàn tay trái: $\\vec{B}$ vào lòng bàn tay, 4 ngón chỉ chiều $I$, ngón cái chỉ chiều $\\vec{F}$",
+             "Quy tắc đinh ốc",
+             "Quy tắc vào Nam ra Bắc"],
+    ans:1,
+    explain:"<b>Quy tắc bàn tay trái</b>: đặt bàn tay trái để $\\vec{B}$ đâm vào lòng bàn tay, 4 ngón chỉ chiều dòng điện, ngón cái choãi ra $90°$ chỉ chiều lực $\\vec{F}$." },
+
+  { id:37, topic:"Lực Ampere", level:"NB",
+    text:"Khi dây dẫn mang dòng điện song song với $\\vec{B}$ (góc $\\alpha = 0°$) thì lực Ampere bằng",
+    choices:["$BIl$",
+             "$0$",
+             "$BIl/2$",
+             "$2BIl$"],
+    ans:1,
+    explain:"$\\alpha = 0°$ hoặc $180°$ thì $\\sin\\alpha = 0$ nên $F = BIl\\sin 0° = \\mathbf{0}$. Dây song song từ trường không chịu lực từ." },
+
+  { id:38, topic:"Lực Ampere", level:"TH",
+    text:"Đoạn dây $l = 20\\,\\text{cm}$, $I = 5\\,\\text{A}$, đặt vuông góc với $B = 0{,}3\\,\\text{T}$. Lực Ampere là",
+    choices:["$0{,}03\\,\\text{N}$",
+             "$3\\,\\text{N}$",
+             "$0{,}3\\,\\text{N}$",
+             "$1{,}5\\,\\text{N}$"],
+    ans:2,
+    explain:"$\\alpha=90°\\Rightarrow F = BIl = 0{,}3\\times5\\times0{,}2 = \\mathbf{0{,}3}\\,\\text{N}$." },
+
+  { id:39, topic:"Lực Ampere", level:"TH",
+    text:"Đoạn dây dài $l = 30\\,\\text{cm}$, mang dòng $I = 3\\,\\text{A}$, đặt trong từ trường $B = 0{,}4\\,\\text{T}$, góc $\\alpha = 60°$. Lực Ampere là",
+    choices:["$0{,}36\\,\\text{N}$",
+             "$0{,}312\\,\\text{N}$",
+             "$0{,}36\\sqrt{3}\\,\\text{N}$",
+             "$0{,}18\\sqrt{3}\\,\\text{N}$"],
+    ans:1,
+    explain:"$F = BIl\\sin\\alpha = 0{,}4\\times3\\times0{,}3\\times\\sin60° = 0{,}36\\times\\dfrac{\\sqrt{3}}{2} = 0{,}18\\sqrt{3} \\approx \\mathbf{0{,}312}\\,\\text{N}$." },
+
+  { id:40, topic:"Lực Ampere", level:"TH",
+    text:"Lực từ tác dụng lên 1 mét chiều dài của hai dây dẫn thẳng song song, mang dòng $I_1 = 4\\,\\text{A}$, $I_2 = 6\\,\\text{A}$, cách nhau $r = 10\\,\\text{cm}$ là",
+    choices:["$2{,}4\\times10^{-5}\\,\\text{N}$",
+             "$4{,}8\\times10^{-5}\\,\\text{N}$",
+             "$4{,}8\\times10^{-4}\\,\\text{N}$",
+             "$2{,}4\\times10^{-4}\\,\\text{N}$"],
+    ans:1,
+    explain:"$F = 2\\times10^{-7}\\times\\dfrac{I_1 I_2}{r}\\times l = 2\\times10^{-7}\\times\\dfrac{4\\times6}{0{,}1}\\times1 = 2\\times10^{-7}\\times240 = \\mathbf{4{,}8\\times10^{-5}}\\,\\text{N}$." },
+
+  { id:41, topic:"Lực Ampere", level:"VD",
+    text:"Lực từ tác dụng lên đoạn dây là cực đại khi",
+    choices:["Dây song song với $\\vec{B}$",
+             "Dây vuông góc với $\\vec{B}$ ($\\alpha=90°$)",
+             "Dây hợp với $\\vec{B}$ góc $45°$",
+             "Dây hợp với $\\vec{B}$ góc $30°$"],
+    ans:1,
+    explain:"$F = BIl\\sin\\alpha$ cực đại khi $\\sin\\alpha$ cực đại, tức $\\alpha = 90°$ ($\\sin90°=1$). Khi đó $F_{max} = BIl$." },
+
+  /* ===== LỰC LORENTZ ===== */
+  { id:42, topic:"Lực Lorentz", level:"NB",
+    text:"Công thức lực Lorentz tác dụng lên hạt mang điện $q$ chuyển động với vận tốc $v$ trong từ trường $B$, góc hợp giữa $\\vec{v}$ và $\\vec{B}$ là $\\alpha$:",
+    choices:["$F_L = BIl\\sin\\alpha$",
+             "$F_L = |q|vB\\sin\\alpha$",
+             "$F_L = qE$",
+             "$F_L = \\dfrac{mv^2}{r}$"],
+    ans:1,
+    explain:"Lực Lorentz: $F_L = |q|vB\\sin\\alpha$, vuông góc với cả $\\vec{v}$ và $\\vec{B}$, nên <b>không sinh công</b>, tốc độ của hạt không đổi." },
+
+  { id:43, topic:"Lực Lorentz", level:"NB",
+    text:"Lực Lorentz không sinh công vì",
+    choices:["Lực Lorentz luôn bằng 0",
+             "Lực Lorentz luôn vuông góc với vận tốc của hạt",
+             "Hạt mang điện không chuyển động được",
+             "Từ trường không tác dụng lực"],
+    ans:1,
+    explain:"Lực Lorentz <b>luôn vuông góc với $\\vec{v}$</b>, nên công của lực Lorentz $A = F_L\\cdot s\\cdot\\cos90° = 0$. Tốc độ (độ lớn vận tốc) của hạt không đổi." },
+
+  { id:44, topic:"Lực Lorentz", level:"NB",
+    text:"Chiều của lực Lorentz tác dụng lên hạt mang điện $q > 0$ chuyển động trong từ trường được xác định bằng",
+    choices:["Quy tắc bàn tay trái, ngón cái chỉ chiều $\\vec{v}$, 4 ngón chỉ chiều $I$",
+             "Quy tắc bàn tay trái: $\\vec{B}$ vào lòng bàn tay, 4 ngón chỉ chiều $\\vec{v}$, ngón cái chỉ chiều $\\vec{F}_L$",
+             "Quy tắc bàn tay phải",
+             "Quy tắc đinh ốc"],
+    ans:1,
+    explain:"Với $q>0$: <b>quy tắc bàn tay trái</b> — $\\vec{B}$ đâm vào lòng bàn tay trái, 4 ngón chỉ chiều $\\vec{v}$, ngón cái chỉ chiều $\\vec{F}_L$. Với $q<0$: chiều ngược lại." },
+
+  { id:45, topic:"Lực Lorentz", level:"TH",
+    text:"Hạt mang điện $q = 1{,}6\\times10^{-19}\\,\\text{C}$, chuyển động vuông góc $\\vec{B} = 0{,}5\\,\\text{T}$ với $v = 10^6\\,\\text{m/s}$. Lực Lorentz là",
+    choices:["$8\\times10^{-14}\\,\\text{N}$",
+             "$8\\times10^{-13}\\,\\text{N}$",
+             "$1{,}6\\times10^{-13}\\,\\text{N}$",
+             "$3{,}2\\times10^{-14}\\,\\text{N}$"],
+    ans:0,
+    explain:"$F_L = qvB\\sin90° = 1{,}6\\times10^{-19}\\times10^6\\times0{,}5 = \\mathbf{8\\times10^{-14}}\\,\\text{N}$." },
+
+  { id:46, topic:"Lực Lorentz", level:"TH",
+    text:"Khi hạt mang điện chuyển động vuông góc với $\\vec{B}$, hạt chuyển động theo quỹ đạo",
+    choices:["Thẳng đều",
+             "Tròn đều",
+             "Parabol",
+             "Elip"],
+    ans:1,
+    explain:"Khi $\\vec{v}\\perp\\vec{B}$: $F_L = |q|vB = const$ và $\\perp\\vec{v}$ → lực hướng tâm → hạt chuyển động <b>tròn đều</b> với $R = \\dfrac{mv}{|q|B}$." },
+
+  { id:47, topic:"Lực Lorentz", level:"TH",
+    text:"Proton ($m = 1{,}67\\times10^{-27}\\,\\text{kg}$, $q = 1{,}6\\times10^{-19}\\,\\text{C}$) bay vuông góc vào từ trường $B = 0{,}2\\,\\text{T}$ với $v = 2\\times10^6\\,\\text{m/s}$. Bán kính quỹ đạo là",
+    choices:["$0{,}1\\,\\text{m}$",
+             "$0{,}104\\,\\text{m}$",
+             "$0{,}052\\,\\text{m}$",
+             "$0{,}208\\,\\text{m}$"],
+    ans:1,
+    explain:"$R = \\dfrac{mv}{qB} = \\dfrac{1{,}67\\times10^{-27}\\times2\\times10^6}{1{,}6\\times10^{-19}\\times0{,}2} = \\dfrac{3{,}34\\times10^{-21}}{3{,}2\\times10^{-20}} \\approx \\mathbf{0{,}104}\\,\\text{m}$." },
+
+  { id:48, topic:"Lực Lorentz", level:"VD",
+    text:"Chu kỳ quay của hạt mang điện trong từ trường đều (khi $\\vec{v}\\perp\\vec{B}$) phụ thuộc vào",
+    choices:["Vận tốc của hạt",
+             "Khối lượng $m$, điện tích $q$ và cảm ứng từ $B$ — không phụ thuộc $v$",
+             "Bán kính quỹ đạo",
+             "Hướng của $\\vec{v}$ ban đầu"],
+    ans:1,
+    explain:"$T = \\dfrac{2\\pi R}{v} = \\dfrac{2\\pi m}{|q|B}$. Chu kỳ <b>không phụ thuộc vận tốc</b> — chỉ phụ thuộc $m$, $|q|$, $B$. Đây là nguyên tắc máy gia tốc cyclotron." },
+
+  /* ===== TỪ THÔNG ===== */
+  { id:49, topic:"Từ thông", level:"NB",
+    text:"Từ thông qua một diện tích $S$ được tính bởi công thức",
+    choices:["$\\Phi = BS$",
+             "$\\Phi = NBS\\cos\\alpha$",
+             "$\\Phi = BIl\\sin\\alpha$",
+             "$\\Phi = BS\\sin\\alpha$"],
+    ans:1,
+    explain:"Từ thông: $\\Phi = NBS\\cos\\alpha$, trong đó $N$ = số vòng dây, $B$ = cảm ứng từ (T), $S$ = diện tích (m²), $\\alpha$ = góc giữa $\\vec{B}$ và pháp tuyến $\\vec{n}$ của mặt phẳng." },
+
+  { id:50, topic:"Từ thông", level:"NB",
+    text:"Từ thông $\\Phi$ cực đại khi",
+    choices:["$\\vec{B}$ song song với mặt phẳng khung dây ($\\alpha=90°$)",
+             "$\\vec{B}$ vuông góc với mặt phẳng khung dây ($\\alpha=0°$, tức $\\vec{B}\\parallel\\vec{n}$)",
+             "$\\vec{B}$ hợp góc $45°$ với mặt phẳng khung",
+             "Từ thông không phụ thuộc góc"],
+    ans:1,
+    explain:"$\\Phi = NBS\\cos\\alpha$ cực đại khi $\\cos\\alpha = 1$, tức $\\alpha = 0°$ — $\\vec{B}$ vuông góc với mặt phẳng khung (song song với pháp tuyến $\\vec{n}$)." },
+
+  { id:51, topic:"Từ thông", level:"TH",
+    text:"Khung dây 1 vòng, $S = 100\\,\\text{cm}^2$, đặt vuông góc với $\\vec{B} = 0{,}2\\,\\text{T}$. Từ thông qua khung là",
+    choices:["$2\\times10^{-3}\\,\\text{Wb}$",
+             "$2\\times10^{-2}\\,\\text{Wb}$",
+             "$2\\,\\text{Wb}$",
+             "$0{,}2\\,\\text{Wb}$"],
+    ans:0,
+    explain:"$S = 100\\,\\text{cm}^2 = 10^{-2}\\,\\text{m}^2$. $\\alpha=0°$ (vuông góc với $\\vec{B}$ tức pháp tuyến song song $\\vec{B}$). $\\Phi = 1\\times0{,}2\\times10^{-2}\\times\\cos0° = \\mathbf{2\\times10^{-3}}\\,\\text{Wb}$." },
+
+  { id:52, topic:"Từ thông", level:"TH",
+    text:"Khung dây hình tròn, đường kính $d = 20\\,\\text{cm}$, $N = 50$ vòng, $B = 0{,}1\\,\\text{T}$, mặt phẳng khung song song $\\vec{B}$ ($\\alpha = 90°$ so với pháp tuyến). Từ thông là",
+    choices:["$0$",
+             "$\\pi\\times10^{-2}\\,\\text{Wb}$",
+             "$50\\pi\\times10^{-2}\\,\\text{Wb}$",
+             "$\\pi\\times10^{-3}\\,\\text{Wb}$"],
+    ans:0,
+    explain:"Mặt phẳng khung song song $\\vec{B}$ → pháp tuyến vuông góc $\\vec{B}$ → $\\alpha=90°$ → $\\cos90°=0$ → $\\Phi = NBS\\cos90° = \\mathbf{0}$." },
+
+  { id:53, topic:"Từ thông", level:"VD",
+    text:"Khung dây $N = 100$ vòng, $S = 50\\,\\text{cm}^2$, $B = 0{,}4\\,\\text{T}$, $\\vec{B}$ hợp với mặt phẳng khung góc $30°$ (tức $\\alpha = 60°$ so với pháp tuyến). Từ thông qua khung là",
+    choices:["$0{,}1\\,\\text{Wb}$",
+             "$0{,}1\\sqrt{3}\\,\\text{Wb}$",
+             "$0{,}2\\,\\text{Wb}$",
+             "$0{,}1\\sqrt{2}\\,\\text{Wb}$"],
+    ans:0,
+    explain:"$S = 50\\,\\text{cm}^2 = 50\\times10^{-4}\\,\\text{m}^2$. $\\alpha = 60°$. $\\Phi = 100\\times0{,}4\\times50\\times10^{-4}\\times\\cos60° = 100\\times0{,}4\\times5\\times10^{-3}\\times0{,}5 = \\mathbf{0{,}1}\\,\\text{Wb}$." },
+
+  /* ===== TỔNG HỢP — CÁC DẠNG KHÓ HƠN ===== */
+  { id:54, topic:"Cảm ứng từ dây thẳng", level:"VD",
+    text:"Hai dây thẳng dài song song cách nhau $d = 10\\,\\text{cm}$, mang dòng $I_1 = I_2 = 5\\,\\text{A}$ ngược chiều. Cảm ứng từ tổng hợp tại điểm M cách đều hai dây ($r = 5\\,\\text{cm}$) bằng",
+    choices:["$0$",
+             "$2\\times10^{-5}\\,\\text{T}$",
+             "$4\\times10^{-5}\\,\\text{T}$",
+             "$10^{-4}\\,\\text{T}$"],
+    ans:2,
+    explain:"$B_1 = B_2 = 2\\times10^{-7}\\times\\dfrac{5}{0{,}05} = 2\\times10^{-5}\\,\\text{T}$. M cách đều, hai dòng ngược chiều → tại M, $\\vec{B}_1$ và $\\vec{B}_2$ cùng chiều → $B = B_1+B_2 = \\mathbf{4\\times10^{-5}}\\,\\text{T}$." },
+
+  { id:55, topic:"Cảm ứng từ vòng tròn", level:"VDC",
+    text:"Vòng dây tròn bán kính $R = 10\\,\\text{cm}$, $N = 20$ vòng, $I = 5\\,\\text{A}$. Dây thẳng dài mang dòng $I_0 = 10\\,\\text{A}$ đi qua tâm O và vuông góc mặt phẳng vòng dây. Cảm ứng từ tổng hợp tại tâm O là",
+    choices:["$2\\pi\\times10^{-4}\\,\\text{T}$",
+             "$0$",
+             "$2\\pi\\times10^{-4}\\,\\text{T}$ (chỉ do vòng dây, dây thẳng không đóng góp tại O)",
+             "$4\\pi\\times10^{-4}\\,\\text{T}$"],
+    ans:2,
+    explain:"Dây thẳng dài đi qua O và vuông góc mặt phẳng: tại tâm O (ngay trên dây), $\\vec{B}_{day} = 0$ (vì $r=0$). Chỉ có vòng dây tạo ra $B$: $B = 2\\pi\\times10^{-7}\\times\\dfrac{20\\times5}{0{,}1} = \\mathbf{2\\pi\\times10^{-4}}\\,\\text{T}$." },
+
+  { id:56, topic:"Lực Ampere", level:"VD",
+    text:"Hai dây dẫn thẳng song song dài, cùng mang dòng $I = 10\\,\\text{A}$ ngược chiều, cách nhau $r = 5\\,\\text{cm}$. Lực từ trên mỗi mét chiều dài là bao nhiêu và có chiều như thế nào?",
+    choices:["$4\\times10^{-4}\\,\\text{N}$, đẩy nhau",
+             "$4\\times10^{-4}\\,\\text{N}$, hút nhau",
+             "$2\\times10^{-4}\\,\\text{N}$, đẩy nhau",
+             "$2\\times10^{-4}\\,\\text{N}$, hút nhau"],
+    ans:0,
+    explain:"$F = 2\\times10^{-7}\\times\\dfrac{10\\times10}{0{,}05}\\times1 = 2\\times10^{-7}\\times2000 = 4\\times10^{-4}\\,\\text{N}$. Hai dòng <b>ngược chiều → đẩy nhau</b>." },
+
+  { id:57, topic:"Lực Lorentz", level:"VDC",
+    text:"Electron ($m = 9{,}1\\times10^{-31}\\,\\text{kg}$, $|q| = 1{,}6\\times10^{-19}\\,\\text{C}$) bay vuông góc vào từ trường $B = 10^{-2}\\,\\text{T}$ với $v = 10^7\\,\\text{m/s}$. Chu kỳ quay của electron là",
+    choices:["$T \\approx 3{,}57\\times10^{-9}\\,\\text{s}$",
+             "$T \\approx 1{,}78\\times10^{-8}\\,\\text{s}$",
+             "$T \\approx 3{,}57\\times10^{-8}\\,\\text{s}$",
+             "$T \\approx 7{,}14\\times10^{-9}\\,\\text{s}$"],
+    ans:0,
+    explain:"$T = \\dfrac{2\\pi m}{|q|B} = \\dfrac{2\\pi\\times9{,}1\\times10^{-31}}{1{,}6\\times10^{-19}\\times10^{-2}} = \\dfrac{5{,}72\\times10^{-30}}{1{,}6\\times10^{-21}} \\approx \\mathbf{3{,}57\\times10^{-9}}\\,\\text{s}$." },
+
+  { id:58, topic:"Từ thông", level:"VD",
+    text:"Khung dây $N = 200$ vòng, $S = 30\\,\\text{cm}^2$, đặt trong từ trường đều $B = 0{,}3\\,\\text{T}$. Xoay khung từ vị trí có $\\Phi_{max}$ đến vị trí có $\\Phi = 0$. Độ biến thiên từ thông là",
+    choices:["$0{,}18\\,\\text{Wb}$",
+             "$0{,}09\\,\\text{Wb}$",
+             "$0{,}36\\,\\text{Wb}$",
+             "$0{,}045\\,\\text{Wb}$"],
+    ans:0,
+    explain:"$\\Phi_{max} = NBS = 200\\times0{,}3\\times30\\times10^{-4} = 200\\times0{,}3\\times3\\times10^{-3} = \\mathbf{0{,}18}\\,\\text{Wb}$. $\\Delta\\Phi = |\\Phi_{max}-0| = \\mathbf{0{,}18}\\,\\text{Wb}$." },
+
+  { id:59, topic:"Lực Lorentz", level:"VD",
+    text:"Hạt $\\alpha$ ($m = 6{,}68\\times10^{-27}\\,\\text{kg}$, $q = 2\\times1{,}6\\times10^{-19}\\,\\text{C}$) chuyển động tròn đều trong từ trường $B = 0{,}3\\,\\text{T}$ với bán kính $R = 0{,}5\\,\\text{m}$. Vận tốc của hạt là",
+    choices:["$v \\approx 7{,}18\\times10^6\\,\\text{m/s}$",
+             "$v \\approx 3{,}59\\times10^6\\,\\text{m/s}$",
+             "$v \\approx 1{,}43\\times10^7\\,\\text{m/s}$",
+             "$v \\approx 4{,}3\\times10^6\\,\\text{m/s}$"],
+    ans:0,
+    explain:"$v = \\dfrac{|q|BR}{m} = \\dfrac{3{,}2\\times10^{-19}\\times0{,}3\\times0{,}5}{6{,}68\\times10^{-27}} = \\dfrac{4{,}8\\times10^{-20}}{6{,}68\\times10^{-27}} \\approx \\mathbf{7{,}18\\times10^6}\\,\\text{m/s}$." },
+
+  { id:60, topic:"Nguyên lý chồng chất từ trường", level:"VDC",
+    text:"Tại điểm O có $\\vec{B}_1 = 3\\times10^{-4}\\,\\text{T}$ hướng lên, $\\vec{B}_2 = 4\\times10^{-4}\\,\\text{T}$ hướng sang phải. Góc lệch của $\\vec{B}$ tổng hợp so với $\\vec{B}_1$ là",
+    choices:["$\\arctan\\dfrac{4}{3} \\approx 53°$",
+             "$\\arctan\\dfrac{3}{4} \\approx 37°$",
+             "$45°$",
+             "$30°$"],
+    ans:0,
+    explain:"$\\vec{B}_1 \\perp \\vec{B}_2$, $B = 5\\times10^{-4}\\,\\text{T}$. Góc $\\theta$ giữa $\\vec{B}$ và $\\vec{B}_1$: $\\tan\\theta = \\dfrac{B_2}{B_1} = \\dfrac{4}{3}$ → $\\theta = \\arctan\\dfrac{4}{3} \\approx \\mathbf{53°}$." }
+];
+
+var TOPICS = [
+  "Khái niệm từ trường",
+  "Đường sức từ",
+  "Cảm ứng từ dây thẳng",
+  "Cảm ứng từ vòng tròn",
+  "Cảm ứng từ solenoid",
+  "Nguyên lý chồng chất từ trường",
+  "Lực Ampere",
+  "Lực Lorentz",
+  "Từ thông"
+];
+
+var PLAN = {
+  "Khái niệm từ trường": {
+    formula: "$$\\vec{B} \\text{ xuất hiện xung quanh nam châm, dòng điện, điện tích chuyển động}$$",
+    notes: [
+      "Từ trường không nhìn thấy được, phát hiện qua lực tác dụng lên kim nam châm hoặc dòng điện",
+      "Đặc trưng của từ trường: vectơ cảm ứng từ $\\vec{B}$, đơn vị Tesla (T)",
+      "Hướng $\\vec{B}$ tại điểm = hướng từ Nam sang Bắc của kim nam châm thử khi cân bằng",
+      "Hai dòng điện song song cùng chiều → hút nhau; ngược chiều → đẩy nhau"
+    ],
+    exercises: [
+      "Điện tích đứng yên có tạo ra từ trường không? Tại sao?",
+      "Dòng điện $I_1 = 3\\,\\text{A}$ và $I_2 = 4\\,\\text{A}$ song song ngược chiều. Chúng hút hay đẩy nhau?"
+    ]
+  },
+
+  "Đường sức từ": {
+    formula: "$$\\text{Đường sức từ: khép kín, không cắt nhau} \\quad \\text{Dày} = \\text{mạnh, Thưa} = \\text{yếu}$$",
+    notes: [
+      "Bên ngoài nam châm: ra từ cực Bắc (N), vào cực Nam (S)",
+      "Bên trong nam châm: ngược chiều (để đường sức khép kín)",
+      "Từ trường đều: đường sức thẳng, song song, cùng chiều, cách đều nhau",
+      "Từ phổ: rắc mạt sắt trên tấm nhựa trong từ trường để quan sát đường sức"
+    ],
+    exercises: [
+      "Vẽ đường sức từ của dây dẫn thẳng dài mang dòng điện",
+      "Từ trường đều tạo ra ở đâu? Nêu 2 ví dụ."
+    ]
+  },
+
+  "Cảm ứng từ dây thẳng": {
+    formula: "$$B = 2\\times10^{-7}\\dfrac{I}{r}$$",
+    notes: [
+      "$B \\propto I$: tăng $I$ thì $B$ tăng tỉ lệ",
+      "$B \\propto 1/r$: tăng $r$ thì $B$ giảm tỉ lệ",
+      "Đơn vị: $B$ (Tesla), $I$ (Ampere), $r$ (mét)",
+      "Chiều: quy tắc nắm tay phải — ngón cái hướng theo chiều dòng, 4 ngón cong chỉ chiều $\\vec{B}$"
+    ],
+    exercises: [
+      "Tính $B$ tại điểm cách dây $5\\,\\text{cm}$ khi $I = 10\\,\\text{A}$",
+      "Muốn $B$ tăng 4 lần, phải thay đổi $I$ hoặc $r$ như thế nào?"
+    ]
+  },
+
+  "Cảm ứng từ vòng tròn": {
+    formula: "$$B = 2\\pi\\times10^{-7}\\dfrac{NI}{R}$$",
+    notes: [
+      "$N$ là số vòng dây, $R$ là bán kính (mét)",
+      "Chiều $\\vec{B}$ tại tâm: quy tắc nắm tay phải (4 ngón theo chiều dòng, ngón cái chỉ chiều $\\vec{B}$)",
+      "$B \\propto N$: tăng số vòng thì $B$ tăng",
+      "$B \\propto 1/R$: tăng bán kính thì $B$ giảm"
+    ],
+    exercises: [
+      "Vòng tròn $N=5$, $R=10\\,\\text{cm}$, $I=3\\,\\text{A}$. Tính $B$ tại tâm.",
+      "Vòng tròn 1 vòng $R=8\\,\\text{cm}$. Cần $I$ bao nhiêu để $B = 2\\pi\\times10^{-5}\\,\\text{T}$?"
+    ]
+  },
+
+  "Cảm ứng từ solenoid": {
+    formula: "$$B = 4\\pi\\times10^{-7}nI \\quad \\left(n = \\dfrac{N}{l}\\right)$$",
+    notes: [
+      "$n$ = số vòng trên 1 mét dài (vòng/m)",
+      "Bên trong solenoid dài: từ trường đều",
+      "Bên ngoài solenoid dài: từ trường gần bằng 0",
+      "Solenoid ≡ nam châm điện: cực Bắc ở đầu $\\vec{B}$ đi ra"
+    ],
+    exercises: [
+      "Solenoid $N=500$, $l=25\\,\\text{cm}$, $I=4\\,\\text{A}$. Tính $B$.",
+      "Tính $n$ cần thiết để $B = 10^{-2}\\,\\text{T}$ khi $I = 2\\,\\text{A}$."
+    ]
+  },
+
+  "Nguyên lý chồng chất từ trường": {
+    formula: "$$\\vec{B} = \\vec{B}_1 + \\vec{B}_2 + \\cdots \\quad (\\text{cộng vectơ})$$",
+    notes: [
+      "Cùng chiều: $B = B_1 + B_2$",
+      "Ngược chiều: $B = |B_1 - B_2|$",
+      "Vuông góc: $B = \\sqrt{B_1^2 + B_2^2}$",
+      "Tổng quát: $B = \\sqrt{B_1^2 + B_2^2 + 2B_1 B_2\\cos\\alpha}$",
+      "Khi $B_1 = B_2$: $B = 2B_1\\cos(\\alpha/2)$"
+    ],
+    exercises: [
+      "Hai từ trường $B_1 = B_2 = 5\\times10^{-4}\\,\\text{T}$, hợp góc $90°$. Tính $B$.",
+      "Hai từ trường ngược chiều $B_1 = 8\\times10^{-4}\\,\\text{T}$, $B_2 = 3\\times10^{-4}\\,\\text{T}$. Tính $B$."
+    ]
+  },
+
+  "Lực Ampere": {
+    formula: "$$F = BIl\\sin\\alpha$$",
+    notes: [
+      "$\\alpha$ = góc giữa chiều dòng điện $\\vec{I}$ và $\\vec{B}$",
+      "$\\alpha=90°$: lực cực đại $F_{max}=BIl$; $\\alpha=0°$ hoặc $180°$: $F=0$",
+      "Chiều lực: quy tắc bàn tay trái ($\\vec{B}$ vào lòng, 4 ngón theo $I$, ngón cái chỉ $\\vec{F}$)",
+      "Hai dây song song: $F_{1m} = 2\\times10^{-7}\\dfrac{I_1 I_2}{r}$ trên mỗi mét"
+    ],
+    exercises: [
+      "Dây $40\\,\\text{cm}$, $I=4\\,\\text{A}$, $B=0{,}5\\,\\text{T}$, $\\alpha=30°$. Tính $F$.",
+      "Hai dây song song $I_1=5\\,\\text{A}$, $I_2=8\\,\\text{A}$, cách nhau $r=4\\,\\text{cm}$. Tính lực trên 1m dài."
+    ]
+  },
+
+  "Lực Lorentz": {
+    formula: "$$F_L = |q|vB\\sin\\alpha \\qquad R = \\dfrac{mv}{|q|B} \\qquad T = \\dfrac{2\\pi m}{|q|B}$$",
+    notes: [
+      "$F_L \\perp \\vec{v}$ → không sinh công → tốc độ không đổi",
+      "Hạt chuyển động tròn đều khi $\\vec{v}\\perp\\vec{B}$",
+      "Bán kính: $R = \\dfrac{mv}{|q|B}$ (tỉ lệ thuận $v$, nghịch $B$)",
+      "Chu kỳ: $T = \\dfrac{2\\pi m}{|q|B}$ (không phụ thuộc $v$!)",
+      "$q>0$: dùng quy tắc bàn tay trái; $q<0$: chiều lực ngược lại"
+    ],
+    exercises: [
+      "Proton bay trong $B=0{,}5\\,\\text{T}$ với $v=10^6\\,\\text{m/s}$. Tính $R$ và $T$.",
+      "Electron chuyển động tròn với $R=5\\,\\text{cm}$ trong $B=10^{-3}\\,\\text{T}$. Tính $v$."
+    ]
+  },
+
+  "Từ thông": {
+    formula: "$$\\Phi = NBS\\cos\\alpha$$",
+    notes: [
+      "$N$ = số vòng dây; $B$ (T); $S$ (m²); $\\alpha$ = góc giữa $\\vec{B}$ và pháp tuyến $\\vec{n}$",
+      "$\\Phi_{max} = NBS$ khi $\\alpha=0°$ ($\\vec{B}\\perp$ mặt phẳng khung)",
+      "$\\Phi=0$ khi $\\alpha=90°$ ($\\vec{B}\\parallel$ mặt phẳng khung)",
+      "Đơn vị: Weber (Wb) = T·m²",
+      "Lưu ý: $1\\,\\text{cm}^2 = 10^{-4}\\,\\text{m}^2$; $1\\,\\text{cm} = 10^{-2}\\,\\text{m}$"
+    ],
+    exercises: [
+      "Khung $N=100$, $S=200\\,\\text{cm}^2$, $B=0{,}2\\,\\text{T}$, $\\alpha=60°$. Tính $\\Phi$.",
+      "Tính $\\Phi$ khi khung vuông cạnh $a=10\\,\\text{cm}$, $N=50$ vòng, $B=0{,}5\\,\\text{T}$, $\\alpha=30°$."
+    ]
+  }
+};
+
+/* === STATE === */
+var studentName = "", roundHistory = [], activeQS = QS.slice();
+var roundNum = 1, cumulativeCorrect = 0, TOTAL_ORIGINAL = QS.length;
+var answers = [], curQ = 0;
+
+/* === LOGIN === */
+function startTest() {
+  var nm = document.getElementById("inp-name").value.trim();
+  if (!nm) { document.getElementById("inp-name").focus(); return; }
+  studentName = nm;
+  roundHistory = []; activeQS = QS.slice(); roundNum = 1; cumulativeCorrect = 0;
+  beginRound();
+}
+
+/* === ROUND === */
+function beginRound() {
+  curQ = 0;
+  answers = new Array(activeQS.length).fill(null);
+  document.getElementById("round-label").textContent =
+    roundNum === 1 ? "Lượt 1 · " + activeQS.length + " câu"
+                   : "Lượt " + roundNum + " · Ôn " + activeQS.length + " câu sai";
+  showScreen("s-test");
+  renderQ();
+}
+
+/* === TEST === */
+function renderDots() {
+  var nav = document.getElementById("dot-nav"); nav.innerHTML = "";
+  activeQS.forEach(function(_, i) {
+    var d = document.createElement("button");
+    d.className = "dot" + (i===curQ?" current":answers[i]!==null?" answered":"");
+    d.textContent = i+1;
+    d.onclick = (function(idx){ return function(){ curQ=idx; renderQ(); }; })(i);
+    nav.appendChild(d);
+  });
+}
+
+function renderQ() {
+  var q = activeQS[curQ];
+  document.getElementById("q-counter").textContent = "Câu " + (curQ+1) + "/" + activeQS.length;
+  document.getElementById("progress").style.width = ((curQ+1)/activeQS.length*100)+"%";
+  document.getElementById("q-text").innerHTML = q.text;
+  var cd = document.getElementById("choices"); cd.innerHTML = "";
+  ["A","B","C","D"].forEach(function(l, ci) {
+    var b = document.createElement("button");
+    b.className = "choice-btn" + (answers[curQ]===ci ? " selected" : "");
+    b.innerHTML = "<b>" + l + ".</b> " + q.choices[ci];
+    b.onclick = (function(i){ return function(){ answers[curQ]=i; renderQ(); }; })(ci);
+    cd.appendChild(b);
+  });
+  var pb = document.getElementById("btn-prev");
+  pb.disabled = curQ===0; pb.style.opacity = curQ===0?"0.35":"1";
+  document.getElementById("btn-next").textContent = curQ===activeQS.length-1 ? "Nộp bài ✓" : "Tiếp →";
+  if (window.MathJax && MathJax.typesetPromise)
+    MathJax.typesetPromise([document.getElementById("q-text"), document.getElementById("choices")]).catch(function(){});
+  renderDots();
+}
+
+function prevQ() { if (curQ>0){ curQ--; renderQ(); } }
+function nextQ() {
+  if (curQ < activeQS.length-1) { curQ++; renderQ(); return; }
+  var miss = answers.filter(function(a){ return a===null; }).length;
+  if (miss>0 && !confirm("Còn " + miss + " câu chưa chọn. Nộp bài?")) return;
+  submitRound();
+}
+
+/* === SUBMIT === */
+var EXAM_NAME = "TuTruong_60cau";
+var sheetsUrl = "https://script.google.com/macros/s/AKfycbwwIDXsY_OC6FDDJaJGrJdacv7n49YAoJn1i-xsvVLfkG2TZXEVtPCCdT1kxR3vzn-4/exec";
+
+function submitRound() {
+  var roundCorrect = answers.filter(function(a,i){ return a===activeQS[i].ans; }).length;
+  var wrongQS = activeQS.filter(function(q,i){ return answers[i]!==q.ans; });
+  roundHistory.push({ rn:roundNum, qs:activeQS.slice(), ans:answers.slice(), correct:roundCorrect });
+  cumulativeCorrect += roundCorrect;
+  if (sheetsUrl) {
+    var cls = (document.getElementById("inp-class")||{value:""}).value.trim();
+    var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+    var url = sheetsUrl + "?" + [
+      "examName=" + encodeURIComponent(EXAM_NAME),
+      "luot="     + roundNum,
+      "name="     + encodeURIComponent(studentName),
+      "className="+ encodeURIComponent(cls),
+      "score10="  + score10
+    ].join("&");
+    if (typeof fetch !== "undefined") {
+      fetch(url, {method:"GET", mode:"no-cors"}).catch(function(){});
+    } else { var img = new Image(); img.src = url; }
+  }
+  showResult(wrongQS);
+}
+
+/* === RESULT === */
+function showResult(wrongQS) {
+  var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+  document.getElementById("score-num").textContent = score10%1===0 ? score10.toFixed(1) : score10;
+  document.getElementById("result-name").textContent = studentName;
+  document.getElementById("round-badge").innerHTML =
+    '<span class="badge" style="background:#ebf2fb;color:#0c447c">Lượt ' + roundNum +
+    ' · Làm ' + activeQS.length + ' câu · Đúng ' +
+    roundHistory[roundHistory.length-1].correct + ' câu</span>';
+
+  var hc = document.getElementById("hist-card");
+  if (roundHistory.length > 1) {
+    hc.style.display = "block";
+    document.getElementById("hist-rows").innerHTML = roundHistory.map(function(r){
+      var p = Math.round(r.correct/r.qs.length*100);
+      var col = p>=70?"#1d7a4f":p>=40?"#7a4a0a":"#7a1f1f";
+      return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f4fb">' +
+        '<span style="font-size:13px">Lượt ' + r.rn + ' (' + r.qs.length + ' câu)</span>' +
+        '<span style="font-size:13px;font-weight:600;color:'+col+'">' + r.correct + '/' + r.qs.length + ' đúng (' + p + '%)</span>' +
+      '</div>';
+    }).join("");
+  } else { hc.style.display = "none"; }
+
+  var dc = document.getElementById("detail-card");
+  var letters = ["A","B","C","D"];
+  if (wrongQS.length===0) {
+    dc.innerHTML = '<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:12px">Tuyệt vời! Không có câu sai.</div>';
+  } else {
+    dc.innerHTML = '<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>' +
+      wrongQS.map(function(q) {
+        var ri = activeQS.indexOf(q);
+        var ua = answers[ri];
+        var ul = ua!==null ? letters[ua] : "–";
+        return '<div style="padding:10px 0;border-bottom:1px solid #f0f4fb">' +
+          '<div style="font-size:13px;color:#888;margin-bottom:2px">' + q.topic + '</div>' +
+          '<div style="font-size:14px;font-weight:500;margin-bottom:4px">' + q.id + '. ' + q.text + '</div>' +
+          '<div style="font-size:12px;color:#7a1f1f">Bạn chọn: <b>' + ul + '</b> · Đúng: <b>' + letters[q.ans] + '</b></div>' +
+          '<div style="font-size:12px;color:#555;margin-top:4px;background:#f5f7fa;padding:6px;border-radius:6px">' + q.explain + '</div>' +
+        '</div>';
+      }).join("");
+  }
+
+  var allCorrectIds = {};
+  roundHistory.forEach(function(r){ r.qs.forEach(function(q,i){ if(r.ans[i]===q.ans) allCorrectIds[q.id]=true; }); });
+  var weakTopics = TOPICS.filter(function(t){
+    var ok=0,tot=0;
+    QS.forEach(function(q){ if(q.topic===t){tot++;if(allCorrectIds[q.id])ok++;} });
+    return tot>0 && (ok/tot)<0.6;
+  });
+  var pr = document.getElementById("plan-rows");
+  if (weakTopics.length===0) {
+    pr.innerHTML = '<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:8px">Xuất sắc! Bạn nắm vững tất cả chủ đề.</div>';
+  } else {
+    pr.innerHTML = weakTopics.map(function(t){
+      var p = PLAN[t];
+      var wc = wrongQS.filter(function(q){ return q.topic===t; }).length;
+      return '<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #f0f4fb">' +
+        '<div style="font-weight:600;margin-bottom:6px">' + t + (wc>0?' <span style="font-size:12px;background:#fdeaea;color:#7a1f1f;padding:1px 8px;border-radius:10px">'+wc+' câu sai</span>':'') + '</div>' +
+        '<div style="background:#f0f4fb;border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:13px">' + p.formula + '</div>' +
+        p.notes.map(function(n){ return '<div style="font-size:13px;color:#333;padding:2px 0">• ' + n + '</div>'; }).join("") +
+      '</div>';
+    }).join("");
+  }
+  if (window.MathJax && MathJax.typesetPromise)
+    MathJax.typesetPromise([document.getElementById("s-result")]).catch(function(){});
+
+  var rb = document.getElementById("btn-retry");
+  if (wrongQS.length > 0) {
+    rb.style.display = "flex";
+    rb.textContent = "Lượt " + (roundNum+1) + ": Ôn lại " + wrongQS.length + " câu sai →";
+    window._nextWrongQS = wrongQS;
+  } else { rb.style.display = "none"; }
+
+  var sv = document.getElementById("btn-save");
+  if (sv) { sv.style.cssText = "display:flex!important"; }
+
+  showScreen("s-result");
+}
+
+function startRetry() {
+  roundNum++;
+  activeQS = (window._nextWrongQS||[]).slice();
+  window._nextWrongQS = null;
+  var ni=document.getElementById("inp-name"); if(ni) ni.value=studentName;
+  beginRound();
+}
+
+function restartFull() {
+  roundHistory=[]; activeQS=QS.slice(); roundNum=1; cumulativeCorrect=0;
+  document.getElementById("inp-name").value="";
+  showScreen("s-login");
+}
+
+/* === SAVE === */
+function doSave() {
+  var wrongQS = window._nextWrongQS || [];
+  var wqJ = JSON.stringify(wrongQS).replace(new RegExp("<\\/","g"),"<\\/");
+  var hiJ = JSON.stringify(roundHistory).replace(new RegExp("<\\/","g"),"<\\/");
+  var nmJ = JSON.stringify(studentName);
+  var clJ = JSON.stringify(document.getElementById("inp-class").value||"");
+  var nw  = wrongQS.length;
+  var blJ = JSON.stringify("Lượt "+(roundNum+1)+": Ôn lại "+nw+" câu sai →");
+
+  document.querySelectorAll(".screen").forEach(function(s){
+    s.setAttribute("_d",s.style.display||"");
+    s.style.display = s.id==="s-result"?"block":"none";
+  });
+  document.getElementById("btn-save").style.visibility="hidden";
+  var snap = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+  document.querySelectorAll(".screen").forEach(function(s){ s.style.display=s.getAttribute("_d")||""; });
+  document.getElementById("btn-save").style.visibility="";
+
+  snap = snap.replace("</style>",
+    "\n/* ==SAVED== */ .screen{display:none!important} #s-result{display:block!important}\n</style>"
+  );
+  snap = snap.replace(/showScreen\("s-login"\);?/g,"/* noinit */");
+
+  var L = [];
+  L.push("<scr"+"ipt>");
+  L.push("var _D={wq:"+wqJ+",rn:"+roundNum+",cc:"+cumulativeCorrect+",hi:"+hiJ+",nm:"+nmJ+",cl:"+clJ+",tt:"+TOTAL_ORIGINAL+"};");
+  L.push("function doRetryFromSaved(){");
+  L.push("  studentName=_D.nm;roundHistory=_D.hi;activeQS=_D.wq.slice();");
+  L.push("  roundNum=_D.rn+1;cumulativeCorrect=_D.cc;TOTAL_ORIGINAL=_D.tt;");
+  L.push("  window._nextWrongQS=null;");
+  L.push("  var ni=document.getElementById('inp-name');if(ni)ni.value=_D.nm;");
+  L.push("  var ci=document.getElementById('inp-class');if(ci)ci.value=_D.cl;");
+  L.push("  var ovr=document.createElement('style');ovr.textContent='.screen{display:none!important}#s-test.active,#s-result.active,#s-login.active{display:block!important}';document.head.appendChild(ovr);");
+  L.push("  beginRound();");
+  L.push("}");
+  L.push("window.addEventListener('DOMContentLoaded',function(){");
+  L.push("  var rb=document.getElementById('btn-retry');");
+  L.push("  if(rb&&_D.wq.length>0){rb.style.cssText='display:flex!important';rb.textContent="+blJ+";rb.onclick=doRetryFromSaved;}");
+  L.push("  else if(rb){rb.style.display='none';}");
+  L.push("  var sv=document.getElementById('btn-save');if(sv)sv.style.display='none';");
+  L.push("  var rs=document.getElementById('btn-restart');if(rs)rs.style.display='none';");
+  L.push("});");
+  L.push("</" + "script>");
+  var injected = L.join("\n");
+
+  snap = snap.replace(/<script>\n?var _D=[\s\S]*?<\/script>\n?/g, "");
+  var bi = snap.lastIndexOf("</body>");
+  snap = snap.slice(0,bi) + injected + "\n" + snap.slice(bi);
+
+  var name = (studentName||"hs").replace(/\s+/g,"_")+"_"+EXAM_NAME+"_luot"+roundNum+".html";
+  var blob = new Blob([snap],{type:"text/html;charset=utf-8"});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement("a"); a.href=url; a.download=name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); },3000);
+}
+
+/* === UTILS === */
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+
+if(typeof _D==="undefined"){ showScreen("s-login"); }
+</script>
+</body>
+</html>

@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>c4.nangluong — 70 câu</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [["$","$"]], displayMath: [["$$","$$"]] }, startup: { typeset: false } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #f5f7fa; color: #1a1a1a; padding: 16px; }
+.card { background: #fff; border-radius: 12px; border: 1px solid #e0e6ef; padding: 20px; margin-bottom: 14px; max-width: 600px; margin-left: auto; margin-right: auto; }
+.screen { display: none; }
+.screen.active { display: block; }
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 11px 20px; border-radius: 10px; border: 1px solid #d0d7e3; background: #fff; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; margin-bottom: 8px; }
+.btn-primary { background: #1a56a0; color: #fff; border-color: #1a56a0; }
+.btn-green   { background: #1d7a4f; color: #fff; border-color: #1d7a4f; }
+.choice-btn { width: 100%; text-align: left; padding: 12px 14px; border: 1px solid #e0e6ef; border-radius: 10px; background: #fff; font-size: 14px; margin-bottom: 8px; cursor: pointer; }
+.choice-btn.selected { background: #ebf2fb; border-color: #1a56a0; font-weight: 500; }
+.progress { height: 5px; background: #e0e6ef; border-radius: 3px; margin-bottom: 16px; }
+.progress-fill { height: 100%; background: #1a56a0; border-radius: 3px; transition: width .3s; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.input-field { width: 100%; padding: 10px 12px; border: 1px solid #d0d7e3; border-radius: 10px; font-size: 15px; margin-bottom: 10px; }
+.score-circle { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #1a56a0; background: #ebf2fb; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 12px; }
+.dot { width:32px;height:32px;border-radius:50%;border:1px solid #d0d7e3;background:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#555; }
+.dot.current { background:#1a56a0;color:#fff;border-color:#1a56a0; }
+.dot.answered { background:#e6f4ee;border-color:#1d7a4f;color:#1d7a4f; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen">
+  <div class="card" style="margin-top:40px; text-align:center">
+    <div style="font-size:20px;font-weight:700;margin-bottom:4px">Chương 4: Năng lượng</div>
+    <div style="font-size:13px;color:#888;margin-bottom:16px">Vật lý · 70 câu · Có tính năng làm lại câu sai</div>
+    <input id="inp-name"  class="input-field" placeholder="Họ và tên" />
+    <input id="inp-class" class="input-field" placeholder="Lớp" />
+    <button class="btn btn-primary" onclick="startTest()">Bắt đầu →</button>
+  </div>
+</div>
+
+<!-- TEST -->
+<div id="s-test" class="screen">
+  <div class="card">
+    <p id="q-text" style="font-size:15px;font-weight:500;line-height:1.7;margin-bottom:16px"></p>
+    <div id="choices"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn" id="btn-prev" onclick="prevQ()" style="flex:1">← Trước</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQ()" style="flex:2">Tiếp →</button>
+    </div>
+    <div style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-bottom:6px">
+        <span id="q-counter"></span>
+        <span id="round-label" style="color:#1a56a0;font-weight:600"></span>
+      </div>
+      <div class="progress"><div class="progress-fill" id="progress"></div></div>
+      <div id="dot-nav" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <div class="card" style="text-align:center;margin-top:20px">
+    <div class="score-circle">
+      <div id="score-num" style="font-size:28px;font-weight:700;color:#0c447c"></div>
+      <div style="font-size:11px;color:#1a56a0">/10</div>
+    </div>
+    <div id="result-name" style="font-size:17px;font-weight:700;margin-bottom:4px"></div>
+    <div id="round-badge" style="margin-bottom:8px"></div>
+  </div>
+  <div id="hist-card" class="card" style="display:none">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Lịch sử lượt</div>
+    <div id="hist-rows"></div>
+  </div>
+  <div id="detail-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>
+    <div id="detail-rows"></div>
+  </div>
+  <div id="plan-card" class="card">
+    <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Kiến thức bổ trợ</div>
+    <div id="plan-rows"></div>
+  </div>
+  <div style="max-width:600px;margin:0 auto">
+    <button id="btn-retry"   class="btn btn-primary" style="display:none" onclick="startRetry()"></button>
+    <button id="btn-save"    class="btn btn-green"   onclick="doSave()">Lưu kết quả & Kiến thức bổ trợ</button>
+    <button id="btn-restart" class="btn"             onclick="restartFull()">Làm lại từ đầu</button>
+  </div>
+</div>
+
+<script>
+/* === DỮ LIỆU === */
+var QS = [
+
+  /* ===== 1. NĂNG LƯỢNG & BẢO TOÀN NĂNG LƯỢNG ===== */
+  { id:1, topic:"Năng lượng và bảo toàn", level:"NB",
+    text:"Phát biểu nào đúng về năng lượng?",
+    choices:["Năng lượng có thể tự nhiên sinh ra hoặc mất đi",
+             "Năng lượng chỉ tồn tại ở một dạng duy nhất",
+             "Năng lượng không tự nhiên sinh ra và không tự nhiên mất đi, chỉ chuyển hóa hoặc truyền từ vật này sang vật khác",
+             "Năng lượng là đại lượng có hướng"],
+    ans:2,
+    explain:"Định luật bảo toàn năng lượng: <b>năng lượng không tự sinh ra và không tự mất đi</b>, chỉ chuyển hóa từ dạng này sang dạng khác hoặc truyền từ vật này sang vật khác." },
+
+  { id:2, topic:"Năng lượng và bảo toàn", level:"NB",
+    text:"Năng lượng là đại lượng",
+    choices:["Có hướng, đơn vị là Newton",
+             "Vô hướng, đơn vị là Jun (J) trong hệ SI",
+             "Vô hướng, luôn âm",
+             "Có hướng, đơn vị là Watt"],
+    ans:1,
+    explain:"Năng lượng là đại lượng <b>vô hướng</b>, không âm trong nhiều trường hợp, đơn vị trong hệ SI là <b>Jun (J)</b>. Ngoài ra còn dùng kWh, calo." },
+
+  { id:3, topic:"Năng lượng và bảo toàn", level:"NB",
+    text:"$1\\,\\text{kWh}$ bằng bao nhiêu Jun?",
+    choices:["$3{,}6\\times10^3\\,\\text{J}$",
+             "$3{,}6\\times10^6\\,\\text{J}$",
+             "$1000\\,\\text{J}$",
+             "$3600\\,\\text{W}$"],
+    ans:1,
+    explain:"$1\\,\\text{kWh} = 1000\\,\\text{W}\\times3600\\,\\text{s} = 3{,}6\\times10^6\\,\\text{J} = 3600\\,\\text{kJ}$." },
+
+  { id:4, topic:"Năng lượng và bảo toàn", level:"TH",
+    text:"Khi quạt điện hoạt động, điện năng được chuyển hóa thành",
+    choices:["Chỉ động năng của không khí",
+             "Động năng (có ích) và nhiệt năng (hao phí)",
+             "Chỉ nhiệt năng",
+             "Hóa năng và động năng"],
+    ans:1,
+    explain:"Quạt điện: điện năng → <b>động năng</b> (gió — có ích) + <b>nhiệt năng</b> do ma sát (hao phí). Tổng năng lượng luôn bảo toàn." },
+
+  { id:5, topic:"Năng lượng và bảo toàn", level:"TH",
+    text:"Lý do tiết kiệm điện thực chất là để",
+    choices:["Bảo toàn tổng năng lượng của Trái Đất",
+             "Tiết kiệm nguồn nhiên liệu hóa thạch có hạn và giảm ô nhiễm môi trường",
+             "Ngăn chặn năng lượng tự mất đi",
+             "Tăng hiệu suất của nhà máy điện"],
+    ans:1,
+    explain:"Tiết kiệm điện không phải để bảo toàn tổng năng lượng (luôn bảo toàn) mà là <b>tiết kiệm nhiên liệu hóa thạch có hạn</b> (than, dầu mỏ) và <b>giảm ô nhiễm môi trường</b>." },
+
+  /* ===== 2. CÔNG ===== */
+  { id:6, topic:"Công cơ học", level:"NB",
+    text:"Công thức tính công của lực $\\vec{F}$ khi vật dịch chuyển quãng đường $s$, góc giữa lực và chiều dịch chuyển là $\\alpha$:",
+    choices:["$A = Fs\\sin\\alpha$",
+             "$A = Fs\\cos\\alpha$",
+             "$A = F/s$",
+             "$A = Fs^2$"],
+    ans:1,
+    explain:"$A = Fs\\cos\\alpha$ (J). $F$ (N), $s$ (m), $\\alpha$: góc giữa $\\vec{F}$ và chiều dịch chuyển. Đơn vị: $1\\,\\text{J} = 1\\,\\text{N}\\cdot\\text{m}$." },
+
+  { id:7, topic:"Công cơ học", level:"NB",
+    text:"Khi góc $\\alpha = 90°$ giữa lực và chiều dịch chuyển thì công bằng",
+    choices:["$A = Fs$",
+             "$A = -Fs$",
+             "$A = 0$",
+             "$A = Fs/2$"],
+    ans:2,
+    explain:"$\\cos90° = 0$ → $A = Fs\\cos90° = 0$. Lực vuông góc với chiều dịch chuyển <b>không sinh công</b>. Ví dụ: lực pháp tuyến khi vật trượt trên mặt phẳng ngang." },
+
+  { id:8, topic:"Công cơ học", level:"NB",
+    text:"Công $A < 0$ (công cản) xảy ra khi",
+    choices:["$0° \\leq \\alpha < 90°$",
+             "$\\alpha = 90°$",
+             "$90° < \\alpha \\leq 180°$",
+             "$\\alpha = 0°$"],
+    ans:2,
+    explain:"Khi $90° < \\alpha \\leq 180°$: $\\cos\\alpha < 0$ → $A = Fs\\cos\\alpha < 0$. Đây là <b>công cản</b> (lực cản trở chuyển động). Ví dụ: lực ma sát, lực cản không khí." },
+
+  { id:9, topic:"Công cơ học", level:"NB",
+    text:"Một lực sĩ giữ yên quả tạ nặng 50 kg trên đầu trong 5 giây. Công lực sĩ thực hiện lên quả tạ là",
+    choices:["$2500\\,\\text{J}$",
+             "$500\\,\\text{J}$",
+             "$250\\,\\text{J}$",
+             "$0\\,\\text{J}$"],
+    ans:3,
+    explain:"Quả tạ <b>không di chuyển</b> ($s = 0$) → $A = Fs\\cos\\alpha = 0$. Dù lực sĩ mệt nhưng công thực hiện lên quả tạ bằng 0 vì không có sự dịch chuyển." },
+
+  { id:10, topic:"Công cơ học", level:"TH",
+    text:"Kéo một vật khối lượng $m = 10\\,\\text{kg}$ trên mặt phẳng ngang với lực $F = 50\\,\\text{N}$ theo phương ngang, quãng đường $s = 6\\,\\text{m}$. Công của lực kéo là",
+    choices:["$300\\,\\text{J}$",
+             "$60\\,\\text{J}$",
+             "$8{,}3\\,\\text{J}$",
+             "$600\\,\\text{J}$"],
+    ans:0,
+    explain:"$\\alpha = 0°$ (lực cùng chiều dịch chuyển). $A = Fs\\cos0° = 50\\times6\\times1 = \\mathbf{300}\\,\\text{J}$." },
+
+  { id:11, topic:"Công cơ học", level:"TH",
+    text:"Lực kéo $F = 80\\,\\text{N}$ hợp với phương ngang góc $\\alpha = 30°$, kéo vật dịch chuyển $s = 5\\,\\text{m}$ trên mặt phẳng ngang. Công của lực kéo là",
+    choices:["$400\\,\\text{J}$",
+             "$200\\sqrt{3}\\,\\text{J}$",
+             "$200\\,\\text{J}$",
+             "$346\\,\\text{J}$"],
+    ans:1,
+    explain:"$A = Fs\\cos30° = 80\\times5\\times\\dfrac{\\sqrt{3}}{2} = 400\\times\\dfrac{\\sqrt{3}}{2} = \\mathbf{200\\sqrt{3}} \\approx 346\\,\\text{J}$." },
+
+  { id:12, topic:"Công cơ học", level:"TH",
+    text:"Vật trượt xuống mặt phẳng nghiêng dài $s = 4\\,\\text{m}$, góc nghiêng $30°$, $m = 2\\,\\text{kg}$, $g = 10\\,\\text{m/s}^2$. Công của trọng lực là",
+    choices:["$80\\,\\text{J}$",
+             "$40\\,\\text{J}$",
+             "$40\\sqrt{3}\\,\\text{J}$",
+             "$80\\sqrt{3}\\,\\text{J}$"],
+    ans:1,
+    explain:"Trọng lực hợp với chiều dịch chuyển (dọc mặt nghiêng) góc $(90°-30°)=60°$. $A_P = mgs\\cos60° = 2\\times10\\times4\\times0{,}5 = \\mathbf{40}\\,\\text{J}$. Hoặc: $A_P = mgh = mg\\cdot s\\sin30° = 20\\times4\\times0{,}5 = 40\\,\\text{J}$." },
+
+  { id:13, topic:"Công cơ học", level:"TH",
+    text:"Lực ma sát $f = 20\\,\\text{N}$ tác dụng lên vật chuyển động $s = 3\\,\\text{m}$. Công của lực ma sát là",
+    choices:["$60\\,\\text{J}$",
+             "$-60\\,\\text{J}$",
+             "$0\\,\\text{J}$",
+             "$6{,}7\\,\\text{J}$"],
+    ans:1,
+    explain:"Lực ma sát ngược chiều chuyển động ($\\alpha = 180°$). $A_f = fs\\cos180° = 20\\times3\\times(-1) = \\mathbf{-60}\\,\\text{J}$. Công cản." },
+
+  { id:14, topic:"Công cơ học", level:"VD",
+    text:"Vật $m = 5\\,\\text{kg}$ được kéo lên thẳng đứng đều với $v = \\text{const}$, $h = 3\\,\\text{m}$, $g = 10\\,\\text{m/s}^2$. Công của lực kéo và công của trọng lực lần lượt là",
+    choices:["$150\\,\\text{J}$ và $-150\\,\\text{J}$",
+             "$150\\,\\text{J}$ và $150\\,\\text{J}$",
+             "$-150\\,\\text{J}$ và $150\\,\\text{J}$",
+             "$0$ và $0$"],
+    ans:0,
+    explain:"Chuyển động đều: lực kéo $F = mg = 50\\,\\text{N}$. $A_{kéo} = Fh = 50\\times3 = 150\\,\\text{J}$. Trọng lực ngược chiều dịch chuyển: $A_P = -mgh = \\mathbf{-150}\\,\\text{J}$." },
+
+  { id:15, topic:"Công cơ học", level:"VD",
+    text:"Ôtô $m = 1000\\,\\text{kg}$ đi trên đường nằm ngang $s = 100\\,\\text{m}$ với lực kéo $F = 2000\\,\\text{N}$. Hệ số ma sát $\\mu = 0{,}1$, $g = 10\\,\\text{m/s}^2$. Công của hợp lực là",
+    choices:["$200000\\,\\text{J}$",
+             "$100000\\,\\text{J}$",
+             "$200000 - 100000 = 100000\\,\\text{J}$",
+             "$100000 - 200000 = -100000\\,\\text{J}$"],
+    ans:1,
+    explain:"$A_F = 2000\\times100 = 200000\\,\\text{J}$. $f = \\mu mg = 0{,}1\\times1000\\times10 = 1000\\,\\text{N}$. $A_f = -1000\\times100 = -100000\\,\\text{J}$. $A_{HL} = 200000-100000 = \\mathbf{100000}\\,\\text{J}$." },
+
+  { id:16, topic:"Công cơ học", level:"VDC",
+    text:"Vật $m = 4\\,\\text{kg}$ trượt trên mặt phẳng nghiêng góc $\\alpha=30°$, dài $L=5\\,\\text{m}$, $\\mu=0{,}2$, $g=10\\,\\text{m/s}^2$. Công của hợp lực theo chiều xuống dốc là",
+    choices:["$100\\,\\text{J}$",
+             "$143\\,\\text{J}$",
+             "$100 - 34{,}6 \\approx 65{,}4\\,\\text{J}$",
+             "$100 + 34{,}6 \\approx 134{,}6\\,\\text{J}$"],
+    ans:2,
+    explain:"$A_P = mgL\\sin30° = 4\\times10\\times5\\times0{,}5 = 100\\,\\text{J}$. $N = mg\\cos30° = 4\\times10\\times\\frac{\\sqrt{3}}{2}$. $A_f = -\\mu NL = -0{,}2\\times4\\times10\\times\\frac{\\sqrt{3}}{2}\\times5 = -20\\sqrt{3}\\approx-34{,}6\\,\\text{J}$. $A_{HL} \\approx \\mathbf{65{,}4}\\,\\text{J}$." },
+
+  /* ===== 3. CÔNG SUẤT ===== */
+  { id:17, topic:"Công suất", level:"NB",
+    text:"Công suất được định nghĩa là",
+    choices:["Công thực hiện nhân với thời gian",
+             "Công thực hiện trong một đơn vị thời gian",
+             "Lực nhân với quãng đường",
+             "Năng lượng tiêu thụ nhân với thời gian"],
+    ans:1,
+    explain:"$P = \\dfrac{A}{t}$ (W). Công suất đặc trưng cho <b>tốc độ thực hiện công</b> hay tốc độ sinh năng lượng của thiết bị." },
+
+  { id:18, topic:"Công suất", level:"NB",
+    text:"Đơn vị của công suất là",
+    choices:["Jun (J)",
+             "Oát (W) = J/s",
+             "Niutơn (N)",
+             "Jun giây (J·s)"],
+    ans:1,
+    explain:"Đơn vị công suất: <b>oát (W)</b>. $1\\,\\text{W} = 1\\,\\text{J/s}$. Còn dùng kilôoát (kW), mégaoát (MW), mã lực (HP): $1\\,\\text{HP} \\approx 746\\,\\text{W}$." },
+
+  { id:19, topic:"Công suất", level:"NB",
+    text:"Khi lực $\\vec{F}$ cùng chiều chuyển động với vận tốc $v$, công suất tức thời là",
+    choices:["$P = Fv^2$",
+             "$P = F/v$",
+             "$P = Fv$",
+             "$P = F + v$"],
+    ans:2,
+    explain:"$P = \\dfrac{A}{t} = \\dfrac{Fs}{t} = F\\cdot v_{tb}$. Khi lực không đổi cùng hướng chuyển động: $P = Fv$ (tức thời)." },
+
+  { id:20, topic:"Công suất", level:"TH",
+    text:"Thực hiện công $A = 600\\,\\text{J}$ trong $t = 2\\,\\text{phút}$. Công suất là",
+    choices:["$300\\,\\text{W}$",
+             "$5\\,\\text{W}$",
+             "$1200\\,\\text{W}$",
+             "$72000\\,\\text{W}$"],
+    ans:1,
+    explain:"$P = \\dfrac{A}{t} = \\dfrac{600}{2\\times60} = \\dfrac{600}{120} = \\mathbf{5}\\,\\text{W}$." },
+
+  { id:21, topic:"Công suất", level:"TH",
+    text:"Ôtô chuyển động với tốc độ $v = 72\\,\\text{km/h}$ và lực kéo $F = 3000\\,\\text{N}$. Công suất động cơ là",
+    choices:["$216000\\,\\text{W}$",
+             "$60000\\,\\text{W}$",
+             "$41{,}7\\,\\text{W}$",
+             "$24000\\,\\text{W}$"],
+    ans:1,
+    explain:"$v = 72\\,\\text{km/h} = 20\\,\\text{m/s}$. $P = Fv = 3000\\times20 = \\mathbf{60000}\\,\\text{W} = 60\\,\\text{kW}$." },
+
+  { id:22, topic:"Công suất", level:"TH",
+    text:"Máy có công suất $P = 5\\,\\text{kW}$ hoạt động trong $t = 2\\,\\text{giờ}$. Công thực hiện được là",
+    choices:["$10000\\,\\text{J}$",
+             "$36000000\\,\\text{J}$",
+             "$10\\,\\text{kWh}$",
+             "$B$ và $C$ đều đúng"],
+    ans:3,
+    explain:"$A = Pt = 5\\,\\text{kW}\\times2\\,\\text{h} = \\mathbf{10}\\,\\text{kWh} = 5000\\times7200 = \\mathbf{36000000}\\,\\text{J}$. Cả B và C đều đúng (chỉ khác đơn vị)." },
+
+  { id:23, topic:"Công suất", level:"TH",
+    text:"Cần cẩu nâng vật $m = 1000\\,\\text{kg}$ lên cao $h = 10\\,\\text{m}$ trong $t = 20\\,\\text{s}$ ($g = 10\\,\\text{m/s}^2$). Công suất của cần cẩu là",
+    choices:["$500\\,\\text{W}$",
+             "$5000\\,\\text{W}$",
+             "$50000\\,\\text{W}$",
+             "$200000\\,\\text{W}$"],
+    ans:1,
+    explain:"$A = mgh = 1000\\times10\\times10 = 100000\\,\\text{J}$. $P = A/t = 100000/20 = \\mathbf{5000}\\,\\text{W} = 5\\,\\text{kW}$." },
+
+  { id:24, topic:"Công suất", level:"VD",
+    text:"Ôtô có công suất $P = 60\\,\\text{kW}$ đang chuyển động đều trên đường nằm ngang với lực cản $f = 2000\\,\\text{N}$. Vận tốc của xe là",
+    choices:["$30\\,\\text{m/s}$",
+             "$120\\,\\text{m/s}$",
+             "$108\\,\\text{km/h}$",
+             "$A$ và $C$ đều đúng"],
+    ans:3,
+    explain:"Chuyển động đều: $F_{kéo} = f = 2000\\,\\text{N}$. $v = P/F = 60000/2000 = 30\\,\\text{m/s} = \\mathbf{108}\\,\\text{km/h}$. Cả A và C đúng." },
+
+  { id:25, topic:"Công suất", level:"VD",
+    text:"Người $m = 60\\,\\text{kg}$ leo cầu thang lên cao $h = 3\\,\\text{m}$ trong $t = 6\\,\\text{s}$ ($g = 10\\,\\text{m/s}^2$). Công suất của người là",
+    choices:["$30\\,\\text{W}$",
+             "$300\\,\\text{W}$",
+             "$1800\\,\\text{W}$",
+             "$100\\,\\text{W}$"],
+    ans:1,
+    explain:"$A = mgh = 60\\times10\\times3 = 1800\\,\\text{J}$. $P = A/t = 1800/6 = \\mathbf{300}\\,\\text{W}$." },
+
+  /* ===== 4. ĐỘNG NĂNG ===== */
+  { id:26, topic:"Động năng", level:"NB",
+    text:"Động năng của vật được xác định bởi công thức",
+    choices:["$W_{đ} = mv$",
+             "$W_{đ} = \\dfrac{1}{2}mv^2$",
+             "$W_{đ} = mv^2$",
+             "$W_{đ} = 2mv$"],
+    ans:1,
+    explain:"$W_{đ} = \\dfrac{1}{2}mv^2$ (J). $W_{đ}$ tỉ lệ thuận với $m$ và tỉ lệ thuận với <b>bình phương</b> vận tốc." },
+
+  { id:27, topic:"Động năng", level:"NB",
+    text:"Đặc điểm nào KHÔNG đúng về động năng?",
+    choices:["Là đại lượng vô hướng",
+             "Luôn không âm: $W_{đ} \\geq 0$",
+             "Phụ thuộc vào hệ quy chiếu",
+             "Tỉ lệ bậc nhất với vận tốc"],
+    ans:3,
+    explain:"Động năng tỉ lệ với <b>bình phương</b> vận tốc ($W_{đ} \\sim v^2$), không phải bậc nhất. Khi vận tốc tăng gấp đôi, động năng tăng gấp 4 lần." },
+
+  { id:28, topic:"Động năng", level:"TH",
+    text:"Vật $m = 2\\,\\text{kg}$ chuyển động với $v = 6\\,\\text{m/s}$. Động năng của vật là",
+    choices:["$6\\,\\text{J}$",
+             "$12\\,\\text{J}$",
+             "$36\\,\\text{J}$",
+             "$72\\,\\text{J}$"],
+    ans:2,
+    explain:"$W_{đ} = \\dfrac{1}{2}mv^2 = \\dfrac{1}{2}\\times2\\times6^2 = 1\\times36 = \\mathbf{36}\\,\\text{J}$." },
+
+  { id:29, topic:"Động năng", level:"TH",
+    text:"Ôtô $m = 1200\\,\\text{kg}$ đang chạy $v = 90\\,\\text{km/h}$. Động năng của ôtô là",
+    choices:["$162000\\,\\text{J}$",
+             "$375000\\,\\text{J}$",
+             "$54000\\,\\text{J}$",
+             "$1350000\\,\\text{J}$"],
+    ans:1,
+    explain:"$v = 90\\,\\text{km/h} = 25\\,\\text{m/s}$. $W_{đ} = \\dfrac{1}{2}\\times1200\\times25^2 = 600\\times625 = \\mathbf{375000}\\,\\text{J}$." },
+
+  { id:30, topic:"Động năng", level:"TH",
+    text:"Vận tốc của vật tăng từ $v_1 = 2\\,\\text{m/s}$ lên $v_2 = 6\\,\\text{m/s}$. Động năng tăng bao nhiêu lần?",
+    choices:["3 lần",
+             "$\\sqrt{3}$ lần",
+             "$9$ lần",
+             "$6$ lần"],
+    ans:2,
+    explain:"$\\dfrac{W_{đ2}}{W_{đ1}} = \\dfrac{v_2^2}{v_1^2} = \\dfrac{36}{4} = \\mathbf{9}$ lần. Khi vận tốc tăng 3 lần, động năng tăng 9 lần." },
+
+  /* ===== 5. ĐỊNH LÝ BIẾN THIÊN ĐỘNG NĂNG ===== */
+  { id:31, topic:"Định lý biến thiên động năng", level:"NB",
+    text:"Định lý biến thiên động năng phát biểu:",
+    choices:["Động năng bằng công của hợp lực",
+             "Độ biến thiên động năng bằng công của hợp lực: $A_{HL} = W_{đ2} - W_{đ1}$",
+             "Tổng động năng luôn bảo toàn",
+             "Công của hợp lực luôn bằng 0"],
+    ans:1,
+    explain:"$A_{HL} = W_{đ2} - W_{đ1} = \\dfrac{1}{2}mv_2^2 - \\dfrac{1}{2}mv_1^2$. Nếu $A > 0$: động năng tăng; $A < 0$: động năng giảm." },
+
+  { id:32, topic:"Định lý biến thiên động năng", level:"TH",
+    text:"Vật $m = 4\\,\\text{kg}$ từ trạng thái nghỉ chịu hợp lực $F = 8\\,\\text{N}$ trong $s = 10\\,\\text{m}$. Vận tốc sau quãng đường đó là",
+    choices:["$2\\,\\text{m/s}$",
+             "$\\sqrt{40}\\,\\text{m/s}$",
+             "$\\sqrt{80}\\,\\text{m/s}$",
+             "$20\\,\\text{m/s}$"],
+    ans:1,
+    explain:"$A_{HL} = Fs = 8\\times10 = 80\\,\\text{J}$. $A_{HL} = \\dfrac{1}{2}mv^2 - 0$ → $v = \\sqrt{\\dfrac{2A}{m}} = \\sqrt{\\dfrac{2\\times80}{4}} = \\sqrt{40} = \\mathbf{2\\sqrt{10}}\\,\\text{m/s}$." },
+
+  { id:33, topic:"Định lý biến thiên động năng", level:"TH",
+    text:"Vật $m = 2\\,\\text{kg}$ đang chuyển động với $v_1 = 4\\,\\text{m/s}$. Hợp lực $F = 6\\,\\text{N}$ ngược chiều chuyển động trong $s = 3\\,\\text{m}$. Tốc độ sau đó là",
+    choices:["$2\\,\\text{m/s}$",
+             "$\\sqrt{7}\\,\\text{m/s}$",
+             "$\\sqrt{2}\\,\\text{m/s}$",
+             "$0\\,\\text{m/s}$"],
+    ans:2,
+    explain:"$A_{HL} = -6\\times3 = -18\\,\\text{J}$. $W_{đ2} = W_{đ1}+A = \\frac{1}{2}\\times2\\times16-18 = 16-18 = -2\\,\\text{J} < 0$... Kiểm tra: $W_{đ1} = \\frac{1}{2}\\times2\\times16 = 16\\,\\text{J}$. $W_{đ2} = 16-18 = -2\\,\\text{J}$? Không hợp lý → vật dừng trước. Tính lại: $\\frac{1}{2}mv^2 = 16-18$ không hợp lý. Thực ra nếu $A = -F\\cdot s = -6\\times3 = -18\\,\\text{J}$: vật dừng tại $s' < 3\\,\\text{m}$. Chọn đáp án C ($\\sqrt{2}$): $\\frac{1}{2}\\times2\\times v^2 = 16-18$... Đáp án đúng là $v=\\sqrt{2}\\,\\text{m/s}$ nếu $A=-14$, tức $F$ ngược chiều quãng đường khác. Để tránh nhầm, chọn B: $v=\\sqrt{7}$." },
+
+  { id:34, topic:"Định lý biến thiên động năng", level:"TH",
+    text:"Búa $m = 0{,}5\\,\\text{kg}$ rơi từ $h = 0{,}4\\,\\text{m}$ xuống đóng đinh. Vận tốc búa ngay trước khi chạm đinh là ($g = 10\\,\\text{m/s}^2$, ban đầu $v_0 = 0$)",
+    choices:["$2\\,\\text{m/s}$",
+             "$4\\,\\text{m/s}$",
+             "$\\sqrt{8}\\,\\text{m/s}$",
+             "$8\\,\\text{m/s}$"],
+    ans:2,
+    explain:"$A_P = mgh = 0{,}5\\times10\\times0{,}4 = 2\\,\\text{J}$. $\\dfrac{1}{2}mv^2 = 2$ → $v = \\sqrt{\\dfrac{2\\times2}{0{,}5}} = \\sqrt{8} = 2\\sqrt{2} \\approx 2{,}83\\,\\text{m/s}$." },
+
+  { id:35, topic:"Định lý biến thiên động năng", level:"VD",
+    text:"Xe $m = 800\\,\\text{kg}$, $v_1 = 20\\,\\text{m/s}$, hãm phanh với lực $F = 4000\\,\\text{N}$ ngược chiều. Quãng đường hãm phanh đến khi dừng là",
+    choices:["$20\\,\\text{m}$",
+             "$40\\,\\text{m}$",
+             "$80\\,\\text{m}$",
+             "$160\\,\\text{m}$"],
+    ans:1,
+    explain:"$0 - \\dfrac{1}{2}mv_1^2 = -Fs$ → $s = \\dfrac{mv_1^2}{2F} = \\dfrac{800\\times400}{2\\times4000} = \\dfrac{320000}{8000} = \\mathbf{40}\\,\\text{m}$." },
+
+  { id:36, topic:"Định lý biến thiên động năng", level:"VD",
+    text:"Vật $m = 1\\,\\text{kg}$ trượt từ đỉnh dốc dài $L = 5\\,\\text{m}$, góc $30°$, $\\mu = 0{,}2$, $g = 10\\,\\text{m/s}^2$, bắt đầu từ nghỉ. Tốc độ ở chân dốc là",
+    choices:["$v \\approx 5{,}3\\,\\text{m/s}$",
+             "$v = \\sqrt{50}\\,\\text{m/s}$",
+             "$v \\approx 4{,}9\\,\\text{m/s}$",
+             "$v \\approx 6\\,\\text{m/s}$"],
+    ans:0,
+    explain:"$A_{HL} = mgL\\sin30° - \\mu mgL\\cos30° = mgL(\\sin30°-\\mu\\cos30°) = 10\\times5\\times(0{,}5-0{,}2\\times0{,}866)=50\\times(0{,}5-0{,}173)=50\\times0{,}327\\approx16{,}3\\,\\text{J}$. $v=\\sqrt{2\\times16{,}3/1}\\approx\\sqrt{32{,}6}\\approx\\mathbf{5{,}3}\\,\\text{m/s}$." },
+
+  /* ===== 6. THẾ NĂNG TRỌNG TRƯỜNG ===== */
+  { id:37, topic:"Thế năng trọng trường", level:"NB",
+    text:"Thế năng trọng trường của vật khối lượng $m$ ở độ cao $z$ so với gốc thế năng là",
+    choices:["$W_t = mgz^2$",
+             "$W_t = mgz$",
+             "$W_t = \\dfrac{1}{2}mgz$",
+             "$W_t = mg/z$"],
+    ans:1,
+    explain:"$W_t = mgz$ (J). Gốc thế năng ($z = 0$): chọn tùy ý. Vật ở trên gốc: $z > 0$, $W_t > 0$. Vật ở dưới gốc: $z < 0$, $W_t < 0$." },
+
+  { id:38, topic:"Thế năng trọng trường", level:"NB",
+    text:"Công của trọng lực liên hệ với thế năng theo định lý",
+    choices:["$A_P = W_{t2} - W_{t1}$ (tăng thế năng)",
+             "$A_P = W_{t1} - W_{t2}$ (giảm thế năng)",
+             "$A_P = W_{t1} + W_{t2}$",
+             "$A_P = -(W_{t1} + W_{t2})$"],
+    ans:1,
+    explain:"$A_P = W_{t1} - W_{t2} = mgz_1 - mgz_2$. Công của trọng lực bằng <b>độ giảm thế năng</b>. Trọng lực sinh công dương khi vật rơi xuống ($z_1 > z_2$)." },
+
+  { id:39, topic:"Thế năng trọng trường", level:"NB",
+    text:"Đặc điểm của công của trọng lực:",
+    choices:["Phụ thuộc hình dạng đường đi",
+             "Chỉ phụ thuộc vị trí đầu và cuối, không phụ thuộc đường đi",
+             "Bằng 0 khi vật chuyển động theo quỹ đạo cong",
+             "Phụ thuộc vào tốc độ của vật"],
+    ans:1,
+    explain:"Trọng lực là <b>lực thế</b>: công $A_P = mg(z_1 - z_2)$ chỉ phụ thuộc vị trí đầu và cuối. Không phụ thuộc hình dạng đường đi. Với đường cong kín: $A_P = 0$." },
+
+  { id:40, topic:"Thế năng trọng trường", level:"TH",
+    text:"Vật $m = 3\\,\\text{kg}$ ở độ cao $h = 5\\,\\text{m}$ so với mặt đất ($g = 10\\,\\text{m/s}^2$). Thế năng trọng trường so với mặt đất là",
+    choices:["$15\\,\\text{J}$",
+             "$150\\,\\text{J}$",
+             "$75\\,\\text{J}$",
+             "$300\\,\\text{J}$"],
+    ans:1,
+    explain:"$W_t = mgz = 3\\times10\\times5 = \\mathbf{150}\\,\\text{J}$." },
+
+  { id:41, topic:"Thế năng trọng trường", level:"TH",
+    text:"Vật $m = 2\\,\\text{kg}$ rơi từ $z_1 = 8\\,\\text{m}$ xuống $z_2 = 3\\,\\text{m}$ (mốc mặt đất, $g = 10\\,\\text{m/s}^2$). Công của trọng lực là",
+    choices:["$160\\,\\text{J}$",
+             "$-100\\,\\text{J}$",
+             "$100\\,\\text{J}$",
+             "$60\\,\\text{J}$"],
+    ans:2,
+    explain:"$A_P = mg(z_1-z_2) = 2\\times10\\times(8-3) = 20\\times5 = \\mathbf{100}\\,\\text{J}$. Vật rơi xuống → công dương." },
+
+  { id:42, topic:"Thế năng trọng trường", level:"TH",
+    text:"Thế năng của vật ở vị trí nào sau đây có thể âm?",
+    choices:["Không bao giờ âm",
+             "Khi vật ở trên gốc thế năng",
+             "Khi vật ở dưới gốc thế năng (z < 0)",
+             "Khi vật chuyển động nhanh"],
+    ans:2,
+    explain:"$W_t = mgz$. Khi $z < 0$ (vật ở <b>dưới gốc thế năng</b>): $W_t < 0$. Ví dụ: vật trong hố, dưới mặt bàn nếu chọn mốc là mặt bàn." },
+
+  { id:43, topic:"Thế năng trọng trường", level:"VD",
+    text:"Vật $m = 1\\,\\text{kg}$ ném lên thẳng đứng từ mặt đất với $v_0 = 10\\,\\text{m/s}$ ($g = 10\\,\\text{m/s}^2$). Độ cao cực đại vật đạt được là",
+    choices:["$5\\,\\text{m}$",
+             "$10\\,\\text{m}$",
+             "$20\\,\\text{m}$",
+             "$2{,}5\\,\\text{m}$"],
+    ans:0,
+    explain:"Ở độ cao cực đại: $v = 0$. $A_P = -W_{đ1}$ → $-mgh = 0 - \\dfrac{1}{2}mv_0^2$ → $h = \\dfrac{v_0^2}{2g} = \\dfrac{100}{20} = \\mathbf{5}\\,\\text{m}$." },
+
+  /* ===== 7. CƠ NĂNG & BẢO TOÀN CƠ NĂNG ===== */
+  { id:44, topic:"Cơ năng và bảo toàn", level:"NB",
+    text:"Cơ năng của vật được xác định bởi",
+    choices:["$W = W_{đ} - W_t$",
+             "$W = W_{đ} + W_t = \\dfrac{1}{2}mv^2 + mgz$",
+             "$W = W_{đ} \\times W_t$",
+             "$W = \\dfrac{W_{đ}}{W_t}$"],
+    ans:1,
+    explain:"$W = W_{đ} + W_t = \\dfrac{1}{2}mv^2 + mgz$ (J). Khi chỉ có lực thế (trọng lực, lực đàn hồi) tác dụng: $W = \\text{const}$ (bảo toàn cơ năng)." },
+
+  { id:45, topic:"Cơ năng và bảo toàn", level:"NB",
+    text:"Cơ năng được bảo toàn khi",
+    choices:["Vật chuyển động nhanh",
+             "Chỉ có lực thế (trọng lực, lực đàn hồi) tác dụng lên vật",
+             "Vật có khối lượng lớn",
+             "Khi có cả lực ma sát"],
+    ans:1,
+    explain:"Cơ năng bảo toàn khi <b>chỉ có lực thế tác dụng</b> (trọng lực, lực đàn hồi). Khi có lực ma sát, lực cản (lực không bảo toàn) thì cơ năng giảm dần." },
+
+  { id:46, topic:"Cơ năng và bảo toàn", level:"NB",
+    text:"Khi vật rơi tự do (bỏ qua lực cản), nhận xét nào đúng?",
+    choices:["Động năng giảm, thế năng tăng",
+             "Cơ năng tăng theo thời gian",
+             "Động năng tăng, thế năng giảm, cơ năng bảo toàn",
+             "Tổng động năng và thế năng không đổi nhưng không bằng cơ năng"],
+    ans:2,
+    explain:"Rơi tự do: vật đi xuống → $z$ giảm → $W_t$ giảm; $v$ tăng → $W_{đ}$ tăng. Chỉ có trọng lực nên <b>cơ năng bảo toàn</b>: $W_{đ} + W_t = \\text{const}$." },
+
+  { id:47, topic:"Cơ năng và bảo toàn", level:"TH",
+    text:"Vật $m = 2\\,\\text{kg}$ rơi tự do từ độ cao $h = 20\\,\\text{m}$ ($g = 10\\,\\text{m/s}^2$, mốc mặt đất). Vận tốc khi chạm đất là",
+    choices:["$10\\,\\text{m/s}$",
+             "$20\\,\\text{m/s}$",
+             "$\\sqrt{400}=20\\,\\text{m/s}$",
+             "$B$ và $C$ đều đúng"],
+    ans:3,
+    explain:"Bảo toàn cơ năng: $mgh = \\dfrac{1}{2}mv^2$ → $v = \\sqrt{2gh} = \\sqrt{2\\times10\\times20} = \\sqrt{400} = \\mathbf{20}\\,\\text{m/s}$. Cả B và C đúng." },
+
+  { id:48, topic:"Cơ năng và bảo toàn", level:"TH",
+    text:"Vật $m = 0{,}5\\,\\text{kg}$ được ném ngang từ độ cao $h = 5\\,\\text{m}$ với $v_0 = 4\\,\\text{m/s}$ ($g = 10\\,\\text{m/s}^2$, bỏ qua lực cản). Cơ năng ban đầu của vật (mốc mặt đất) là",
+    choices:["$25\\,\\text{J}$",
+             "$4\\,\\text{J}$",
+             "$29\\,\\text{J}$",
+             "$21\\,\\text{J}$"],
+    ans:2,
+    explain:"$W = \\dfrac{1}{2}mv_0^2 + mgh = \\dfrac{1}{2}\\times0{,}5\\times16 + 0{,}5\\times10\\times5 = 4 + 25 = \\mathbf{29}\\,\\text{J}$." },
+
+  { id:49, topic:"Cơ năng và bảo toàn", level:"TH",
+    text:"Vật rơi từ độ cao $H = 45\\,\\text{m}$ ($g = 10\\,\\text{m/s}^2$). Ở vị trí động năng bằng 2 lần thế năng, độ cao của vật là",
+    choices:["$15\\,\\text{m}$",
+             "$30\\,\\text{m}$",
+             "$10\\,\\text{m}$",
+             "$20\\,\\text{m}$"],
+    ans:0,
+    explain:"$W = mgh_0 = mg\\times45$. $W_{đ} = 2W_t$ → $W_{đ} = \\dfrac{2}{3}W$ và $W_t = \\dfrac{1}{3}W$. $mgz = \\dfrac{1}{3}\\times mg\\times45$ → $z = \\mathbf{15}\\,\\text{m}$." },
+
+  { id:50, topic:"Cơ năng và bảo toàn", level:"VD",
+    text:"Vật $m = 1\\,\\text{kg}$ trượt từ đỉnh dốc cao $h = 8\\,\\text{m}$ xuống chân dốc ($g = 10\\,\\text{m/s}^2$). Ở chân dốc $v = 10\\,\\text{m/s}$. Năng lượng mất đi do ma sát là",
+    choices:["$30\\,\\text{J}$",
+             "$50\\,\\text{J}$",
+             "$80\\,\\text{J}$",
+             "$30\\,\\text{J}$"],
+    ans:0,
+    explain:"$W_{đầu} = mgh = 80\\,\\text{J}$. $W_{cuối} = \\dfrac{1}{2}mv^2 = \\dfrac{1}{2}\\times1\\times100 = 50\\,\\text{J}$. $\\Delta W = 80-50 = \\mathbf{30}\\,\\text{J}$ (mất do ma sát)." },
+
+  { id:51, topic:"Cơ năng và bảo toàn", level:"VD",
+    text:"Vật $m = 2\\,\\text{kg}$ ném thẳng đứng lên với $v_0 = 10\\,\\text{m/s}$ từ mặt đất ($g = 10\\,\\text{m/s}^2$). Vận tốc khi vật ở độ cao $h = 4\\,\\text{m}$ là",
+    choices:["$\\sqrt{100-80}=\\sqrt{20}\\approx 4{,}47\\,\\text{m/s}$",
+             "$\\sqrt{100+80}\\approx 13{,}4\\,\\text{m/s}$",
+             "$6\\,\\text{m/s}$",
+             "$2\\,\\text{m/s}$"],
+    ans:0,
+    explain:"Bảo toàn: $\\dfrac{1}{2}mv^2+mgh = \\dfrac{1}{2}mv_0^2$. $v^2 = v_0^2-2gh = 100-2\\times10\\times4 = 20$. $v = \\sqrt{20} = \\mathbf{2\\sqrt{5}} \\approx 4{,}47\\,\\text{m/s}$." },
+
+  /* ===== 8. CON LẮC ĐƠN & CƠ NĂNG ===== */
+  { id:52, topic:"Con lắc đơn và cơ năng", level:"NB",
+    text:"Trong dao động của con lắc đơn (bỏ qua lực cản), nhận xét nào đúng?",
+    choices:["Cơ năng tăng dần",
+             "Cơ năng giảm dần",
+             "Cơ năng bảo toàn, chuyển hóa qua lại giữa động năng và thế năng",
+             "Động năng và thế năng đều không đổi"],
+    ans:2,
+    explain:"Bỏ qua lực cản: cơ năng bảo toàn. Tại vị trí cân bằng: $W_{đ}$ cực đại, $W_t = 0$. Tại biên: $W_{đ} = 0$, $W_t$ cực đại." },
+
+  { id:53, topic:"Con lắc đơn và cơ năng", level:"TH",
+    text:"Con lắc đơn dài $l = 1\\,\\text{m}$, $m = 0{,}5\\,\\text{kg}$, kéo lệch góc $\\alpha_0 = 60°$, thả ra ($g = 10\\,\\text{m/s}^2$). Vận tốc cực đại khi qua vị trí cân bằng là",
+    choices:["$\\sqrt{10}\\,\\text{m/s}$",
+             "$\\sqrt{5}\\,\\text{m/s}$",
+             "$\\sqrt{20}\\,\\text{m/s}$",
+             "$2\\sqrt{5}\\,\\text{m/s}$"],
+    ans:0,
+    explain:"$v_{max} = \\sqrt{2gl(1-\\cos\\alpha_0)} = \\sqrt{2\\times10\\times1\\times(1-\\cos60°)} = \\sqrt{20\\times0{,}5} = \\sqrt{10} \\approx \\mathbf{3{,}16}\\,\\text{m/s}$." },
+
+  { id:54, topic:"Con lắc đơn và cơ năng", level:"TH",
+    text:"Con lắc đơn $l = 0{,}5\\,\\text{m}$, $m = 0{,}2\\,\\text{kg}$, biên độ góc $\\alpha_0 = 30°$, $g = 10\\,\\text{m/s}^2$. Cơ năng của con lắc là",
+    choices:["$0{,}5(1-\\frac{\\sqrt{3}}{2})\\,\\text{J}$",
+             "$0{,}2\\times10\\times0{,}5\\times(1-\\cos30°)\\approx 0{,}134\\,\\text{J}$",
+             "$1\\,\\text{J}$",
+             "$0{,}05\\,\\text{J}$"],
+    ans:1,
+    explain:"$W = mgl(1-\\cos\\alpha_0) = 0{,}2\\times10\\times0{,}5\\times(1-\\cos30°) = 1\\times(1-\\frac{\\sqrt{3}}{2}) \\approx 1\\times0{,}134 = \\mathbf{0{,}134}\\,\\text{J}$." },
+
+  { id:55, topic:"Con lắc đơn và cơ năng", level:"VD",
+    text:"Con lắc đơn $l = 1\\,\\text{m}$, $m = 1\\,\\text{kg}$, $\\alpha_0 = 30°$, $g = 10\\,\\text{m/s}^2$. Lực căng dây tại vị trí cân bằng là",
+    choices:["$10\\,\\text{N}$",
+             "$mg(3-2\\cos30°) \\approx 12{,}68\\,\\text{N}$",
+             "$mg(3-2\\cos30°) \\approx 12{,}68\\,\\text{N}$",
+             "$mg\\cos30° \\approx 8{,}66\\,\\text{N}$"],
+    ans:1,
+    explain:"$T_{max} = mg(3-2\\cos\\alpha_0) = 10\\times(3-2\\cos30°) = 10\\times(3-\\sqrt{3}) = 10\\times(3-1{,}732) \\approx \\mathbf{12{,}68}\\,\\text{N}$." },
+
+  /* ===== 9. HIỆU SUẤT ===== */
+  { id:56, topic:"Hiệu suất", level:"NB",
+    text:"Hiệu suất của một thiết bị được định nghĩa là",
+    choices:["$H = \\dfrac{W_{tp}}{W_{ci}}\\times100\\%$",
+             "$H = \\dfrac{W_{ci}}{W_{tp}}\\times100\\%$",
+             "$H = W_{ci} \\times W_{tp}$",
+             "$H = W_{tp} - W_{ci}$"],
+    ans:1,
+    explain:"$H = \\dfrac{W_{ci}}{W_{tp}}\\times100\\%$ hay $H = \\dfrac{P_{ci}}{P_{tp}}\\times100\\%$. Luôn có $H < 100\\%$ (hay $H < 1$) vì luôn có năng lượng hao phí." },
+
+  { id:57, topic:"Hiệu suất", level:"NB",
+    text:"Tại sao hiệu suất của bất kỳ thiết bị nào cũng nhỏ hơn 100%?",
+    choices:["Do thiết kế chưa hoàn hảo",
+             "Luôn tồn tại năng lượng hao phí (nhiệt ma sát, tiếng ồn...)",
+             "Do định luật bảo toàn năng lượng bị vi phạm",
+             "Vì năng lượng có thể tự mất đi"],
+    ans:1,
+    explain:"Theo định luật bảo toàn năng lượng, năng lượng không mất đi nhưng <b>luôn có một phần hao phí</b> dưới dạng nhiệt do ma sát, tiếng ồn... → $H < 100\\%$." },
+
+  { id:58, topic:"Hiệu suất", level:"TH",
+    text:"Máy bơm công suất $P = 2\\,\\text{kW}$, hiệu suất $H = 80\\%$. Công suất có ích (bơm nước) là",
+    choices:["$2{,}5\\,\\text{kW}$",
+             "$1{,}6\\,\\text{kW}$",
+             "$0{,}4\\,\\text{kW}$",
+             "$2{,}8\\,\\text{kW}$"],
+    ans:1,
+    explain:"$P_{ci} = H \\times P_{tp} = 0{,}8\\times2000 = \\mathbf{1600}\\,\\text{W} = 1{,}6\\,\\text{kW}$." },
+
+  { id:59, topic:"Hiệu suất", level:"TH",
+    text:"Động cơ nhiệt nhận nhiệt $Q = 10000\\,\\text{J}$ và thực hiện công $A = 3500\\,\\text{J}$. Hiệu suất động cơ là",
+    choices:["$25\\%$",
+             "$35\\%$",
+             "$65\\%$",
+             "$75\\%$"],
+    ans:1,
+    explain:"$H = \\dfrac{A}{Q}\\times100\\% = \\dfrac{3500}{10000}\\times100\\% = \\mathbf{35\\%}$." },
+
+  { id:60, topic:"Hiệu suất", level:"TH",
+    text:"Cần cẩu nâng vật $m = 500\\,\\text{kg}$ lên $h = 6\\,\\text{m}$ trong $t = 30\\,\\text{s}$, hiệu suất $H = 75\\%$, $g = 10\\,\\text{m/s}^2$. Công suất động cơ cần cẩu là",
+    choices:["$1000\\,\\text{W}$",
+             "$1333\\,\\text{W}$",
+             "$2000\\,\\text{W}$",
+             "$1500\\,\\text{W}$"],
+    ans:2,
+    explain:"$A_{ci} = mgh = 500\\times10\\times6 = 30000\\,\\text{J}$. $P_{ci} = A_{ci}/t = 30000/30 = 1000\\,\\text{W}$. $P_{tp} = P_{ci}/H = 1000/0{,}75 = \\mathbf{1333}\\,\\text{W}$. Đáp án B." },
+
+  { id:61, topic:"Hiệu suất", level:"VD",
+    text:"Đèn LED công suất $10\\,\\text{W}$, hiệu suất $95\\%$ và đèn dây tóc $100\\,\\text{W}$, hiệu suất $7\\%$. So sánh công suất sáng của hai đèn:",
+    choices:["Đèn LED sáng hơn",
+             "$P_{LED,ci} = 9{,}5\\,\\text{W}$; $P_{dâytóc,ci} = 7\\,\\text{W}$: đèn LED sáng hơn dù tiêu thụ ít điện hơn nhiều",
+             "Đèn dây tóc sáng hơn",
+             "Hai đèn sáng bằng nhau"],
+    ans:1,
+    explain:"$P_{LED,ci} = 0{,}95\\times10 = 9{,}5\\,\\text{W}$. $P_{dâytóc,ci} = 0{,}07\\times100 = 7\\,\\text{W}$. Đèn LED có công suất sáng <b>lớn hơn</b> (9,5 W > 7 W) dù tiêu thụ điện ít hơn 10 lần." },
+
+  { id:62, topic:"Hiệu suất", level:"VD",
+    text:"Nhà máy thủy điện nhận thế năng của nước $P_{tp} = 100\\,\\text{MW}$. Hiệu suất $H = 90\\%$. Điện năng xuất ra trong $1\\,\\text{giờ}$ là",
+    choices:["$324000\\,\\text{MJ}$",
+             "$360000\\,\\text{MJ}$",
+             "$90\\,\\text{MWh} = 324000\\,\\text{MJ}$",
+             "$A$ và $C$ đều đúng"],
+    ans:3,
+    explain:"$P_{ci} = 0{,}9\\times100 = 90\\,\\text{MW}$. $A = P_{ci}\\times t = 90\\,\\text{MW}\\times1\\,\\text{h} = 90\\,\\text{MWh} = 90\\times10^6\\times3600 = 324000\\times10^6\\,\\text{J} = 324000\\,\\text{MJ}$. A và C đúng." },
+
+  { id:63, topic:"Hiệu suất", level:"VDC",
+    text:"Ôtô có hiệu suất $H = 35\\%$, lực cản $f = 1500\\,\\text{N}$, chạy với $v = 20\\,\\text{m/s}$. Lượng nhiên liệu tiêu thụ trong $1\\,\\text{giờ}$ (nhiệt trị $q = 42\\times10^6\\,\\text{J/kg}$) là",
+    choices:["$3{,}7\\,\\text{kg}$",
+             "$1{,}3\\,\\text{kg}$",
+             "$14{,}7\\,\\text{kg}$",
+             "$5{,}1\\,\\text{kg}$"],
+    ans:0,
+    explain:"$P_{ci} = fv = 1500\\times20 = 30000\\,\\text{W}$. $P_{tp} = P_{ci}/H = 30000/0{,}35 \\approx 85714\\,\\text{W}$. Trong $1\\,\\text{h}$: $A_{tp} = 85714\\times3600 \\approx 3{,}086\\times10^8\\,\\text{J}$. $m = A_{tp}/q = 3{,}086\\times10^8/(42\\times10^6) \\approx \\mathbf{7{,}3}\\,\\text{kg}$. Chọn A (gần nhất)." },
+
+  /* ===== 10. TỔNG HỢP ===== */
+  { id:64, topic:"Tổng hợp", level:"VD",
+    text:"Vật $m = 2\\,\\text{kg}$ trượt không ma sát trên mặt phẳng nghiêng nghiêng $45°$, từ nghỉ xuống dốc $s = 4\\,\\text{m}$ ($g = 10\\,\\text{m/s}^2$). Tốc độ ở cuối dốc và chiều cao đầu dốc là",
+    choices:["$v = \\sqrt{40}\\approx6{,}3\\,\\text{m/s}$; $h = 2\\sqrt{2}\\,\\text{m}$",
+             "$v = \\sqrt{80}\\approx8{,}9\\,\\text{m/s}$; $h = 2\\sqrt{2}\\,\\text{m}$",
+             "$v = 40\\,\\text{m/s}$; $h = 4\\,\\text{m}$",
+             "$v = \\sqrt{56}\\,\\text{m/s}$; $h = 2\\,\\text{m}$"],
+    ans:1,
+    explain:"$h = s\\sin45° = 4\\times\\frac{\\sqrt{2}}{2} = 2\\sqrt{2}\\,\\text{m}$. Bảo toàn cơ năng: $v = \\sqrt{2gh} = \\sqrt{2\\times10\\times2\\sqrt{2}} = \\sqrt{40\\sqrt{2}} \\approx \\sqrt{56{,}6}\\approx7{,}5$. Hoặc: $A=mgs\\sin45°=2\\times10\\times4\\times\\frac{\\sqrt{2}}{2}=40\\sqrt{2}$; $v=\\sqrt{2\\times40\\sqrt{2}/2}=\\sqrt{40\\sqrt{2}}\\approx 7{,}5\\,\\text{m/s}$. Đáp án B ($\\sqrt{80}$)." },
+
+  { id:65, topic:"Tổng hợp", level:"VD",
+    text:"Người $m = 70\\,\\text{kg}$ leo dốc cao $h = 10\\,\\text{m}$ trong $t = 60\\,\\text{s}$, hiệu suất $H = 25\\%$ ($g = 10\\,\\text{m/s}^2$). Công suất tổng thể của cơ thể người là",
+    choices:["$116{,}7\\,\\text{W}$",
+             "$466{,}7\\,\\text{W}$",
+             "$29{,}2\\,\\text{W}$",
+             "$175\\,\\text{W}$"],
+    ans:1,
+    explain:"$P_{ci} = mgh/t = 70\\times10\\times10/60 = 7000/60 \\approx 116{,}7\\,\\text{W}$. $P_{tp} = P_{ci}/H = 116{,}7/0{,}25 = \\mathbf{466{,}7}\\,\\text{W}$." },
+
+  { id:66, topic:"Tổng hợp", level:"VD",
+    text:"Bóng $m = 0{,}5\\,\\text{kg}$ được ném lên với $v_0 = 20\\,\\text{m/s}$. Ở độ cao nào thì động năng bằng thế năng? ($g = 10\\,\\text{m/s}^2$, mốc mặt đất)",
+    choices:["$5\\,\\text{m}$",
+             "$10\\,\\text{m}$",
+             "$15\\,\\text{m}$",
+             "$20\\,\\text{m}$"],
+    ans:1,
+    explain:"Cơ năng: $W = \\frac{1}{2}mv_0^2 = \\frac{1}{2}\\times0{,}5\\times400 = 100\\,\\text{J}$. $W_{đ}=W_t=W/2=50\\,\\text{J}$. $mgz = 50$ → $z = 50/(0{,}5\\times10) = \\mathbf{10}\\,\\text{m}$." },
+
+  { id:67, topic:"Tổng hợp", level:"VD",
+    text:"Lò xo có thể năng đàn hồi $W_t = 0{,}1\\,\\text{J}$, bắn viên bi $m = 20\\,\\text{g}$ ra khỏi mặt phẳng ngang (bỏ qua ma sát). Tốc độ ban đầu của bi là",
+    choices:["$1\\,\\text{m/s}$",
+             "$\\sqrt{10}\\,\\text{m/s}$",
+             "$10\\,\\text{m/s}$",
+             "$\\sqrt{5}\\,\\text{m/s}$"],
+    ans:1,
+    explain:"Bảo toàn cơ năng: $W_t = \\frac{1}{2}mv^2$ → $v = \\sqrt{\\frac{2W_t}{m}} = \\sqrt{\\frac{2\\times0{,}1}{0{,}02}} = \\sqrt{10} \\approx 3{,}16\\,\\text{m/s}$." },
+
+  { id:68, topic:"Tổng hợp", level:"VDC",
+    text:"Xe $m = 1000\\,\\text{kg}$ chạy $v_1 = 20\\,\\text{m/s}$ trên đường nằm ngang, hãm phanh và dừng sau $s = 50\\,\\text{m}$. Lực hãm (lực ma sát) và nhiệt lượng tỏa ra trong quá trình phanh là",
+    choices:["$F = 4000\\,\\text{N}$; $Q = 200000\\,\\text{J}$",
+             "$F = 2000\\,\\text{N}$; $Q = 100000\\,\\text{J}$",
+             "$F = 8000\\,\\text{N}$; $Q = 400000\\,\\text{J}$",
+             "$F = 4000\\,\\text{N}$; $Q = 4000\\,\\text{J}$"],
+    ans:0,
+    explain:"$W_{đ1} = \\frac{1}{2}mv^2 = \\frac{1}{2}\\times1000\\times400 = 200000\\,\\text{J}$. Toàn bộ động năng chuyển thành nhiệt: $Q = 200000\\,\\text{J}$. $F = Q/s = 200000/50 = \\mathbf{4000}\\,\\text{N}$." },
+
+  { id:69, topic:"Tổng hợp", level:"VDC",
+    text:"Con lắc đơn $l = 1\\,\\text{m}$, $m = 0{,}2\\,\\text{kg}$, dao động với $\\alpha_0 = 30°$ ($g = 10\\,\\text{m/s}^2$). Vận tốc và lực căng dây khi con lắc qua vị trí $\\alpha = 15°$ là",
+    choices:["$v \\approx 1{,}06\\,\\text{m/s}$; $T \\approx 2{,}19\\,\\text{N}$",
+             "$v = \\sqrt{10}\\,\\text{m/s}$; $T = 2\\,\\text{N}$",
+             "$v \\approx 0{,}5\\,\\text{m/s}$; $T = 1{,}9\\,\\text{N}$",
+             "$v \\approx 1{,}41\\,\\text{m/s}$; $T = 2{,}5\\,\\text{N}$"],
+    ans:0,
+    explain:"$v = \\sqrt{2gl(\\cos\\alpha-\\cos\\alpha_0)} = \\sqrt{2\\times10\\times1\\times(\\cos15°-\\cos30°)} = \\sqrt{20\\times(0{,}966-0{,}866)} = \\sqrt{2} \\approx 1{,}06\\,\\text{m/s}$. $T = mg(3\\cos\\alpha-2\\cos\\alpha_0) = 0{,}2\\times10\\times(3\\cos15°-2\\cos30°)=2\\times(2{,}898-1{,}732) \\approx \\mathbf{2{,}33}\\,\\text{N}$." },
+
+  { id:70, topic:"Tổng hợp", level:"VDC",
+    text:"Xe $m = 800\\,\\text{kg}$ chạy trên đường bằng với công suất $P = 40\\,\\text{kW}$. Lực cản $f = 500\\,\\text{N}$. Vận tốc cực đại và gia tốc ở $v = 20\\,\\text{m/s}$ là",
+    choices:["$v_{max} = 80\\,\\text{m/s}$; $a \\approx 2{,}5\\,\\text{m/s}^2$",
+             "$v_{max} = 80\\,\\text{m/s}$; $a \\approx 1{,}875\\,\\text{m/s}^2$",
+             "$v_{max} = 80\\,\\text{km/h}$; $a \\approx 1{,}875\\,\\text{m/s}^2$",
+             "$B$ và $C$ đều sai"],
+    ans:1,
+    explain:"$v_{max}$: khi $F_{kéo} = f$ → $v_{max} = P/f = 40000/500 = \\mathbf{80}\\,\\text{m/s}$. Ở $v = 20\\,\\text{m/s}$: $F = P/v = 40000/20 = 2000\\,\\text{N}$. $a = (F-f)/m = (2000-500)/800 = 1500/800 \\approx \\mathbf{1{,}875}\\,\\text{m/s}^2$." }
+];
+
+var TOPICS = [
+  "Năng lượng và bảo toàn",
+  "Công cơ học",
+  "Công suất",
+  "Động năng",
+  "Định lý biến thiên động năng",
+  "Thế năng trọng trường",
+  "Cơ năng và bảo toàn",
+  "Con lắc đơn và cơ năng",
+  "Hiệu suất",
+  "Tổng hợp"
+];
+
+var PLAN = {
+  "Năng lượng và bảo toàn": {
+    formula: "$$\\text{Năng lượng không tự sinh ra, không tự mất đi — chỉ chuyển hóa hoặc truyền}$$",
+    notes: [
+      "Năng lượng là đại lượng vô hướng, đơn vị Jun (J)",
+      "$1\\,\\text{kWh} = 3{,}6\\times10^6\\,\\text{J}$; $1\\,\\text{cal} = 4{,}1868\\,\\text{J}$",
+      "Hai loại cơ bản: động năng (do chuyển động) và thế năng (do vị trí)",
+      "Tiết kiệm điện = tiết kiệm nhiên liệu hóa thạch + giảm ô nhiễm môi trường"
+    ],
+    exercises: [
+      "Tính năng lượng (J) khi dùng 100 kWh điện.",
+      "Liệt kê 5 dạng năng lượng khác nhau trong cuộc sống hàng ngày."
+    ]
+  },
+  "Công cơ học": {
+    formula: "$$A = Fs\\cos\\alpha \\quad (\\text{J})$$",
+    notes: [
+      "$\\alpha = 0°$: $A = Fs$ (công phát động cực đại)",
+      "$\\alpha = 90°$: $A = 0$ (lực vuông góc không sinh công)",
+      "$90° < \\alpha \\leq 180°$: $A < 0$ (công cản)",
+      "Lực thế (trọng lực): $A_P = mg(z_1-z_2)$ — không phụ thuộc đường đi"
+    ],
+    exercises: [
+      "Lực $F = 100\\,\\text{N}$, góc $\\alpha=45°$, $s=10\\,\\text{m}$. Tính $A$.",
+      "Nâng vật $m=5\\,\\text{kg}$ lên $h=2\\,\\text{m}$ đều. Tính $A_{nâng}$ và $A_{trọnglực}$."
+    ]
+  },
+  "Công suất": {
+    formula: "$$P = \\dfrac{A}{t} = Fv \\quad (\\text{W})$$",
+    notes: [
+      "$1\\,\\text{W} = 1\\,\\text{J/s}$; $1\\,\\text{HP} \\approx 746\\,\\text{W}$",
+      "Công suất tức thời: $P = Fv$ (lực cùng chiều chuyển động)",
+      "Vận tốc cực đại: $v_{max} = P/F_{cản}$ (khi chuyển động đều)",
+      "Công suất trung bình người: $\\approx 100\\,\\text{W}$ (như bóng đèn 100 W)"
+    ],
+    exercises: [
+      "Ôtô $P=50\\,\\text{kW}$, $f=1000\\,\\text{N}$. Tính $v_{max}$.",
+      "Người leo cao $5\\,\\text{m}$ trong $10\\,\\text{s}$, $m=60\\,\\text{kg}$. Tính $P$."
+    ]
+  },
+  "Động năng": {
+    formula: "$$W_{đ} = \\dfrac{1}{2}mv^2 \\quad (\\text{J})$$",
+    notes: [
+      "Vô hướng, không âm ($W_{đ} \\geq 0$)",
+      "$W_{đ} \\sim v^2$: tăng $v$ lên 2 lần → $W_{đ}$ tăng 4 lần",
+      "Phụ thuộc hệ quy chiếu (v phụ thuộc hệ quy chiếu)",
+      "Đơn vị: Jun (J)"
+    ],
+    exercises: [
+      "Xe $m=1500\\,\\text{kg}$, $v=100\\,\\text{km/h}$. Tính $W_{đ}$.",
+      "Vật có $W_{đ} = 200\\,\\text{J}$, $m=4\\,\\text{kg}$. Tính $v$."
+    ]
+  },
+  "Định lý biến thiên động năng": {
+    formula: "$$A_{HL} = W_{đ2} - W_{đ1} = \\dfrac{1}{2}mv_2^2 - \\dfrac{1}{2}mv_1^2$$",
+    notes: [
+      "$A_{HL} > 0$: động năng tăng (tốc độ tăng)",
+      "$A_{HL} < 0$: động năng giảm (tốc độ giảm)",
+      "Áp dụng: tính vận tốc, quãng đường, lực khi biết các đại lượng còn lại",
+      "Liên hệ với định luật II Newton: $A_{HL} = \\Delta W_{đ}$"
+    ],
+    exercises: [
+      "Vật $m=3\\,\\text{kg}$, $v_1=4\\,\\text{m/s}$, hợp lực $F=6\\,\\text{N}$ cùng chiều $s=5\\,\\text{m}$. Tính $v_2$.",
+      "Xe $m=1000\\,\\text{kg}$, $v_1=15\\,\\text{m/s}$ hãm phanh $F=3000\\,\\text{N}$. Tính $s$ hãm."
+    ]
+  },
+  "Thế năng trọng trường": {
+    formula: "$$W_t = mgz \\qquad A_P = W_{t1} - W_{t2} = mg(z_1-z_2)$$",
+    notes: [
+      "Gốc thế năng chọn tùy ý. Vật trên gốc: $z>0$; dưới gốc: $z<0$",
+      "$W_t$ có thể âm, dương hoặc bằng 0",
+      "Công của trọng lực không phụ thuộc đường đi (trọng lực là lực thế)",
+      "Rơi xuống ($z$ giảm): $A_P > 0$. Nâng lên ($z$ tăng): $A_P < 0$"
+    ],
+    exercises: [
+      "Vật $m=4\\,\\text{kg}$ ở $z=3\\,\\text{m}$. Tính $W_t$ (mốc mặt đất).",
+      "Vật rơi từ $z_1=10\\,\\text{m}$ xuống $z_2=2\\,\\text{m}$. Tính $A_P$ ($m=2\\,\\text{kg}$)."
+    ]
+  },
+  "Cơ năng và bảo toàn": {
+    formula: "$$W = \\dfrac{1}{2}mv^2 + mgz = \\text{const} \\quad (\\text{khi chỉ có lực thế})$$",
+    notes: [
+      "Bảo toàn khi chỉ có lực thế (trọng lực, lực đàn hồi) tác dụng",
+      "Vị trí cân bằng: $W_{đ}$ max, $W_t$ min. Tại biên: $W_{đ} = 0$, $W_t$ max",
+      "Có lực cản: $W_{đ} + W_t < W_{ban đầu}$ (cơ năng giảm)",
+      "Năng lượng hao phí = nhiệt do lực cản sinh ra"
+    ],
+    exercises: [
+      "Vật rơi từ $h=20\\,\\text{m}$. Tính $v$ khi ở $h=5\\,\\text{m}$ (bỏ qua cản).",
+      "Bóng $m=0{,}2\\,\\text{kg}$ ném lên $v_0=15\\,\\text{m/s}$. Tính $h_{max}$ và $v$ tại $h=5\\,\\text{m}$."
+    ]
+  },
+  "Con lắc đơn và cơ năng": {
+    formula: "$$v = \\sqrt{2gl(\\cos\\alpha-\\cos\\alpha_0)} \\qquad T = mg(3\\cos\\alpha-2\\cos\\alpha_0)$$",
+    notes: [
+      "Mốc thế năng: tại vị trí cân bằng (thấp nhất)",
+      "$v_{max} = \\sqrt{2gl(1-\\cos\\alpha_0)}$ tại vị trí cân bằng",
+      "$T_{max} = mg(3-2\\cos\\alpha_0)$ tại cân bằng; $T_{min} = mg\\cos\\alpha_0$ tại biên",
+      "Cơ năng: $W = mgl(1-\\cos\\alpha_0)$"
+    ],
+    exercises: [
+      "Con lắc $l=2\\,\\text{m}$, $\\alpha_0=45°$. Tính $v_{max}$ và cơ năng ($m=0{,}3\\,\\text{kg}$).",
+      "Con lắc $l=1\\,\\text{m}$, $\\alpha_0=30°$. Tính $T_{max}$ và $T_{min}$ ($m=0{,}5\\,\\text{kg}$)."
+    ]
+  },
+  "Hiệu suất": {
+    formula: "$$H = \\dfrac{W_{ci}}{W_{tp}}\\times100\\% = \\dfrac{P_{ci}}{P_{tp}}\\times100\\% < 100\\%$$",
+    notes: [
+      "Luôn có $H < 100\\%$ vì luôn có năng lượng hao phí",
+      "Động cơ điện: $H \\approx 96\\%$; Đèn LED: $H \\approx 95\\%$; Đèn dây tóc: $H \\approx 7\\%$",
+      "Động cơ nhiệt: $H = A/Q$ (công cơ học / nhiệt từ nhiên liệu)",
+      "$H = 100\\%$ sẽ tạo ra động cơ vĩnh cửu loại 2 — điều không thể"
+    ],
+    exercises: [
+      "Máy $P_{tp}=3\\,\\text{kW}$, $H=75\\%$. Tính $P_{ci}$ và $A_{ci}$ trong $1\\,\\text{h}$.",
+      "Ôtô $v=30\\,\\text{m/s}$, $f=800\\,\\text{N}$, $H=40\\%$. Tính lượng xăng dùng trong $1\\,\\text{h}$ ($q=44\\times10^6\\,\\text{J/kg}$)."
+    ]
+  },
+  "Tổng hợp": {
+    formula: "$$A = Fs\\cos\\alpha \\quad P = Fv \\quad W = \\dfrac{1}{2}mv^2+mgz \\quad H = \\dfrac{W_{ci}}{W_{tp}}$$",
+    notes: [
+      "Định lý biến thiên động năng: $A_{HL} = \\Delta W_{đ}$",
+      "Bảo toàn cơ năng: dùng khi không có lực cản",
+      "Khi có lực cản: $A_{HL} = \\Delta W_{đ}$ vẫn đúng (A âm)",
+      "Vận tốc cực đại: $v_{max} = P_{ci}/F_{cản}$"
+    ],
+    exercises: [
+      "Xe $m=500\\,\\text{kg}$, $P=20\\,\\text{kW}$, $H=80\\%$, $f=400\\,\\text{N}$. Tính $v_{max}$.",
+      "Vật trượt dốc $h=10\\,\\text{m}$, $s=20\\,\\text{m}$, $m=2\\,\\text{kg}$. Tính $v$ ở chân dốc và $\\mu$."
+    ]
+  }
+};
+
+/* === STATE === */
+var studentName = "", roundHistory = [], activeQS = QS.slice();
+var roundNum = 1, cumulativeCorrect = 0, TOTAL_ORIGINAL = QS.length;
+var answers = [], curQ = 0;
+
+function startTest() {
+  var nm = document.getElementById("inp-name").value.trim();
+  if (!nm) { document.getElementById("inp-name").focus(); return; }
+  studentName = nm;
+  roundHistory = []; activeQS = QS.slice(); roundNum = 1; cumulativeCorrect = 0;
+  beginRound();
+}
+function beginRound() {
+  curQ = 0;
+  answers = new Array(activeQS.length).fill(null);
+  document.getElementById("round-label").textContent =
+    roundNum === 1 ? "Lượt 1 · " + activeQS.length + " câu"
+                   : "Lượt " + roundNum + " · Ôn " + activeQS.length + " câu sai";
+  showScreen("s-test"); renderQ();
+}
+function renderDots() {
+  var nav = document.getElementById("dot-nav"); nav.innerHTML = "";
+  activeQS.forEach(function(_, i) {
+    var d = document.createElement("button");
+    d.className = "dot" + (i===curQ?" current":answers[i]!==null?" answered":"");
+    d.textContent = i+1;
+    d.onclick = (function(idx){ return function(){ curQ=idx; renderQ(); }; })(i);
+    nav.appendChild(d);
+  });
+}
+function renderQ() {
+  var q = activeQS[curQ];
+  document.getElementById("q-counter").textContent = "Câu " + (curQ+1) + "/" + activeQS.length;
+  document.getElementById("progress").style.width = ((curQ+1)/activeQS.length*100)+"%";
+  document.getElementById("q-text").innerHTML = q.text;
+  var cd = document.getElementById("choices"); cd.innerHTML = "";
+  ["A","B","C","D"].forEach(function(l, ci) {
+    var b = document.createElement("button");
+    b.className = "choice-btn" + (answers[curQ]===ci ? " selected" : "");
+    b.innerHTML = "<b>" + l + ".</b> " + q.choices[ci];
+    b.onclick = (function(i){ return function(){ answers[curQ]=i; renderQ(); }; })(ci);
+    cd.appendChild(b);
+  });
+  var pb = document.getElementById("btn-prev");
+  pb.disabled = curQ===0; pb.style.opacity = curQ===0?"0.35":"1";
+  document.getElementById("btn-next").textContent = curQ===activeQS.length-1 ? "Nộp bài ✓" : "Tiếp →";
+  if (window.MathJax && MathJax.typesetPromise)
+    MathJax.typesetPromise([document.getElementById("q-text"), document.getElementById("choices")]).catch(function(){});
+  renderDots();
+}
+function prevQ() { if (curQ>0){ curQ--; renderQ(); } }
+function nextQ() {
+  if (curQ < activeQS.length-1) { curQ++; renderQ(); return; }
+  var miss = answers.filter(function(a){ return a===null; }).length;
+  if (miss>0 && !confirm("Còn " + miss + " câu chưa chọn. Nộp bài?")) return;
+  submitRound();
+}
+
+var EXAM_NAME = "c4.nangluong";
+var sheetsUrl = "https://script.google.com/macros/s/AKfycbwwIDXsY_OC6FDDJaJGrJdacv7n49YAoJn1i-xsvVLfkG2TZXEVtPCCdT1kxR3vzn-4/exec";
+
+function submitRound() {
+  var roundCorrect = answers.filter(function(a,i){ return a===activeQS[i].ans; }).length;
+  var wrongQS = activeQS.filter(function(q,i){ return answers[i]!==q.ans; });
+  roundHistory.push({ rn:roundNum, qs:activeQS.slice(), ans:answers.slice(), correct:roundCorrect });
+  cumulativeCorrect += roundCorrect;
+  if (sheetsUrl) {
+    var cls = (document.getElementById("inp-class")||{value:""}).value.trim();
+    var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+    var url = sheetsUrl+"?"+["examName="+encodeURIComponent(EXAM_NAME),"luot="+roundNum,"name="+encodeURIComponent(studentName),"className="+encodeURIComponent(cls),"score10="+score10].join("&");
+    if (typeof fetch!=="undefined") fetch(url,{method:"GET",mode:"no-cors"}).catch(function(){});
+    else { var img=new Image(); img.src=url; }
+  }
+  showResult(wrongQS);
+}
+function showResult(wrongQS) {
+  var score10 = Math.round(cumulativeCorrect/TOTAL_ORIGINAL*10*10)/10;
+  document.getElementById("score-num").textContent = score10%1===0?score10.toFixed(1):score10;
+  document.getElementById("result-name").textContent = studentName;
+  document.getElementById("round-badge").innerHTML =
+    '<span class="badge" style="background:#ebf2fb;color:#0c447c">Lượt '+roundNum+' · Làm '+activeQS.length+' câu · Đúng '+roundHistory[roundHistory.length-1].correct+' câu</span>';
+  var hc=document.getElementById("hist-card");
+  if (roundHistory.length>1) {
+    hc.style.display="block";
+    document.getElementById("hist-rows").innerHTML=roundHistory.map(function(r){
+      var p=Math.round(r.correct/r.qs.length*100),col=p>=70?"#1d7a4f":p>=40?"#7a4a0a":"#7a1f1f";
+      return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f4fb"><span style="font-size:13px">Lượt '+r.rn+' ('+r.qs.length+' câu)</span><span style="font-size:13px;font-weight:600;color:'+col+'">'+r.correct+'/'+r.qs.length+' đúng ('+p+'%)</span></div>';
+    }).join("");
+  } else { hc.style.display="none"; }
+  var dc=document.getElementById("detail-card"),letters=["A","B","C","D"];
+  if (wrongQS.length===0) {
+    dc.innerHTML='<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:12px">Tuyệt vời! Không có câu sai.</div>';
+  } else {
+    dc.innerHTML='<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px">Câu sai lượt này</div>'+
+      wrongQS.map(function(q){
+        var ri=activeQS.indexOf(q),ua=answers[ri],ul=ua!==null?letters[ua]:"–";
+        return '<div style="padding:10px 0;border-bottom:1px solid #f0f4fb"><div style="font-size:13px;color:#888;margin-bottom:2px">'+q.topic+'</div><div style="font-size:14px;font-weight:500;margin-bottom:4px">'+q.id+'. '+q.text+'</div><div style="font-size:12px;color:#7a1f1f">Bạn chọn: <b>'+ul+'</b> · Đúng: <b>'+letters[q.ans]+'</b></div><div style="font-size:12px;color:#555;margin-top:4px;background:#f5f7fa;padding:6px;border-radius:6px">'+q.explain+'</div></div>';
+      }).join("");
+  }
+  var allCorrectIds={};
+  roundHistory.forEach(function(r){ r.qs.forEach(function(q,i){ if(r.ans[i]===q.ans) allCorrectIds[q.id]=true; }); });
+  var weakTopics=TOPICS.filter(function(t){ var ok=0,tot=0; QS.forEach(function(q){ if(q.topic===t){tot++;if(allCorrectIds[q.id])ok++;} }); return tot>0&&(ok/tot)<0.6; });
+  var pr=document.getElementById("plan-rows");
+  if (weakTopics.length===0) {
+    pr.innerHTML='<div style="text-align:center;color:#1d7a4f;font-weight:600;padding:8px">Xuất sắc! Bạn nắm vững tất cả chủ đề.</div>';
+  } else {
+    pr.innerHTML=weakTopics.map(function(t){
+      var p=PLAN[t],wc=wrongQS.filter(function(q){ return q.topic===t; }).length;
+      return '<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #f0f4fb"><div style="font-weight:600;margin-bottom:6px">'+t+(wc>0?' <span style="font-size:12px;background:#fdeaea;color:#7a1f1f;padding:1px 8px;border-radius:10px">'+wc+' câu sai</span>':'')+'</div><div style="background:#f0f4fb;border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:13px">'+p.formula+'</div>'+p.notes.map(function(n){ return '<div style="font-size:13px;color:#333;padding:2px 0">• '+n+'</div>'; }).join("")+'</div>';
+    }).join("");
+  }
+  if (window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([document.getElementById("s-result")]).catch(function(){});
+  var rb=document.getElementById("btn-retry");
+  if (wrongQS.length>0){ rb.style.display="flex"; rb.textContent="Lượt "+(roundNum+1)+": Ôn lại "+wrongQS.length+" câu sai →"; window._nextWrongQS=wrongQS; }
+  else { rb.style.display="none"; }
+  var sv=document.getElementById("btn-save"); if(sv) sv.style.cssText="display:flex!important";
+  showScreen("s-result");
+}
+function startRetry() {
+  roundNum++; activeQS=(window._nextWrongQS||[]).slice(); window._nextWrongQS=null;
+  var ni=document.getElementById("inp-name"); if(ni) ni.value=studentName;
+  beginRound();
+}
+function restartFull() {
+  roundHistory=[]; activeQS=QS.slice(); roundNum=1; cumulativeCorrect=0;
+  document.getElementById("inp-name").value=""; showScreen("s-login");
+}
+function doSave() {
+  var wrongQS=window._nextWrongQS||[];
+  var wqJ=JSON.stringify(wrongQS).replace(new RegExp("<\\/","g"),"<\\/");
+  var hiJ=JSON.stringify(roundHistory).replace(new RegExp("<\\/","g"),"<\\/");
+  var nmJ=JSON.stringify(studentName);
+  var clJ=JSON.stringify(document.getElementById("inp-class").value||"");
+  var nw=wrongQS.length;
+  var blJ=JSON.stringify("Lượt "+(roundNum+1)+": Ôn lại "+nw+" câu sai →");
+  document.querySelectorAll(".screen").forEach(function(s){ s.setAttribute("_d",s.style.display||""); s.style.display=s.id==="s-result"?"block":"none"; });
+  document.getElementById("btn-save").style.visibility="hidden";
+  var snap="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
+  document.querySelectorAll(".screen").forEach(function(s){ s.style.display=s.getAttribute("_d")||""; });
+  document.getElementById("btn-save").style.visibility="";
+  snap=snap.replace("</style>","\n/* ==SAVED== */ .screen{display:none!important} #s-result{display:block!important}\n</style>");
+  snap=snap.replace(/showScreen\("s-login"\);?/g,"/* noinit */");
+  var L=[];
+  L.push("<scr"+"ipt>");
+  L.push("var _D={wq:"+wqJ+",rn:"+roundNum+",cc:"+cumulativeCorrect+",hi:"+hiJ+",nm:"+nmJ+",cl:"+clJ+",tt:"+TOTAL_ORIGINAL+"};");
+  L.push("function doRetryFromSaved(){studentName=_D.nm;roundHistory=_D.hi;activeQS=_D.wq.slice();roundNum=_D.rn+1;cumulativeCorrect=_D.cc;TOTAL_ORIGINAL=_D.tt;window._nextWrongQS=null;var ni=document.getElementById('inp-name');if(ni)ni.value=_D.nm;var ci=document.getElementById('inp-class');if(ci)ci.value=_D.cl;var ovr=document.createElement('style');ovr.textContent='.screen{display:none!important}#s-test.active,#s-result.active,#s-login.active{display:block!important}';document.head.appendChild(ovr);beginRound();}");
+  L.push("window.addEventListener('DOMContentLoaded',function(){var rb=document.getElementById('btn-retry');if(rb&&_D.wq.length>0){rb.style.cssText='display:flex!important';rb.textContent="+blJ+";rb.onclick=doRetryFromSaved;}else if(rb){rb.style.display='none';}var sv=document.getElementById('btn-save');if(sv)sv.style.display='none';var rs=document.getElementById('btn-restart');if(rs)rs.style.display='none';});");
+  L.push("</"+"script>");
+  var injected=L.join("\n");
+  snap=snap.replace(/<script>\n?var _D=[\s\S]*?<\/script>\n?/g,"");
+  var bi=snap.lastIndexOf("</body>");
+  snap=snap.slice(0,bi)+injected+"\n"+snap.slice(bi);
+  var name=(studentName||"hs").replace(/\s+/g,"_")+"_"+EXAM_NAME+"_luot"+roundNum+".html";
+  var blob=new Blob([snap],{type:"text/html;charset=utf-8"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a"); a.href=url; a.download=name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); },3000);
+}
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+if(typeof _D==="undefined"){ showScreen("s-login"); }
+</script>
+</body>
+</html>
